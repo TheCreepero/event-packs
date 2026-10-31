@@ -43,7 +43,7 @@ Everything a pack ships, except its `descriptor.mod` and `thumbnail.png`, is gen
 | `fire.after`, `fire.before` | `YYYY.M.D`; the event can fire only between them [SCR-091]. |
 | `fire.chance` | Percent per week, 1 to 100 [SCR-089]. 5 to 15 spreads an event over a few months; 100 fires it in the first week. |
 | `fire.trigger` | Optional Clausewitz trigger lines, checked in the country's scope every week. Only the pack's own flags and vanilla triggers: never another pack's names. |
-| `ai` | The option's `ai_chance` factor. |
+| `ai` | The option's `ai_chance` factor: an AI-controlled country also gets the pack's events and picks an option by these weights [SCR-093]. |
 | `effects` | A list of one-key objects: `stability`, `war_support` (shares of one, at most 0.03 either way [SCR-088]), `political_power` (at most 50 either way), `timed_idea` with `days` (at most 180) [SCR-090]. |
 | `ideas` | Timed ideas only; `picture` from `data/effect-caps.json`; one to three modifiers from the list and caps there. Name and description follow the text rules. |
 
