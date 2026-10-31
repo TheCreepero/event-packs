@@ -1,5 +1,5 @@
-- **[Event Packs](Home.md)**
+- **[Event Packs](Home)**
 - **Packs**
-  - [Finland](Event-Pack-Finland.md)
+  - [Finland](Event-Pack-Finland)
 - **Developer Guide**
-  - [Contributing](Contributing.md)
+  - [Contributing](Contributing)
