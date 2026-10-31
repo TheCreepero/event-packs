@@ -61,7 +61,7 @@ The historical researcher's dossiers, kept with the repository and never deleted
 
 ## `workshop-intro.bbcode`
 
-The opening of the pack's Workshop description in Steam BBCode. `-Generate` adds the event list and the picture credits after it.
+The opening of the pack's Workshop description in Steam BBCode. `-Generate` adds the event list, a short picture credit that links to the pack's wiki page, and the author's other mods after it. The wiki address and the other mods are in `data/workshop.json`, shared by every pack.
 
 ## Generated files
 
@@ -73,7 +73,7 @@ The opening of the pack's Workshop description in Steam BBCode. `-Generate` adds
 | `packs/<pack>/interface/ep_<tag>_event_pictures.gfx` | one sprite per picture used |
 | `packs/<pack>/gfx/event_pictures/ep_<tag>/*.dds` | `build.ps1 -ConvertPictures`: 210x176 uncompressed DDS |
 | `packs/<pack>/localisation/<language>/ep_<tag>_l_<language>.yml` | the English text in all ten languages [LOC-017], UTF-8 with BOM [LOC-001] |
-| `packs/<pack>/WORKSHOP_DESCRIPTION_GUIDELINES.md` | intro, event list, picture credits |
-| `wiki/Event-Pack-<Country>.md` | event table with pictures and licences |
+| `packs/<pack>/WORKSHOP_DESCRIPTION_GUIDELINES.md` | intro, event list, the licences in one sentence with a link to the wiki page, other mods |
+| `wiki/Event-Pack-<Country>.md` | event table with each picture's source, licence (CC BY linked) and author: the full credits the Workshop description links to |
 
 Nothing else may sit in `packs/<pack>/`: `-Check` fails on any file there that is not `descriptor.mod`, `thumbnail.png`, a generated file or the picture of a used manifest row, so nothing ships unchecked. `build.ps1 -PreviewPictures -Pack <pack>` writes PNG copies of the pictures to `scratch/preview/<pack>/` for a look at the crops.

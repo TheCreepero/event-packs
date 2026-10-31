@@ -11,7 +11,7 @@ Shared rules for every mod in this tree (file encodings, build commands, engine 
 ## Mod invariants
 - `packs/<key>/` changes only through `build.ps1 -Generate` and `-ConvertPictures`, its `thumbnail.png` only through a plan's thumbnail step (a copy from `scratch/thumbnail/`); `source/<key>/pictures.json` only through `-FetchPicture`. A hook refuses hand edits.
 - A namespace (`ep_<tag>`), event id or guard flag never changes once a pack is released: saves hold the flags.
-- Pictures come from Wikimedia Commons, licensed public domain (with the `PD-` reason Commons gives), CC0 or CC BY, and only through `-FetchPicture`, which decides the licence. CC BY credits are generated into the Workshop description and the wiki.
+- Pictures come from Wikimedia Commons, licensed public domain (with the `PD-` reason Commons gives), CC0 or CC BY, and only through `-FetchPicture`, which decides the licence. Credits are generated into the pack's wiki page; the Workshop description links to it, so the wiki is pushed before a pack is published.
 - Effects stay within `data/effect-caps.json`: flavor first, small numbers [SCR-088] [SCR-090].
 - Every claim in an event text is in its fact-sheet section with a source; the `ep-editor` agent passes every text before a plan is READY. Voice: `docs/style-guide.md`.
 - Events are `is_triggered_only` and fire from a weekly anchor with a guard flag, a date window and a weekly chance [SCR-080] [SCR-089] [SCR-091].

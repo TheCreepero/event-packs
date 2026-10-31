@@ -132,8 +132,11 @@ Describe 'Generation' {
         $workshopText = [System.IO.File]::ReadAllText((Join-Path $fixtureRoot 'packs\testland\WORKSHOP_DESCRIPTION_GUIDELINES.md'))
         $workshopText | Should -Match '```bbcode'
         $workshopText | Should -Match '\[\*\]1937: Work on the Isthmus Line'
-        $workshopText | Should -Match 'by Hugo Sundstr.m, CC BY 4\.0 \(\[url=https://creativecommons\.org/licenses/by/4\.0\]licence\[/url\]\)'
-        Test-Path -LiteralPath (Join-Path $fixtureRoot 'wiki\Event-Pack-Testland-1.md') | Should -BeTrue
+        $workshopText | Should -Match 'licences that allow their use here \(CC BY 4\.0\)'
+        $workshopText | Should -Match '\[url=https://github\.com/TheCreepero/event-packs/wiki/Event-Pack-Testland-1\]'
+        $workshopText | Should -Match '\[\*\]\[url=https://steamcommunity\.com/sharedfiles/filedetails/\?id=2967389401\]Immersive Namelists Expanded\[/url\]'
+        $wikiText = [System.IO.File]::ReadAllText((Join-Path $fixtureRoot 'wiki\Event-Pack-Testland-1.md'))
+        $wikiText | Should -Match '\[CC BY 4\.0\]\(https://creativecommons\.org/licenses/by/4\.0\), Hugo Sundstr.m'
     }
 
     It 'writes nothing the second time and then finds no error' {

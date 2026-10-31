@@ -44,7 +44,7 @@ Publishing goes through the Modding Manager: `Scripts\Publish-Mod.ps1 "Event Pac
 
 ## Picture credits
 
-Each pack's Workshop description and wiki page list the source, author and licence of every picture it uses.
+Each pack's wiki page lists the source, author and licence of every picture it uses; its Workshop description names the licences and links to that page.
 
 ## Author
 
