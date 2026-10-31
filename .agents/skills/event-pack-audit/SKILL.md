@@ -36,6 +36,6 @@ Show the owner the report and stop until they say which fixes to make. Record th
 
 ## Phase 3: plan the fixes
 1. Build the plan's `json events` block from the current `source/<key>/events.json` with only the approved fixes; corrected facts go into the `markdown fact-sheets` block with their sources.
-2. A replaced picture follows Phase 3 of `event-pack-create`; its new row goes into "Pictures" and step 3.
+2. A replaced picture follows Phase 3 of `event-pack-create`; its new row goes into "Pictures" and step 3. When it was the thumbnail's background (the "Thumbnail" line of the archived plan that made the thumbnail), step 4 makes the thumbnail again from a picture of the pack; otherwise "Thumbnail" says unchanged.
 3. Send changed texts through `ep-editor` until KEEP, as in `event-pack-create` Phase 4.
 4. Gate as in `event-pack-create` Phase 5, set `Status: READY`, and hand off to `event-pack-implement`.

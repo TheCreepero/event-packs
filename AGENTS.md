@@ -9,7 +9,7 @@ Shared rules for every mod in this tree (file encodings, build commands, engine 
 - The historical researcher's dossiers stay in `research/<key>/`, every candidate with its sourced facts, used or not: a pack's next events start from them. Never delete or trim one.
 
 ## Mod invariants
-- `packs/<key>/` changes only through `build.ps1 -Generate` and `-ConvertPictures`; `source/<key>/pictures.json` only through `-FetchPicture`. A hook refuses hand edits.
+- `packs/<key>/` changes only through `build.ps1 -Generate` and `-ConvertPictures`, its `thumbnail.png` only through a plan's thumbnail step (a copy from `scratch/thumbnail/`); `source/<key>/pictures.json` only through `-FetchPicture`. A hook refuses hand edits.
 - A namespace (`ep_<tag>`), event id or guard flag never changes once a pack is released: saves hold the flags.
 - Pictures come from Wikimedia Commons, licensed public domain (with the `PD-` reason Commons gives), CC0 or CC BY, and only through `-FetchPicture`, which decides the licence. CC BY credits are generated into the Workshop description and the wiki.
 - Effects stay within `data/effect-caps.json`: flavor first, small numbers [SCR-088] [SCR-090].

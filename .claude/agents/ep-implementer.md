@@ -39,6 +39,7 @@ What the usual steps mean:
 - **Write the events**: replace `source/<pack>/events.json` with the plan's `json events` block, whole, with the Write tool (UTF-8, no BOM). The block is the whole file, not a patch.
 - **Write the fact sheets**: append each `## <key>` section of the plan's fact-sheet block to `source/<pack>/fact-sheets.md`, or replace the section of the same key.
 - **Fetch a picture**: `build.ps1 -FetchPicture -Pack <pack> -File "<File:...>" -Key <key> -Crop <crop> -Tone <tone>` must print `ACCEPTED`. `REJECTED` is a stop condition: report the file and the reason; do not try another file.
+- **Make the thumbnail**: run the generator command as written; its JSON must say `"status": "success"` and `"workshop_limit_exceeded": false`. Then run the `Copy-Item` into `packs/<pack>/thumbnail.png` exactly as written, as a statement of its own: a hook refuses any other shell write into `packs/`.
 - **`-ConvertPictures -Pack <pack>`**: must end `failed=0`.
 - **`-Generate -Pack <pack>`**: must end `Generated pack '<pack>'`; an `[ERROR]` line is a stop condition.
 - **`-Check -Pack <pack>`**: must end `Check OK`. A `[WARN]` line the plan's "Kept on judgment" does not list is a stop condition.

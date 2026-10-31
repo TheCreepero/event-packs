@@ -50,7 +50,10 @@ try {
         if (-not $command -or $command -notmatch $protectedPathPattern) { exit 0 }
         $singleBuildCall = '^\s*(&\s*)?((powershell|pwsh)(\.exe)?\s+(-\w+\s+)*-File\s+)?["'']?(\.[\\/])?build\.ps1["'']?(\s+-\w+(\s+("[^"]*"|''[^'']*''|[^\s;&|<>`$]+))?)*\s*$'
         $writePattern = 'Set-Content|Add-Content|Out-File|Clear-Content|WriteAll|\.Write\(|Copy-Item|Move-Item|Remove-Item|Rename-Item|New-Item|Set-Item|Export-|robocopy|xcopy|\bcopy\b|\bdel\b|\bren\b|sed\s+-i|\bcp\s|\bmv\s|\brm\s|\btee\b|\btouch\s|\bdd\s|\bpython|\bpy\s|\bnode\b|\bperl\b|\bruby\b|Invoke-WebRequest|\bcurl\b|\bwget\b|(?<![2&])>(?!\s*\$null)'
-        $locationOrVariablePattern = '^\s*((Set-Location|Push-Location|cd|sl|chdir|pushd)\b|\$[\w:]+\s*=|(export\s+)?[A-Za-z_]\w*=)'
+        $plainReadPattern = '^(?!.*\s-(OutVariable|ov|PipelineVariable|pv|ErrorVariable|ev|WarningVariable|wv|InformationVariable|iv)\b)\s*(Get-Content|Get-ChildItem|Get-Item|Get-FileHash|Test-Path|Resolve-Path|Select-String|gc|gci|cat|ls|dir|type|grep|head|tail|wc)\s[^|=]*$'
+        $unquotedCommand = $command -replace '"[^"]*"|''[^'']*''', '""'
+        $splitIsUnreliable = $command -match '`|\\["'']|\\\r?\n|\$\(|<<|@["'']' -or $unquotedCommand -match '[(){}]|(?<![&>])&(?!&)'
+        $thumbnailCopyPattern = '^\s*(Copy-Item|cp)\s+((-Path|-LiteralPath)\s+)?("[^"$`]*"|''[^'']*''|[^\s"''$`,;&|<>(){}]+)\s+(-Destination\s+)?(?<quote>["'']?)(\.[\\/])?packs[\\/][a-z][a-z0-9_]*[\\/]thumbnail\.png\k<quote>(\s+-Force)?\s*$'
 
         function Split-CommandStatement {
             param([string]$CommandText)
@@ -85,19 +88,21 @@ try {
             return @($statements | ForEach-Object { $_.Trim() } | Where-Object { $_ })
         }
 
-        $protectedLocationCarried = $false
-        foreach ($statement in @(Split-CommandStatement -CommandText $command)) {
+        $statementsToJudge = if ($splitIsUnreliable) { @($command) } else { @(Split-CommandStatement -CommandText $command) }
+        $protectedPathCarried = $false
+        foreach ($statement in $statementsToJudge) {
             $namesProtectedPath = $statement -match $protectedPathPattern
             if ($statement -match $singleBuildCall) { continue }
-            if ($statement -match '^\s*git\s' -and $statement -notmatch '[|>]') { continue }
+            if ($statement -match '^\s*git\s' -and $statement -notmatch '[;&|<>`$]') { continue }
+            if (-not $protectedPathCarried -and $statement -match $thumbnailCopyPattern) { continue }
             if ($statement -match $writePattern) {
-                if ($namesProtectedPath -or $protectedLocationCarried) {
-                    [Console]::Error.WriteLine("The statement '$statement' writes to a protected path: a pack folder, a pictures.json or a generated wiki page changes only through build.ps1 (-Generate, -ConvertPictures, -FetchPicture) run as a statement of its own (see docs/source-format.md); a file synced from the Manager or the .agents mirror changes at its source. Git statements and other statements in the same command are not affected.")
+                if ($namesProtectedPath -or $protectedPathCarried) {
+                    [Console]::Error.WriteLine("The statement '$statement' writes to a protected path: a pack folder, a pictures.json or a generated wiki page changes only through build.ps1 (-Generate, -ConvertPictures, -FetchPicture) run as a statement of its own (see docs/source-format.md); a pack's thumbnail.png only through a copy of its own, Copy-Item <file> packs\<pack>\thumbnail.png, of a thumbnail generated under scratch\; a file synced from the Manager or the .agents mirror changes at its source. Git statements and other statements in the same command are not affected.")
                     exit 2
                 }
                 continue
             }
-            if ($namesProtectedPath -and $statement -match $locationOrVariablePattern) { $protectedLocationCarried = $true }
+            if ($namesProtectedPath -and $statement -notmatch $plainReadPattern) { $protectedPathCarried = $true }
         }
         exit 0
     }

@@ -64,10 +64,41 @@ Describe 'Protect-ProjectFiles hook' {
         @{ Command = 'Copy-Item x.md wiki\Event-Pack-Finland.md' },
         @{ Command = 'Set-Content tools\HoiModBuild.ps1 x' },
         @{ Command = 'Remove-Item tests\Run-Tests.ps1' },
-        @{ Command = 'Set-Content .agents\skills\event-pack-create\SKILL.md x' }
+        @{ Command = 'Set-Content .agents\skills\event-pack-create\SKILL.md x' },
+        @{ Command = 'python "W:\Antigravity\Mod Thumbnail Generator\generate_branding.py" --title "EVENT PACK" --subtitle "FINLAND" --hoi4 --out-dirs "packs\finland"' },
+        @{ Command = 'Copy-Item scratch\thumbnail\finland\thumbnail.png packs\finland\descriptor.mod' },
+        @{ Command = 'Copy-Item scratch\thumbnail\finland\thumbnail.png packs\finland\gfx\thumbnail.png' },
+        @{ Command = 'Copy-Item scratch\thumbnail\finland\thumbnail.png packs\finland\thumbnail.png.bak' },
+        @{ Command = 'Copy-Item -Recurse scratch\thumbnail packs\finland\thumbnail.png' },
+        @{ Command = 'Copy-Item scratch\a.png, scratch\b.png packs\finland\thumbnail.png' },
+        @{ Command = 'Copy-Item "$(Remove-Item packs\finland\events\x.txt)" packs\finland\thumbnail.png' },
+        @{ Command = 'Move-Item packs\finland\events\ep_fin_events.txt packs\finland\thumbnail.png' },
+        @{ Command = 'Copy-Item scratch\thumbnail\finland\thumbnail.png packs\finland\thumbnail.png; Remove-Item packs\finland\events\x.txt' },
+        @{ Command = 'Set-Location packs\finland; Copy-Item ..\..\scratch\t.png packs\finland\thumbnail.png' },
+        @{ Command = 'Remove-Item packs\finland\events\x.txt | Copy-Item scratch\a.png packs\finland\thumbnail.png' },
+        @{ Command = 'python x.py scratch\a.png packs\finland\thumbnail.png' },
+        @{ Command = 'if ($true) { $p = ''packs\finland\events\x.txt'' }; Remove-Item $p' },
+        @{ Command = '& { Set-Location packs\finland; Remove-Item events\x.txt }' },
+        @{ Command = 'git status $(Remove-Item packs\finland\events\x.txt)' },
+        @{ Command = '[System.IO.Directory]::SetCurrentDirectory(''packs\finland''); Remove-Item events\x.txt' },
+        @{ Command = 'Set-Variable p packs\finland; Remove-Item $p\events\x.txt' },
+        @{ Command = 'Get-Item packs\finland -OutVariable p; Remove-Item $p\events\x.txt' },
+        @{ Command = "python -c @'`nopen('packs/finland/x.txt','w'); x = 1`n'@" }
     ) {
         param($Command)
         Invoke-ProtectHook -ToolName 'PowerShell' -ToolInput @{ command = $Command } | Should -Be 2
+    }
+
+    It 'refuses the Bash write <Command>' -TestCases @(
+        @{ Command = '(cd packs/finland && rm events/x.txt)' },
+        @{ Command = 'git status & rm packs/finland/events/x.txt' },
+        @{ Command = 'python -c "x=\"; y\"; open(''packs/finland/x.txt'',''w'')"' },
+        @{ Command = "python - <<EOF`nopen('packs/finland/x.txt','w')`nEOF" },
+        @{ Command = "rm \`npacks/finland/events/x.txt" },
+        @{ Command = 'echo `rm packs/finland/events/x.txt`' }
+    ) {
+        param($Command)
+        Invoke-ProtectHook -ToolName 'Bash' -ToolInput @{ command = $Command } | Should -Be 2
     }
 
     It 'allows the command <Command>' -TestCases @(
@@ -84,10 +115,18 @@ Describe 'Protect-ProjectFiles hook' {
         @{ Command = 'Get-Content packs\finland\events\ep_fin_events.txt; Copy-Item docs\a.md scratch\b.md' },
         @{ Command = 'Copy-Item .claude\skills\event-pack-create\SKILL.md scratch\skill.md' },
         @{ Command = 'Set-Location packs\finland; git status --short' },
-        @{ Command = 'powershell -File .\build.ps1 -Check -Pack finland 2>&1 | Select-Object -Last 5' }
+        @{ Command = 'powershell -File .\build.ps1 -Check -Pack finland 2>&1 | Select-Object -Last 5' },
+        @{ Command = 'python "W:\Antigravity\Mod Thumbnail Generator\generate_branding.py" --bg-image (Get-Item sources-cache\finland\abatis.*).FullName --title "EVENT PACK" --subtitle "FINLAND" --theme white --text-pos top --hoi4 --json --out-dirs "scratch\thumbnail\finland"' },
+        @{ Command = 'Copy-Item scratch\thumbnail\finland\thumbnail.png packs\finland\thumbnail.png' },
+        @{ Command = 'Copy-Item -LiteralPath "scratch\thumbnail\finland\thumbnail.png" -Destination "packs\finland\thumbnail.png" -Force' },
+        @{ Command = 'Get-ChildItem scratch\thumbnail\finland; Copy-Item scratch\thumbnail\finland\thumbnail.png .\packs\finland\thumbnail.png' }
     ) {
         param($Command)
         Invoke-ProtectHook -ToolName 'PowerShell' -ToolInput @{ command = $Command } | Should -Be 0
+    }
+
+    It 'allows the Bash copy of a generated thumbnail into a pack' {
+        Invoke-ProtectHook -ToolName 'Bash' -ToolInput @{ command = 'cp scratch/thumbnail/finland/thumbnail.png packs/finland/thumbnail.png' } | Should -Be 0
     }
 }
 
