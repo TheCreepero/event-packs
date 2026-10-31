@@ -1,0 +1,22 @@
+# Addendum: replacement section for `## sillanpaa_nobel`
+
+The researcher's tools (Write only, no Read or Edit) could not edit `2026-10-31-dossier.md` in place. This block is a full replacement for that section; paste it over the old one. Nothing else in the dossier changes.
+
+## sillanpaa_nobel
+Used: 2026-10-31-finland-first-events.md
+Date: 10 November 1939 (announced); December 1939 (presentation, exact day UNVERIFIED)
+Kind: culture
+Suggested window: 1939-11-10 to 1939-12-15 (straddles the war's outbreak)
+Facts:
+- Frans Eemil Sillanpää won the 1939 Nobel Prize in Literature, announced 10 November 1939 by the Swedish Academy; first and so far only Finnish laureate. Source: https://en.wikipedia.org/wiki/1939_Nobel_Prize_in_Literature (1939 Nobel Prize in Literature). The nobelprize.org pages returned HTTP 403 and could not be fetched.
+- Citation: Wikipedia quotes only "deep understanding of his country's peasantry". The full wording, as given in a search summary of https://www.nobelprize.org/prizes/literature/1939/summary/ (Nobel Prize in Literature 1939), is "for his deep understanding of his country's peasantry and the exquisite art with which he has portrayed their way of life and their relationship with Nature". The full wording is UNVERIFIED word for word (page not fetched); the first part is confirmed. Swedish original: UNVERIFIED.
+- Ceremony: Wikipedia's infobox lists a ceremony on 10 December 1939 in Stockholm but does not say whether it was held. A Russian-language source (https://www.zhurmir.ru/sites/zhurmir/files/pdf/nel-2019-3-359-359.pdf, search summary only, title not seen) says no formal ceremony was held and Sillanpää received medal and diploma at a Swedish Academy session in December 1939. Books from Finland says he travelled to Stockholm to receive the prize and that Academician Per Hallström addressed him, remembering the Finnish nation "with feelings of admiration and horror" (English as given on the page; original not given). Source: https://www.booksfromfinland.fi/?p=32120 (The Nobel pursuit). The sources conflict on whether a formal ceremony took place; the coordinator's belief that the ceremonies were cancelled is consistent with the Russian source but not confirmed by a fetched page. Exact date and place of the handover: UNVERIFIED. Any banquet: UNVERIFIED.
+- Competition: Kjell Espmark (quoted by Books from Finland) says Hermann Hesse led early but conservative Academicians opposed him as "anarchic"; Johan Huizinga was also in contention; Sillanpää was "the dark horse of the contest". Source: https://www.booksfromfinland.fi/?p=32120 (The Nobel pursuit)
+- Political reading: some speculate the award was political; Wikipedia says the deliberations never mentioned the Winter War. Wikipedia says the Winter War began "a few days after he received the prize", which is loose; the Moscow talks ended in November and the war began 30 November. Source: https://en.wikipedia.org/wiki/1939_Nobel_Prize_in_Literature (1939 Nobel Prize in Literature)
+- Novels named in Books from Finland: Nuorena nukkunut (1931), discussed most fully as the book that brought him Nobel attention; Hurskas kurjuus (1919); Miehen tie and Ihmiset suviyössa, translated into several languages in the 1930s. Source: https://www.booksfromfinland.fi/?p=32120 (The Nobel pursuit)
+- After the presentation he stayed in Sweden and used his new standing to raise funds for Finland against the Soviet attack. Source: https://www.booksfromfinland.fi/?p=32120 (The Nobel pursuit). That he stayed until March 1940 comes from a search summary of https://manoflabook.com/fun-facts-friday-frans-eemil-sillanpaa/ (Fun Facts Friday: Frans Eemil Sillanpää) only: UNVERIFIED.
+- He donated his gold Nobel medal to be melted down for war-effort funds. Source: https://en.wikipedia.org/wiki/1939_Nobel_Prize_in_Literature (1939 Nobel Prize in Literature). The date, recipient, and the comparison with Selma Lagerlöf's donation: UNVERIFIED.
+- Prize sum: UNVERIFIED. Reaction in Finland: UNVERIFIED.
+Anchors: Frans Eemil Sillanpää; Nobel Prize in Literature 1939; 10 November 1939; Stockholm; Per Hallström; Nuorena nukkunut; "deep understanding of his country's peasantry"
+Choice: Send an official delegation or keep the focus on the frontier crisis; later, whether the laureate's medal and fame should serve the war fund.
+Picture ideas: Sillanpää portrait (a photo of him at home when he heard the news exists on Wikipedia); Stockholm Concert Hall; Nobel medal.

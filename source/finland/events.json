@@ -1,12 +1,660 @@
 {
-    "pack":  "finland",
-    "tag":  "FIN",
-    "namespace":  "ep_fin",
-    "displayName":  "Finland",
-    "events":  [
-
-               ],
-    "ideas":  [
-
-              ]
+    "pack": "finland",
+    "tag": "FIN",
+    "namespace": "ep_fin",
+    "displayName": "Finland",
+    "events": [
+        {
+            "id": 1,
+            "key": "berlin_1936_olympics",
+            "title": "Three Finns Take the 10,000 Metres in Berlin",
+            "desc": "In the 10,000 m final at the Berlin Olympics on 2 August, Ilmari Salminen won gold, Arvo Askola silver and Volmari Iso-Hollo bronze.\n\nIso-Hollo also won the 3,000 m steeplechase, for the second Games in a row. In the javelin, Yrjö Nikkanen and Kalervo Toivonen took silver and bronze behind Stöck of Germany.",
+            "picture": "berlin_1936_olympics",
+            "factSheet": "berlin_1936_olympics",
+            "anchors": [
+                "Ilmari Salminen",
+                "Arvo Askola",
+                "Volmari Iso-Hollo",
+                "2 August"
+            ],
+            "fire": {
+                "after": "1936.8.17",
+                "before": "1936.9.30",
+                "chance": 50
+            },
+            "options": [
+                {
+                    "name": "Meet the team when they come home.",
+                    "ai": 70,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Let the sports clubs do the celebrating.",
+                    "ai": 30,
+                    "effects": [
+                        {
+                            "political_power": 20
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "key": "red_earth_government",
+            "title": "Cajander Forms a Red-Earth Government",
+            "desc": "President Kyösti Kallio, in office since 1 March, has asked Aimo Cajander of the National Progressive Party to form a majority government. The cabinet formed on 12 March joins the Progressives, the Social Democrats, the Agrarian League and the Swedish People's Party. The alliance of the Agrarian League, the Social Democrats and the Progressives is known as punamulta, red-earth.\n\nVäinö Tanner of the Social Democrats takes the finance ministry. Tanner backed Kallio in the February election, and the two have worked together to defend parliamentary government against the far right.",
+            "picture": "red_earth_government",
+            "factSheet": "red_earth_government",
+            "anchors": [
+                "Kyösti Kallio",
+                "Aimo Cajander",
+                "Väinö Tanner",
+                "12 March",
+                "punamulta"
+            ],
+            "fire": {
+                "after": "1937.3.12",
+                "before": "1937.6.30",
+                "chance": 25,
+                "trigger": "has_war = no has_country_leader = { ruling_only = yes character = FIN_kyosti_kallio }"
+            },
+            "options": [
+                {
+                    "name": "Give every partner a say, however slow.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Let the finance ministry set the pace.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "political_power": 30
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "key": "aalto_world_fairs",
+            "title": "Aalto's Timber Pavilion Stands at the Paris Exposition",
+            "desc": "The Paris exposition opened on 25 May, with 45 countries taking part. It runs until 25 November.\n\nFinland's pavilion is the work of Alvar Aalto, who won both first and second prizes in last year's open competition with the entry 'Le bois est en marche'. The pavilion is built entirely of timber. Its purpose is to promote wood, Finland's chief export.",
+            "picture": "aalto_world_fairs",
+            "factSheet": "aalto_world_fairs",
+            "anchors": [
+                "Alvar Aalto",
+                "Le bois est en marche",
+                "25 May"
+            ],
+            "fire": {
+                "after": "1937.5.25",
+                "before": "1937.9.1",
+                "chance": 15
+            },
+            "options": [
+                {
+                    "name": "Send trade officials to Paris with the pavilion.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "political_power": -20
+                        },
+                        {
+                            "timed_idea": "paris_trade_mission",
+                            "days": 90
+                        }
+                    ]
+                },
+                {
+                    "name": "Good timber sells itself.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "political_power": 15
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "key": "vickers_six_ton_tanks",
+            "title": "The First Vickers Tanks Arrive Without Guns",
+            "desc": "The first Vickers-Armstrongs 6-ton tanks have arrived. The Ministry of Defence ordered 32 on 20 July 1936, enough for a battalion of two 15-tank companies and a headquarters element. Eleven were due by 20 July 1937.\n\nTo save money, the tanks were ordered without optics, radios or armament, at 4,500 pounds each. They now go to the State Artillery Factory, Valtion Tykkitehdas, to be fitted with a 37 mm gun adapted from the licence-built Bofors anti-tank gun. Vickers offered a 47 mm gun, which was turned down for poor penetration.",
+            "picture": "vanilla:GFX_report_event_tank_factory",
+            "factSheet": "vickers_six_ton_tanks",
+            "anchors": [
+                "Vickers-Armstrongs",
+                "20 July 1936",
+                "Valtion Tykkitehdas",
+                "4,500 pounds"
+            ],
+            "fire": {
+                "after": "1938.7.1",
+                "before": "1938.9.30",
+                "chance": 15,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Arm them now, whatever the factory needs.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "political_power": -30
+                        },
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "They can wait; the money goes elsewhere.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "political_power": 20
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 5,
+            "key": "maternity_grant_1937",
+            "title": "Maternity Grant Law Adopted",
+            "desc": "A law adopted on 24 September gives mothers a maternity grant from 1 January 1938. The grant is worth 450 markkaa per child and can be taken as goods, as cash or as a mix of both. It is for mothers of low income.\n\nThe law answers concern over infant mortality and the falling birth rate.",
+            "picture": "maternity_grant_1937",
+            "factSheet": "maternity_grant_1937",
+            "anchors": [
+                "450 markkaa",
+                "1 January 1938",
+                "24 September"
+            ],
+            "fire": {
+                "after": "1937.12.1",
+                "before": "1938.1.31",
+                "chance": 25,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Fund it in full, for every mother.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "political_power": -25
+                        },
+                        {
+                            "timed_idea": "maternity_grant",
+                            "days": 180
+                        }
+                    ]
+                },
+                {
+                    "name": "Keep it for low-income mothers, as written.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "stability": 0.01
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 6,
+            "key": "record_year_1937",
+            "title": "Bank Commissioners Call 1937 a Record Year",
+            "desc": "The parliamentary bank commissioners report that 1937 was a record year for Finnish industry, with rising prices, heavy industrial investment and a good harvest. Sulphate pulp exports rose from 323,200 to 355,700 tonnes, and sulphite pulp from 757,600 to 823,600 tonnes.\n\nIn the depression years forest products made up over 80 per cent of export earnings. The country closed 1937 with an export surplus of 73 million marks.",
+            "picture": "record_year_1937",
+            "factSheet": "record_year_1937",
+            "anchors": [
+                "355,700 tonnes",
+                "823,600 tonnes",
+                "73 million marks"
+            ],
+            "fire": {
+                "after": "1938.1.15",
+                "before": "1938.5.31",
+                "chance": 10,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Put the profits into new mills and plants.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "timed_idea": "industrial_reinvestment",
+                            "days": 180
+                        }
+                    ]
+                },
+                {
+                    "name": "Save it against the next bad year.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "political_power": 30
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 7,
+            "key": "yartsev_talks_1938",
+            "title": "A Soviet Diplomat Opens Secret Talks",
+            "desc": "Boris Yartsev, second secretary at the Soviet legation, has opened secret talks with the government on Moscow's behalf. Moscow offers military and economic help if Finland resists a German attack. In return it wants islands in the Gulf of Finland near Leningrad, ceded or leased, and it would let us fortify Åland.\n\nForeign Minister Rudolf Holsti is away this summer, and members of the Cajander government are hearing the offer. The demands have changed several times. How should we answer?",
+            "picture": "vanilla:GFX_report_event_generic_conference",
+            "factSheet": "yartsev_talks_1938",
+            "anchors": [
+                "Boris Yartsev",
+                "Rudolf Holsti",
+                "Åland",
+                "Leningrad"
+            ],
+            "fire": {
+                "after": "1938.5.1",
+                "before": "1938.9.30",
+                "chance": 10,
+                "trigger": "has_war = no NOT = { has_government = communism }"
+            },
+            "options": [
+                {
+                    "name": "Keep listening, and promise nothing.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "political_power": 15
+                        }
+                    ]
+                },
+                {
+                    "name": "No Finnish island is for lease.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 8,
+            "key": "olympics_1940_awarded",
+            "title": "Helsinki Is Given the 1940 Olympic Games",
+            "desc": "On 14 July Tokyo announced that it is giving up the 1940 Games, which it won in the vote at Berlin in 1936. The IOC has turned to Helsinki.\n\nThe Helsinki Olympic Stadium, designed by Yrjö Lindegren and Toivo Jäntti, opened on 12 June, still unfinished. Its tower stands 72.71 m, the length of Matti Järvinen's winning javelin throw at the 1932 Games. The stadium is to be completed for 1940.",
+            "picture": "olympics_1940_awarded",
+            "factSheet": "olympics_1940_awarded",
+            "anchors": [
+                "Tokyo",
+                "14 July",
+                "Yrjö Lindegren",
+                "Toivo Jäntti",
+                "72.71 m"
+            ],
+            "fire": {
+                "after": "1938.7.14",
+                "before": "1938.9.15",
+                "chance": 30,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Accept, and finish the stadium properly.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "political_power": -25
+                        },
+                        {
+                            "stability": 0.03
+                        }
+                    ]
+                },
+                {
+                    "name": "Accept, on a strict budget.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "stability": 0.01
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 9,
+            "key": "holsti_resignation",
+            "title": "Foreign Minister Holsti Resigns",
+            "desc": "Rudolf Holsti has resigned as foreign minister. On 7 November our envoy Aarne Vuorimaa reported accusations against him made by State Secretary Ernst von Weizsäcker. The cabinet feared German retaliation and wanted Holsti to step down.\n\nVäinö Voionmaa of the Social Democrats stands in until a new minister is named.",
+            "picture": "holsti_resignation",
+            "factSheet": "holsti_resignation",
+            "anchors": [
+                "Rudolf Holsti",
+                "Aarne Vuorimaa",
+                "Ernst von Weizsäcker",
+                "Väinö Voionmaa"
+            ],
+            "fire": {
+                "after": "1938.11.17",
+                "before": "1938.12.11",
+                "chance": 30,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Name a minister Berlin cannot object to.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "political_power": 20
+                        }
+                    ]
+                },
+                {
+                    "name": "We choose our ministers, not Berlin.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "political_power": -20
+                        },
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 10,
+            "key": "election_1939",
+            "title": "Social Democrats Win 85 Seats",
+            "desc": "The votes of the 1 and 2 July election are counted. The Social Democrats hold 85 seats with 39.77 per cent of the vote, and the Agrarian League 56. The National Coalition has 25, the Swedish People's Party 18, IKL 8 and the National Progressive Party 6. IKL drew 86,219 votes.\n\nTurnout was 66.55 per cent: 1,302,348 of 1,956,807 registered voters. The Cajander government stays in office.",
+            "picture": "election_1939",
+            "factSheet": "election_1939",
+            "anchors": [
+                "85 seats",
+                "39.77 per cent",
+                "66.55 per cent"
+            ],
+            "fire": {
+                "after": "1939.7.3",
+                "before": "1939.8.15",
+                "chance": 50,
+                "trigger": "has_war = no has_elections = yes OR = { has_government = democratic has_government = neutrality }"
+            },
+            "options": [
+                {
+                    "name": "Carry on as before.",
+                    "ai": 70,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Spend on welfare while the mandate is fresh.",
+                    "ai": 30,
+                    "effects": [
+                        {
+                            "political_power": -25
+                        },
+                        {
+                            "stability": 0.03
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 11,
+            "key": "taisto_maki_record",
+            "title": "Taisto Mäki Runs 10,000 Metres Under 30 Minutes",
+            "desc": "At the Olympic Stadium in Helsinki on 17 September, Taisto Mäki ran 10,000 metres in 29:52.6. No man has run the distance in under 30 minutes before.\n\nThe record he broke was his own: 30:02.0, set in Tampere on 29 September 1938.",
+            "picture": "taisto_maki_record",
+            "factSheet": "taisto_maki_record",
+            "anchors": [
+                "Taisto Mäki",
+                "29:52.6",
+                "17 September"
+            ],
+            "fire": {
+                "after": "1939.9.17",
+                "before": "1939.10.31",
+                "chance": 50
+            },
+            "options": [
+                {
+                    "name": "Put it on every front page.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "stability": 0.01
+                        },
+                        {
+                            "war_support": 0.01
+                        }
+                    ]
+                },
+                {
+                    "name": "A fine run, but the cabinet has other business.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "political_power": 15
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 12,
+            "key": "sillanpaa_nobel",
+            "title": "Sillanpää Awarded the Nobel Prize in Literature",
+            "desc": "The Swedish Academy announced on 10 November that Frans Eemil Sillanpää is awarded the Nobel Prize in Literature for 1939, for his 'deep understanding of his country's peasantry'. He is the first Finn to receive it.\n\nHis novels include Hurskas kurjuus of 1919 and Nuorena nukkunut of 1931. Miehen tie and Ihmiset suviyössa have been translated into several languages.",
+            "picture": "sillanpaa_nobel",
+            "factSheet": "sillanpaa_nobel",
+            "anchors": [
+                "Frans Eemil Sillanpää",
+                "10 November",
+                "Nuorena nukkunut",
+                "Swedish Academy"
+            ],
+            "fire": {
+                "after": "1939.11.10",
+                "before": "1939.12.9",
+                "chance": 50
+            },
+            "options": [
+                {
+                    "name": "Honour him with a state reception.",
+                    "ai": 50,
+                    "effects": [
+                        {
+                            "political_power": -15
+                        },
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "A telegram of congratulations will do.",
+                    "ai": 50,
+                    "effects": [
+                        {
+                            "political_power": 10
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 13,
+            "key": "league_expulsion_1939",
+            "title": "The League of Nations Expels the Soviet Union",
+            "desc": "Geneva has answered our appeal. On 11 December the Assembly set up a Special Committee on the case. On 14 December the Council found that the Union of Soviet Socialist Republics 'has placed itself outside the League of Nations.' It is no longer a member.\n\nArgentina brought the motion, citing the League's 1933 definition of aggression. Rudolf Holsti represented Finland.",
+            "picture": "league_expulsion_1939",
+            "factSheet": "league_expulsion_1939",
+            "anchors": [
+                "14 December",
+                "Argentina",
+                "Rudolf Holsti"
+            ],
+            "fire": {
+                "after": "1939.12.14",
+                "before": "1940.1.31",
+                "chance": 50,
+                "trigger": "has_war_with = SOV"
+            },
+            "options": [
+                {
+                    "name": "Now ask the members for arms.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "war_support": 0.03
+                        }
+                    ]
+                },
+                {
+                    "name": "Thank Geneva, and look for help elsewhere.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "political_power": 25
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 14,
+            "key": "tolvajarvi_victory",
+            "title": "Detachment P Defeats the Enemy at Tolvajärvi",
+            "desc": "Lieutenant Colonel Aaro Pajari reported to Paavo Talvela at 5 pm on 12 December: 'Today, I have attacked and defeated the enemy in Tolvajärvi, and the enemy has retreated with heavy losses to the east.' His Detachment P, part of Group T, has beaten the Soviet 139th Rifle Division. It is the first major Finnish success of the war.\n\nAbout 100 Finns were killed. The Soviet dead are put at ten times as many, and 20 tanks and 60 machine guns were taken. Talvela is promoted to major general and Pajari to colonel.",
+            "picture": "tolvajarvi_victory",
+            "factSheet": "tolvajarvi_victory",
+            "anchors": [
+                "Aaro Pajari",
+                "Paavo Talvela",
+                "139th Rifle Division",
+                "12 December"
+            ],
+            "fire": {
+                "after": "1939.12.13",
+                "before": "1940.1.31",
+                "chance": 50,
+                "trigger": "has_war_with = SOV"
+            },
+            "options": [
+                {
+                    "name": "Keep pressing east.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "war_support": 0.03
+                        }
+                    ]
+                },
+                {
+                    "name": "Hold the line and rest the men.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 15,
+            "key": "finnish_relief_fund",
+            "title": "Hoover's Relief Fund Raises 2.5 Million Dollars",
+            "desc": "Herbert Hoover started the Finnish Relief Fund in December. On 20 December he appeared at Madison Square Garden with Hendrik Willem van Loon and Fiorello La Guardia. The fund advertises in 1,400 American newspapers. The proceeds of the first screening of Gone with the Wind in Washington state went to the fund.\n\nBy March the fund has raised 2.5 million dollars.",
+            "picture": "finnish_relief_fund",
+            "factSheet": "finnish_relief_fund",
+            "anchors": [
+                "Herbert Hoover",
+                "1,400 American newspapers",
+                "20 December",
+                "Madison Square Garden"
+            ],
+            "fire": {
+                "after": "1940.3.1",
+                "before": "1940.4.30",
+                "chance": 100,
+                "trigger": "has_war_with = SOV"
+            },
+            "options": [
+                {
+                    "name": "Spend it on relief at home.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Ask Washington for arms credits as well.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "political_power": -15
+                        },
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "ideas": [
+        {
+            "key": "maternity_grant",
+            "name": "Maternity Grant",
+            "desc": "Mothers may take the grant of 450 markkaa per child as goods, as cash or as both.",
+            "picture": "generic_political_support",
+            "modifier": {
+                "monthly_population": 0.05,
+                "stability_factor": 0.02
+            }
+        },
+        {
+            "key": "industrial_reinvestment",
+            "name": "Reinvested Export Profits",
+            "desc": "The profits of the record year go into new mills and plants.",
+            "picture": "generic_research_bonus",
+            "modifier": {
+                "production_factory_efficiency_gain_factor": 0.03
+            }
+        },
+        {
+            "key": "paris_trade_mission",
+            "name": "Paris Trade Mission",
+            "desc": "Trade officials follow the timber pavilion to Paris to sell Finnish wood.",
+            "picture": "generic_political_support",
+            "modifier": {
+                "consumer_goods_factor": -0.02
+            }
+        }
+    ]
 }

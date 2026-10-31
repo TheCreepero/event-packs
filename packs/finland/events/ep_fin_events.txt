@@ -1,1 +1,310 @@
 add_namespace = ep_fin
+
+country_event = {
+	id = ep_fin.1
+	title = ep_fin.1.t
+	desc = ep_fin.1.desc
+	picture = GFX_ep_fin_berlin_1936_olympics
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fin.1.a
+		ai_chance = { factor = 70 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_fin.1.b
+		ai_chance = { factor = 30 }
+		add_political_power = 20
+	}
+}
+
+country_event = {
+	id = ep_fin.2
+	title = ep_fin.2.t
+	desc = ep_fin.2.desc
+	picture = GFX_ep_fin_red_earth_government
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fin.2.a
+		ai_chance = { factor = 60 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_fin.2.b
+		ai_chance = { factor = 40 }
+		add_political_power = 30
+	}
+}
+
+country_event = {
+	id = ep_fin.3
+	title = ep_fin.3.t
+	desc = ep_fin.3.desc
+	picture = GFX_ep_fin_aalto_world_fairs
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fin.3.a
+		ai_chance = { factor = 60 }
+		add_political_power = -20
+		add_timed_idea = { idea = ep_fin_paris_trade_mission days = 90 }
+	}
+
+	option = {
+		name = ep_fin.3.b
+		ai_chance = { factor = 40 }
+		add_political_power = 15
+	}
+}
+
+country_event = {
+	id = ep_fin.4
+	title = ep_fin.4.t
+	desc = ep_fin.4.desc
+	picture = GFX_report_event_tank_factory
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fin.4.a
+		ai_chance = { factor = 60 }
+		add_political_power = -30
+		add_war_support = 0.02
+	}
+
+	option = {
+		name = ep_fin.4.b
+		ai_chance = { factor = 40 }
+		add_political_power = 20
+	}
+}
+
+country_event = {
+	id = ep_fin.5
+	title = ep_fin.5.t
+	desc = ep_fin.5.desc
+	picture = GFX_ep_fin_maternity_grant_1937
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fin.5.a
+		ai_chance = { factor = 60 }
+		add_political_power = -25
+		add_timed_idea = { idea = ep_fin_maternity_grant days = 180 }
+	}
+
+	option = {
+		name = ep_fin.5.b
+		ai_chance = { factor = 40 }
+		add_stability = 0.01
+	}
+}
+
+country_event = {
+	id = ep_fin.6
+	title = ep_fin.6.t
+	desc = ep_fin.6.desc
+	picture = GFX_ep_fin_record_year_1937
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fin.6.a
+		ai_chance = { factor = 60 }
+		add_timed_idea = { idea = ep_fin_industrial_reinvestment days = 180 }
+	}
+
+	option = {
+		name = ep_fin.6.b
+		ai_chance = { factor = 40 }
+		add_political_power = 30
+	}
+}
+
+country_event = {
+	id = ep_fin.7
+	title = ep_fin.7.t
+	desc = ep_fin.7.desc
+	picture = GFX_report_event_generic_conference
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fin.7.a
+		ai_chance = { factor = 60 }
+		add_political_power = 15
+	}
+
+	option = {
+		name = ep_fin.7.b
+		ai_chance = { factor = 40 }
+		add_war_support = 0.02
+	}
+}
+
+country_event = {
+	id = ep_fin.8
+	title = ep_fin.8.t
+	desc = ep_fin.8.desc
+	picture = GFX_ep_fin_olympics_1940_awarded
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fin.8.a
+		ai_chance = { factor = 60 }
+		add_political_power = -25
+		add_stability = 0.03
+	}
+
+	option = {
+		name = ep_fin.8.b
+		ai_chance = { factor = 40 }
+		add_stability = 0.01
+	}
+}
+
+country_event = {
+	id = ep_fin.9
+	title = ep_fin.9.t
+	desc = ep_fin.9.desc
+	picture = GFX_ep_fin_holsti_resignation
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fin.9.a
+		ai_chance = { factor = 60 }
+		add_political_power = 20
+	}
+
+	option = {
+		name = ep_fin.9.b
+		ai_chance = { factor = 40 }
+		add_political_power = -20
+		add_war_support = 0.02
+	}
+}
+
+country_event = {
+	id = ep_fin.10
+	title = ep_fin.10.t
+	desc = ep_fin.10.desc
+	picture = GFX_ep_fin_election_1939
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fin.10.a
+		ai_chance = { factor = 70 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_fin.10.b
+		ai_chance = { factor = 30 }
+		add_political_power = -25
+		add_stability = 0.03
+	}
+}
+
+country_event = {
+	id = ep_fin.11
+	title = ep_fin.11.t
+	desc = ep_fin.11.desc
+	picture = GFX_ep_fin_taisto_maki_record
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fin.11.a
+		ai_chance = { factor = 60 }
+		add_stability = 0.01
+		add_war_support = 0.01
+	}
+
+	option = {
+		name = ep_fin.11.b
+		ai_chance = { factor = 40 }
+		add_political_power = 15
+	}
+}
+
+country_event = {
+	id = ep_fin.12
+	title = ep_fin.12.t
+	desc = ep_fin.12.desc
+	picture = GFX_ep_fin_sillanpaa_nobel
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fin.12.a
+		ai_chance = { factor = 50 }
+		add_political_power = -15
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_fin.12.b
+		ai_chance = { factor = 50 }
+		add_political_power = 10
+	}
+}
+
+country_event = {
+	id = ep_fin.13
+	title = ep_fin.13.t
+	desc = ep_fin.13.desc
+	picture = GFX_ep_fin_league_expulsion_1939
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fin.13.a
+		ai_chance = { factor = 60 }
+		add_war_support = 0.03
+	}
+
+	option = {
+		name = ep_fin.13.b
+		ai_chance = { factor = 40 }
+		add_political_power = 25
+	}
+}
+
+country_event = {
+	id = ep_fin.14
+	title = ep_fin.14.t
+	desc = ep_fin.14.desc
+	picture = GFX_ep_fin_tolvajarvi_victory
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fin.14.a
+		ai_chance = { factor = 60 }
+		add_war_support = 0.03
+	}
+
+	option = {
+		name = ep_fin.14.b
+		ai_chance = { factor = 40 }
+		add_stability = 0.02
+	}
+}
+
+country_event = {
+	id = ep_fin.15
+	title = ep_fin.15.t
+	desc = ep_fin.15.desc
+	picture = GFX_ep_fin_finnish_relief_fund
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fin.15.a
+		ai_chance = { factor = 60 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_fin.15.b
+		ai_chance = { factor = 40 }
+		add_political_power = -15
+		add_war_support = 0.02
+	}
+}

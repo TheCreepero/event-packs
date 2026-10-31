@@ -1,0 +1,54 @@
+spriteTypes = {
+	spriteType = {
+		name = "GFX_ep_fin_aalto_world_fairs"
+		texturefile = "gfx/event_pictures/ep_fin/ep_fin_aalto_world_fairs.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fin_berlin_1936_olympics"
+		texturefile = "gfx/event_pictures/ep_fin/ep_fin_berlin_1936_olympics.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fin_election_1939"
+		texturefile = "gfx/event_pictures/ep_fin/ep_fin_election_1939.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fin_finnish_relief_fund"
+		texturefile = "gfx/event_pictures/ep_fin/ep_fin_finnish_relief_fund.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fin_holsti_resignation"
+		texturefile = "gfx/event_pictures/ep_fin/ep_fin_holsti_resignation.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fin_league_expulsion_1939"
+		texturefile = "gfx/event_pictures/ep_fin/ep_fin_league_expulsion_1939.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fin_maternity_grant_1937"
+		texturefile = "gfx/event_pictures/ep_fin/ep_fin_maternity_grant_1937.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fin_olympics_1940_awarded"
+		texturefile = "gfx/event_pictures/ep_fin/ep_fin_olympics_1940_awarded.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fin_record_year_1937"
+		texturefile = "gfx/event_pictures/ep_fin/ep_fin_record_year_1937.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fin_red_earth_government"
+		texturefile = "gfx/event_pictures/ep_fin/ep_fin_red_earth_government.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fin_sillanpaa_nobel"
+		texturefile = "gfx/event_pictures/ep_fin/ep_fin_sillanpaa_nobel.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fin_taisto_maki_record"
+		texturefile = "gfx/event_pictures/ep_fin/ep_fin_taisto_maki_record.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fin_tolvajarvi_victory"
+		texturefile = "gfx/event_pictures/ep_fin/ep_fin_tolvajarvi_victory.dds"
+	}
+}

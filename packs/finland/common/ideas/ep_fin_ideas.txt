@@ -1,0 +1,32 @@
+ideas = {
+	country = {
+		ep_fin_maternity_grant = {
+			removal_cost = -1
+			picture = generic_political_support
+			allowed = { always = no }
+			allowed_civil_war = { always = no }
+			modifier = {
+				monthly_population = 0.05
+				stability_factor = 0.02
+			}
+		}
+		ep_fin_industrial_reinvestment = {
+			removal_cost = -1
+			picture = generic_research_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = no }
+			modifier = {
+				production_factory_efficiency_gain_factor = 0.03
+			}
+		}
+		ep_fin_paris_trade_mission = {
+			removal_cost = -1
+			picture = generic_political_support
+			allowed = { always = no }
+			allowed_civil_war = { always = no }
+			modifier = {
+				consumer_goods_factor = -0.02
+			}
+		}
+	}
+}
