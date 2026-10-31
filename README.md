@@ -15,6 +15,7 @@ event-packs/
 |-- build.ps1                 # lifecycle and pack commands (Get-Help .\build.ps1)
 |-- source/<pack>/            # hand-written: events.json, fact-sheets.md, workshop-intro.bbcode; pictures.json from -FetchPicture
 |-- packs/<pack>/             # one Workshop item: descriptor.mod, thumbnail.png and everything -Generate writes
+|-- research/<pack>/          # the researcher's dossiers, kept: every candidate event with its sourced facts, used or not
 |-- data/                     # effect caps and banned phrases the checks use
 |-- docs/                     # style guide, source format, plans
 |-- tools/                    # EventPacks.ps1 (pack tools), convert_event_pictures.py, the shared build engine

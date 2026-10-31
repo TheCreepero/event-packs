@@ -55,6 +55,10 @@ Written only by `build.ps1 -FetchPicture`, which reads the licence from the Wiki
 
 One section per event, headed `## <key>`, with the facts the text may use, each with its source URL. The event's text may use nothing else; the editor cuts what is not here.
 
+## `research/<pack>/<YYYY-MM-DD>-dossier.md`
+
+The historical researcher's dossiers, kept with the repository and never deleted or trimmed: one `## <key>` section per candidate event with its date, kind, suggested window, sourced facts, anchors, the government's choice and picture ideas. A section whose event went into a READY plan carries a `Used: <plan file name>` line under its heading; the others are the candidates a later expansion of the pack starts from. Nothing reads these files at build time, and nothing in them ships.
+
 ## `workshop-intro.bbcode`
 
 The opening of the pack's Workshop description in Steam BBCode. `-Generate` adds the event list and the picture credits after it.

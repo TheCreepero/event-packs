@@ -6,6 +6,7 @@ Shared rules for every mod in this tree (file encodings, build commands, engine 
 - Small packs of historical flavor events, one pack per country, each published as its own Steam Workshop item "Event Pack: <Country>". One repository, many packs: `tools/HoiModBuild.json` lists them under `packages`, and every `build.ps1` action takes `-Pack <key>`.
 - Each pack is a mod root of its own under `packs/<key>/` and stands alone: no pack requires or names another.
 - Hand-written source in `source/<key>/`; everything a pack ships except `descriptor.mod` and `thumbnail.png` is generated from it. Layout and fields: `docs/source-format.md`.
+- The historical researcher's dossiers stay in `research/<key>/`, every candidate with its sourced facts, used or not: a pack's next events start from them. Never delete or trim one.
 
 ## Mod invariants
 - `packs/<key>/` changes only through `build.ps1 -Generate` and `-ConvertPictures`; `source/<key>/pictures.json` only through `-FetchPicture`. A hook refuses hand edits.

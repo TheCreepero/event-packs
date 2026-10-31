@@ -28,7 +28,7 @@ Dispatch `ep-implementer` with the prompt `Carry out docs/plans/<file>.md` and n
 The report is a claim. Check:
 1. `powershell -File .\build.ps1 -Check -Pack <key>` ends `Check OK`, and every `[WARN]` is in the plan's "Kept on judgment".
 2. `powershell -File .\build.ps1 -ValidateOnly` ends `Validation succeeded.`; `powershell -File .\build.ps1 -Test` has no failed test.
-3. `git status --short` lists only `source/<key>/`, `packs/<key>/`, `wiki/Event-Pack-<Country>.md` and the plan.
+3. `git status --short` lists only `source/<key>/`, `packs/<key>/`, `research/<key>/` (the plan's dossier and its `Used:` marks), `wiki/Event-Pack-<Country>.md` and the plan.
 4. The plan says `Status: DONE`, every box but the ship step is ticked.
 5. Look at each new picture: `powershell -File .\build.ps1 -PreviewPictures -Pack <key>` writes PNG copies of the pack's DDS pictures to `scratch/preview/<key>/`; open each with the Read tool. A crop that cuts the subject goes back to the planner.
 

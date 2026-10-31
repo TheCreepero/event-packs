@@ -16,6 +16,7 @@
       "PowerShell(git diff*)",
       "PowerShell(git log*)",
       "Write(scratch/**)",
+      "Write(research/**)",
       "Bash(powershell*build.ps1 -ValidateOnly*)",
       "Bash(powershell*build.ps1 -Test*)",
       "Bash(powershell*build.ps1 -Check*)",
