@@ -433,6 +433,23 @@ Describe 'Packages' {
         $vdfText | Should -Match ([regex]::Escape('"previewfile" "' + ($contentDir -replace '\\', '/') + '/thumbnail.png"'))
     }
 
+    It 'uploads the double quotes of a description and a change note as typographic quotes' {
+        $fixtureRoot = New-FixturePackRepo
+        Write-TestFile -Root $fixtureRoot -RelativePath 'packs\alpha\WORKSHOP_DESCRIPTION_GUIDELINES.md' -Text "# alpha`r`n`r`n``````bbcode`r`nInspired by the old `"Third Reich Events`" mod.`r`n[i]`"Duque de Caxias`"[/i] and `"[b]Suomi[/b]`"`r`n```````r`n"
+        $config = Get-ModBuildConfig -RepoDir $fixtureRoot -PackageName 'alpha'
+        $publishOutput = @(Invoke-ModPublish -Config $config -DryRun -UpdateDescription -SteamUser 'tester' -ChangeNote 'The "Winter War" event' 6>&1)
+        [int]$publishOutput[-1] | Should -Be 0
+        $stagedLine = @($publishOutput | ForEach-Object { "$_" } | Where-Object { $_ -match 'Staged content at:' })[0]
+        $contentDir = ($stagedLine -replace '^.*Staged content at:\s*', '').Trim()
+        $script:TempRoots.Add((Split-Path -Parent $contentDir))
+        $vdfText = [System.IO.File]::ReadAllText((Join-Path (Split-Path -Parent $contentDir) 'workshop_build.vdf'))
+        $openQuote = [string][char]0x201C
+        $closeQuote = [string][char]0x201D
+        $vdfText | Should -Match ([regex]::Escape('"description" "Inspired by the old ' + $openQuote + 'Third Reich Events' + $closeQuote + " mod.`n[i]" + $openQuote + 'Duque de Caxias' + $closeQuote + '[/i] and ' + $openQuote + '[b]Suomi[/b]' + $closeQuote + '"'))
+        $vdfText | Should -Match ([regex]::Escape('"changenote" "The ' + $openQuote + 'Winter War' + $closeQuote + ' event"'))
+        $vdfText | Should -Not -Match ([regex]::Escape('\"'))
+    }
+
     It 'passes -Pack on to the engine' {
         function Invoke-PackProbe {
             param([switch]$Deploy, [string]$Pack, [string]$Generate)
@@ -493,7 +510,7 @@ Describe 'Workshop VDF' {
     It 'escapes quotes and backslashes and keeps the visibility of an existing item' {
         $vdfText = New-ModWorkshopVdf -ContentDir 'C:\stage\content' -PreviewPath 'C:\stage\content\thumbnail.png' -Title 'My "Mod"' -PublishedFileId '123' -ChangeNote 'Fix C:\path and "quotes"'
         $vdfText | Should -Match ([regex]::Escape('"title" "My \"Mod\""'))
-        $vdfText | Should -Match ([regex]::Escape('"changenote" "Fix C:\\path and \"quotes\""'))
+        $vdfText | Should -Match ([regex]::Escape('"changenote" "Fix C:\\path and ' + [char]0x201C + 'quotes' + [char]0x201D + '"'))
         $vdfText | Should -Match ([regex]::Escape('"contentfolder" "C:/stage/content"'))
         $vdfText | Should -Not -Match 'visibility'
     }

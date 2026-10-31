@@ -605,6 +605,13 @@ function ConvertTo-VdfString {
     return '"' + $Value.Replace('\', '\\').Replace('"', '\"') + '"'
 }
 
+function ConvertTo-ModTypographicQuotes {
+    param([Parameter(Mandatory = $true)][AllowEmptyString()][string]$Text)
+
+    $openedText = [regex]::Replace($Text, '(?<=^|[\s(\[{])"|(?<=\])"(?=\w)', [string][char]0x201C)
+    return $openedText.Replace('"', [string][char]0x201D)
+}
+
 function New-ModWorkshopVdf {
     param(
         [Parameter(Mandatory = $true)][string]$ContentDir,
@@ -625,9 +632,9 @@ function New-ModWorkshopVdf {
     }
     $vdfFields.Add([string[]]@('title', $Title))
     if ($Description) {
-        $vdfFields.Add([string[]]@('description', ($Description -replace "`r`n", "`n")))
+        $vdfFields.Add([string[]]@('description', (ConvertTo-ModTypographicQuotes -Text ($Description -replace "`r`n", "`n"))))
     }
-    $vdfFields.Add([string[]]@('changenote', [string]$ChangeNote))
+    $vdfFields.Add([string[]]@('changenote', (ConvertTo-ModTypographicQuotes -Text ([string]$ChangeNote))))
 
     $vdfLines = [System.Collections.Generic.List[string]]::new()
     $vdfLines.Add('"workshopitem"')
@@ -976,6 +983,9 @@ function Invoke-ModPublish {
             return 1
         }
         Write-Info "The Workshop description is replaced with the bbcode block of WORKSHOP_DESCRIPTION_GUIDELINES.md ($($description.Length) characters)."
+    }
+    if (([string]$description + $resolvedNote).Contains('"')) {
+        Write-Info 'Double quotes in the description and change note are uploaded as typographic quotes: SteamCMD cuts the text at the first escaped one.'
     }
 
     $staleStageCutoff = (Get-Date).AddHours(-1)
