@@ -1,0 +1,79 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(powershell -File .\\build.ps1 -ValidateOnly*)",
+      "PowerShell(powershell -File .\\build.ps1 -Test*)",
+      "PowerShell(powershell -File .\\build.ps1 -Check*)",
+      "PowerShell(powershell -File .\\build.ps1 -Audit*)",
+      "PowerShell(powershell -File .\\build.ps1 -Generate*)",
+      "PowerShell(powershell -File .\\build.ps1 -FetchPicture*)",
+      "PowerShell(powershell -File .\\build.ps1 -ConvertPictures*)",
+      "PowerShell(powershell -File .\\build.ps1 -SyncMirrors*)",
+      "PowerShell(powershell -File .\\build.ps1 -Package*)",
+      "PowerShell(powershell -File .\\tests\\Run-Tests.ps1*)",
+      "PowerShell(*Test-HoiKnowledge.ps1*)",
+      "PowerShell(git status*)",
+      "PowerShell(git diff*)",
+      "PowerShell(git log*)",
+      "Write(scratch/**)",
+      "Bash(powershell*build.ps1 -ValidateOnly*)",
+      "Bash(powershell*build.ps1 -Test*)",
+      "Bash(powershell*build.ps1 -Check*)",
+      "Bash(powershell*build.ps1 -Audit*)",
+      "Bash(powershell*build.ps1 -Generate*)",
+      "Bash(powershell*build.ps1 -FetchPicture*)",
+      "Bash(powershell*build.ps1 -ConvertPictures*)",
+      "Bash(powershell*build.ps1 -SyncMirrors*)",
+      "Bash(powershell*build.ps1 -Package*)",
+      "Bash(powershell*Run-Tests.ps1*)",
+      "Bash(*Test-HoiKnowledge.ps1*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "PowerShell(*build.ps1*-Deploy*)",
+      "PowerShell(*build.ps1*-DevLink*)",
+      "PowerShell(*build.ps1*-Clean*)",
+      "PowerShell(*push-wiki.ps1*)",
+      "Bash(*build.ps1*-Deploy*)",
+      "Bash(*build.ps1*-DevLink*)",
+      "Bash(*build.ps1*-Clean*)",
+      "Bash(*push-wiki.ps1*)"
+    ],
+    "ask": [
+      "PowerShell(*build.ps1*-NewPack*)",
+      "PowerShell(*build.ps1*-PublishSteam*)",
+      "PowerShell(*build.ps1*-InstallSteamCmd*)",
+      "PowerShell(*steamcmd*)",
+      "Bash(*build.ps1*-NewPack*)",
+      "Bash(*build.ps1*-PublishSteam*)",
+      "Bash(*build.ps1*-InstallSteamCmd*)",
+      "Bash(*steamcmd*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/Protect-ProjectFiles.ps1\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/Sync-SkillMirrors.ps1\"",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}

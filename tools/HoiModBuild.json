@@ -1,0 +1,8 @@
+{
+    "packages":  {
+                     "finland":  {
+                                     "root":  "packs/finland",
+                                     "modFolderName":  "event_pack_finland"
+                                 }
+                 }
+}

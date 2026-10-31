@@ -1,0 +1,404 @@
+BeforeAll {
+    $script:RepoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+    . (Join-Path $script:RepoRoot 'tools\EventPacks.ps1')
+    $script:CommonsFixtureDir = Join-Path $PSScriptRoot 'fixtures\commons'
+
+    function Get-CommonsFixture {
+        param([string]$Name)
+
+        return ([System.IO.File]::ReadAllText((Join-Path $script:CommonsFixtureDir "$Name.json"), [System.Text.Encoding]::UTF8) | ConvertFrom-Json)
+    }
+
+    function Write-FixtureFile {
+        param([string]$Root, [string]$RelativePath, [string]$Text, [switch]$Bom)
+
+        Write-EpText -Path (Join-Path $Root $RelativePath) -Text $Text -Bom:$Bom
+    }
+
+    function Write-FixtureDds {
+        param([string]$Path, [int]$Width = 210, [int]$Height = 176)
+
+        $ddsBytes = New-Object byte[] 128
+        [System.Text.Encoding]::ASCII.GetBytes('DDS ').CopyTo($ddsBytes, 0)
+        [System.BitConverter]::GetBytes([int]124).CopyTo($ddsBytes, 4)
+        [System.BitConverter]::GetBytes($Height).CopyTo($ddsBytes, 12)
+        [System.BitConverter]::GetBytes($Width).CopyTo($ddsBytes, 16)
+        $parentPath = Split-Path -Parent $Path
+        if (-not (Test-Path -LiteralPath $parentPath)) {
+            New-Item -ItemType Directory -Path $parentPath -Force | Out-Null
+        }
+        [System.IO.File]::WriteAllBytes($Path, $ddsBytes)
+    }
+
+    function Get-FixtureEvent {
+        return [PSCustomObject][ordered]@{
+            id        = 1
+            key       = 'border_fortification'
+            title     = 'Work on the Isthmus Line'
+            desc      = 'Volunteers from the Civil Guard and students from Helsinki spend the summer of 1937 digging trenches and anti-tank ditches on the Karelian Isthmus. The army supplies tools and rations, the volunteers their own time. Engineers mark the line between Summa and Taipale, and the work goes on until the autumn rain fills the ditches.'
+            picture   = 'abatis'
+            factSheet = 'border_fortification'
+            anchors   = @('Karelian Isthmus', 'Taipale', '1937')
+            fire      = [PSCustomObject][ordered]@{ after = '1937.5.1'; before = '1937.9.1'; chance = 10; trigger = 'has_war = no' }
+            options   = @(
+                [PSCustomObject][ordered]@{ name = 'Every metre counts.'; ai = 70; effects = @([PSCustomObject]@{ war_support = 0.02 }, [PSCustomObject]@{ timed_idea = 'volunteer_work'; days = 120 }) },
+                [PSCustomObject][ordered]@{ name = 'Send them home before the harvest.'; ai = 30; effects = @([PSCustomObject]@{ political_power = 25 }, [PSCustomObject]@{ stability = -0.01 }) }
+            )
+        }
+    }
+
+    function New-EpFixtureRepo {
+        param([string[]]$Packs = @('testland'))
+
+        $fixtureRoot = Join-Path $TestDrive ([guid]::NewGuid().ToString('N').Substring(0, 8))
+        New-Item -ItemType Directory -Path (Join-Path $fixtureRoot 'data') -Force | Out-Null
+        Copy-Item -Path (Join-Path $script:RepoRoot 'data\*') -Destination (Join-Path $fixtureRoot 'data')
+        $packageSettings = [ordered]@{}
+        foreach ($packName in $Packs) {
+            $packageSettings[$packName] = [PSCustomObject]@{ root = "packs/$packName"; modFolderName = "event_pack_$packName" }
+        }
+        Write-FixtureFile -Root $fixtureRoot -RelativePath 'tools\HoiModBuild.json' -Text (ConvertTo-Json -InputObject ([PSCustomObject]@{ packages = [PSCustomObject]$packageSettings }) -Depth 5)
+        $tagIndex = 0
+        foreach ($packName in $Packs) {
+            $tag = @('TST', 'TSU', 'TSV')[$tagIndex]
+            $tagIndex++
+            $eventSource = [PSCustomObject][ordered]@{
+                pack        = $packName
+                tag         = $tag
+                namespace   = 'ep_' + $tag.ToLowerInvariant()
+                displayName = 'Testland ' + $tagIndex
+                events      = @(Get-FixtureEvent)
+                ideas       = @([PSCustomObject][ordered]@{ key = 'volunteer_work'; name = 'Volunteer Work on the Isthmus'; desc = 'Students and Civil Guard men dig on the Karelian Isthmus.'; picture = 'generic_morale_bonus'; modifier = [PSCustomObject]@{ war_support_factor = 0.03 } })
+            }
+            Write-FixtureFile -Root $fixtureRoot -RelativePath "source\$packName\events.json" -Text (ConvertTo-Json -InputObject $eventSource -Depth 10)
+            $picture = (Get-EpCommonsVerdict -Response (Get-CommonsFixture -Name 'cc-by')).Picture
+            $picture.key = 'abatis'
+            $picture.fetched = '2026-10-31'
+            $picture.downloadSha256 = '0000000000000000000000000000000000000000000000000000000000000000'
+            Write-FixtureFile -Root $fixtureRoot -RelativePath "source\$packName\pictures.json" -Text (ConvertTo-Json -InputObject ([PSCustomObject]@{ pictures = @($picture) }) -Depth 5)
+            Write-FixtureFile -Root $fixtureRoot -RelativePath "source\$packName\fact-sheets.md" -Text "# Fact sheets`r`n`r`n## border_fortification`r`n`r`n- Volunteers dug on the Karelian Isthmus in 1937, Taipale to Summa. Source: https://example.org/isthmus`r`n"
+            Write-FixtureFile -Root $fixtureRoot -RelativePath "source\$packName\workshop-intro.bbcode" -Text 'Fixture intro.'
+            Write-FixtureDds -Path (Join-Path $fixtureRoot "packs\$packName\gfx\event_pictures\ep_$($tag.ToLowerInvariant())\ep_$($tag.ToLowerInvariant())_abatis.dds")
+        }
+        return $fixtureRoot
+    }
+
+    function Set-FixtureEvents {
+        param([string]$Root, [string]$Pack = 'testland', [scriptblock]$Change)
+
+        $eventsPath = Join-Path $Root "source\$Pack\events.json"
+        $eventSource = Read-EpJson -Path $eventsPath
+        & $Change $eventSource
+        Write-EpText -Path $eventsPath -Text (ConvertTo-Json -InputObject $eventSource -Depth 10)
+    }
+
+    function Get-ErrorMessages {
+        param([string]$Root, [string]$Pack = 'testland')
+
+        return @(Test-EpPack -RepoRoot $Root -Pack $Pack | Where-Object { $_.Level -eq 'ERROR' } | ForEach-Object { "$($_.Where): $($_.Message)" })
+    }
+}
+
+Describe 'Generation' {
+    It 'writes the event, anchor, idea, sprite, localisation, Workshop and wiki files from the source' {
+        $fixtureRoot = New-EpFixtureRepo
+        Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'testland' 6>$null | Select-Object -Last 1 | Should -Be 0
+        $eventsText = [System.IO.File]::ReadAllText((Join-Path $fixtureRoot 'packs\testland\events\ep_tst_events.txt'))
+        $eventsText | Should -Match 'add_namespace = ep_tst'
+        $eventsText | Should -Match 'id = ep_tst\.1'
+        $eventsText | Should -Match 'picture = GFX_ep_tst_abatis'
+        $eventsText | Should -Match 'is_triggered_only = yes'
+        $eventsText | Should -Match 'add_war_support = 0\.02'
+        $eventsText | Should -Match 'add_stability = -0\.01'
+        $eventsText | Should -Match 'add_political_power = 25'
+        $eventsText | Should -Match 'add_timed_idea = \{ idea = ep_tst_volunteer_work days = 120 \}'
+        $eventsText | Should -Match 'name = ep_tst\.1\.b'
+        $anchorText = [System.IO.File]::ReadAllText((Join-Path $fixtureRoot 'packs\testland\common\on_actions\ep_tst_on_actions.txt'))
+        $anchorText | Should -Match 'on_weekly_TST = \{'
+        $anchorText | Should -Match 'NOT = \{ has_country_flag = ep_tst_fired_1 \}'
+        $anchorText | Should -Match 'date > 1937\.5\.1'
+        $anchorText | Should -Match 'date < 1937\.9\.1'
+        $anchorText | Should -Match 'has_war = no'
+        $anchorText | Should -Match '(?s)random = \{\s+chance = 10\s+set_country_flag = ep_tst_fired_1\s+country_event = \{ id = ep_tst\.1 \}'
+        [System.IO.File]::ReadAllText((Join-Path $fixtureRoot 'packs\testland\common\ideas\ep_tst_ideas.txt')) | Should -Match '(?s)ep_tst_volunteer_work = \{.*allowed = \{ always = no \}.*war_support_factor = 0\.03'
+        [System.IO.File]::ReadAllText((Join-Path $fixtureRoot 'packs\testland\interface\ep_tst_event_pictures.gfx')) | Should -Match 'texturefile = "gfx/event_pictures/ep_tst/ep_tst_abatis\.dds"'
+        foreach ($language in (Get-EpLanguages)) {
+            $localisationPath = Join-Path $fixtureRoot "packs\testland\localisation\$language\ep_tst_l_$language.yml"
+            Test-Path -LiteralPath $localisationPath | Should -BeTrue
+            $localisationBytes = [System.IO.File]::ReadAllBytes($localisationPath)
+            @($localisationBytes[0], $localisationBytes[1], $localisationBytes[2]) | Should -Be @(0xEF, 0xBB, 0xBF)
+            [System.IO.File]::ReadAllText($localisationPath) | Should -Match ("l_" + $language + ":\r\n ep_tst\.1\.t:0 `"Work on the Isthmus Line`"")
+        }
+        $workshopText = [System.IO.File]::ReadAllText((Join-Path $fixtureRoot 'packs\testland\WORKSHOP_DESCRIPTION_GUIDELINES.md'))
+        $workshopText | Should -Match '```bbcode'
+        $workshopText | Should -Match '\[\*\]1937: Work on the Isthmus Line'
+        $workshopText | Should -Match 'by Hugo Sundstr.m, CC BY 4\.0 \(\[url=https://creativecommons\.org/licenses/by/4\.0\]licence\[/url\]\)'
+        Test-Path -LiteralPath (Join-Path $fixtureRoot 'wiki\Event-Pack-Testland-1.md') | Should -BeTrue
+    }
+
+    It 'writes nothing the second time and then finds no error' {
+        $fixtureRoot = New-EpFixtureRepo
+        Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'testland' 6>$null | Out-Null
+        $delta = Get-EpGenerationDelta -Pack (Get-EpPack -RepoRoot $fixtureRoot -Pack 'testland')
+        $delta.Changed.Count | Should -Be 0
+        $delta.Stale.Count | Should -Be 0
+        Get-ErrorMessages -Root $fixtureRoot | Should -BeNullOrEmpty
+    }
+
+    It 'reports a generated file edited by hand and a file the source does not generate' {
+        $fixtureRoot = New-EpFixtureRepo
+        Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'testland' 6>$null | Out-Null
+        Add-Content -LiteralPath (Join-Path $fixtureRoot 'packs\testland\events\ep_tst_events.txt') -Value '# hand edit'
+        Write-FixtureFile -Root $fixtureRoot -RelativePath 'packs\testland\events\stray_events.txt' -Text 'add_namespace = stray'
+        $errorMessages = Get-ErrorMessages -Root $fixtureRoot
+        @($errorMessages | Where-Object { $_ -like 'packs/testland/events/ep_tst_events.txt: differs*' }).Count | Should -Be 1
+        @($errorMessages | Where-Object { $_ -like 'packs/testland/events/stray_events.txt: not generated*' }).Count | Should -Be 1
+        Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'testland' 6>$null | Out-Null
+        Get-ErrorMessages -Root $fixtureRoot | Should -BeNullOrEmpty
+    }
+
+    It 'refuses to generate from a source with errors' {
+        $fixtureRoot = New-EpFixtureRepo
+        Set-FixtureEvents -Root $fixtureRoot -Change { param($eventSource) $eventSource.events[0].options[0].effects[0].war_support = 0.2 }
+        Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'testland' 6>$null | Select-Object -Last 1 | Should -Be 1
+        Test-Path -LiteralPath (Join-Path $fixtureRoot 'packs\testland\events') | Should -BeFalse
+    }
+}
+
+Describe 'Effect caps' {
+    It 'rejects an effect over its cap, an unknown effect, a long timed idea and an unknown modifier' {
+        $fixtureRoot = New-EpFixtureRepo
+        Set-FixtureEvents -Root $fixtureRoot -Change {
+            param($eventSource)
+            $eventSource.events[0].options[0].effects[0].war_support = 0.05
+            $eventSource.events[0].options[0].effects[1].days = 365
+            $eventSource.events[0].options[1].effects = @([PSCustomObject]@{ add_manpower = 1000 })
+            $eventSource.ideas[0].modifier = [PSCustomObject]@{ industrial_capacity_dockyard = 0.1 }
+        }
+        $errorMessages = (Get-ErrorMessages -Root $fixtureRoot) -join "`n"
+        $errorMessages | Should -Match 'war_support 0\.05 is over the cap of 0\.03'
+        $errorMessages | Should -Match 'timed idea for 365 days'
+        $errorMessages | Should -Match "effect 'add_manpower' is not one of"
+        $errorMessages | Should -Match "modifier 'industrial_capacity_dockyard' is not in data/effect-caps.json"
+    }
+
+    It 'rejects a timed idea the pack does not define and an idea picture outside the list' {
+        $fixtureRoot = New-EpFixtureRepo
+        Set-FixtureEvents -Root $fixtureRoot -Change {
+            param($eventSource)
+            $eventSource.events[0].options[0].effects[1].timed_idea = 'no_such_idea'
+            $eventSource.ideas[0].picture = 'some_custom_picture'
+        }
+        $errorMessages = (Get-ErrorMessages -Root $fixtureRoot) -join "`n"
+        $errorMessages | Should -Match "timed_idea 'no_such_idea' is not in the pack's ideas"
+        $errorMessages | Should -Match "picture 'some_custom_picture' is not one of"
+    }
+}
+
+Describe 'Pictures and licences' {
+    It 'accepts public domain, CC0 and CC BY files from Commons, with the licence and author' {
+        $publicDomain = Get-EpCommonsVerdict -Response (Get-CommonsFixture -Name 'pd')
+        $publicDomain.Accepted | Should -BeTrue
+        $publicDomain.Picture.licenseCategory | Should -Be 'PD'
+        $publicDomain.Picture.author | Should -Be 'Unknown author'
+        $publicDomain.Picture.publicDomainReason | Should -Be 'PD-Finland50'
+        Get-EpLicenceLabel -Picture $publicDomain.Picture | Should -Be 'Public domain (PD-Finland50)'
+        $publicDomain.Picture.pageUrl | Should -Match '^https://commons\.wikimedia\.org/wiki/File:'
+        $publicDomain.Picture.downloadUrl | Should -Match '^https://'
+        (Get-EpCommonsVerdict -Response (Get-CommonsFixture -Name 'cc0')).Picture.licenseCategory | Should -Be 'CC0'
+        $attribution = Get-EpCommonsVerdict -Response (Get-CommonsFixture -Name 'cc-by')
+        $attribution.Accepted | Should -BeTrue
+        $attribution.Picture.licenseCategory | Should -Be 'CC BY'
+        $attribution.Picture.licenseUrl | Should -Be 'https://creativecommons.org/licenses/by/4.0'
+    }
+
+    It 'rejects CC BY-SA, a missing file, a file tagged for deletion and a file smaller than the event picture' {
+        $shareAlike = Get-EpCommonsVerdict -Response (Get-CommonsFixture -Name 'cc-by-sa')
+        $shareAlike.Accepted | Should -BeFalse
+        $shareAlike.Reason | Should -Match 'outside the policy'
+        (Get-EpCommonsVerdict -Response (Get-CommonsFixture -Name 'missing')).Accepted | Should -BeFalse
+        $tagged = Get-CommonsFixture -Name 'pd'
+        $tagged.query.pages[0] | Add-Member -NotePropertyName 'templates' -NotePropertyValue @([PSCustomObject]@{ ns = 10; title = 'Template:Delete' }) -Force
+        $taggedVerdict = Get-EpCommonsVerdict -Response $tagged
+        $taggedVerdict.Accepted | Should -BeFalse
+        $taggedVerdict.Reason | Should -Match 'Template:Delete'
+        $small = Get-CommonsFixture -Name 'pd'
+        $small.query.pages[0].imageinfo[0].width = 200
+        (Get-EpCommonsVerdict -Response $small).Reason | Should -Match 'smaller than the 210x176'
+        $noReason = Get-CommonsFixture -Name 'pd'
+        $noReason.query.pages[0].templates = @($noReason.query.pages[0].templates | Where-Object { $_.title -notmatch '^Template:PD-' })
+        (Get-EpCommonsVerdict -Response $noReason).Reason | Should -Match 'without a PD- licence template'
+    }
+
+    It 'asks Commons for the licence metadata and the deletion templates in one query' {
+        $queryUrl = Get-EpCommonsQueryUrl -FileTitle 'File:Abatis at Taipale.jpg'
+        $queryUrl | Should -Match 'titles=File%3AAbatis%20at%20Taipale\.jpg'
+        $queryUrl | Should -Match 'iiprop=url%7Csize%7Cmime%7Cextmetadata'
+        $queryUrl | Should -Match 'prop=imageinfo%7Ctemplates'
+        $queryUrl | Should -Match 'tllimit=max'
+    }
+
+    It 'rejects a picture outside the licence policy, a CC BY picture without author, and a missing or wrong-size DDS' {
+        $fixtureRoot = New-EpFixtureRepo
+        $picturesPath = Join-Path $fixtureRoot 'source\testland\pictures.json'
+        $pictureSource = Read-EpJson -Path $picturesPath
+        $pictureSource.pictures[0].licenseCategory = 'CC BY-SA'
+        Write-EpText -Path $picturesPath -Text (ConvertTo-Json -InputObject $pictureSource -Depth 5)
+        ((Get-ErrorMessages -Root $fixtureRoot) -join "`n") | Should -Match 'outside the policy'
+        $pictureSource.pictures[0].licenseCategory = 'CC BY'
+        $pictureSource.pictures[0].author = ''
+        Write-EpText -Path $picturesPath -Text (ConvertTo-Json -InputObject $pictureSource -Depth 5)
+        ((Get-ErrorMessages -Root $fixtureRoot) -join "`n") | Should -Match 'CC BY needs a named author'
+        $ddsPath = Join-Path $fixtureRoot 'packs\testland\gfx\event_pictures\ep_tst\ep_tst_abatis.dds'
+        Write-FixtureDds -Path $ddsPath -Width 450 -Height 240
+        ((Get-ErrorMessages -Root $fixtureRoot) -join "`n") | Should -Match 'not 210x176'
+        Remove-Item -LiteralPath $ddsPath
+        ((Get-ErrorMessages -Root $fixtureRoot) -join "`n") | Should -Match 'no DDS in the pack'
+    }
+
+    It 'accepts a vanilla event picture without a manifest entry' {
+        $fixtureRoot = New-EpFixtureRepo
+        Set-FixtureEvents -Root $fixtureRoot -Change { param($eventSource) $eventSource.events[0].picture = 'vanilla:GFX_report_event_generic_read_write' }
+        Remove-Item -LiteralPath (Join-Path $fixtureRoot 'packs\testland\gfx') -Recurse
+        Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'testland' 6>$null | Out-Null
+        [System.IO.File]::ReadAllText((Join-Path $fixtureRoot 'packs\testland\events\ep_tst_events.txt')) | Should -Match 'picture = GFX_report_event_generic_read_write'
+        @(Get-ErrorMessages -Root $fixtureRoot) | Should -BeNullOrEmpty
+    }
+}
+
+Describe 'The licence record cannot be bent by hand' {
+    BeforeAll {
+        function Set-FixturePicture {
+            param([string]$Root, [scriptblock]$Change)
+
+            $picturesPath = Join-Path $Root 'source\testland\pictures.json'
+            $pictureSource = Read-EpJson -Path $picturesPath
+            & $Change $pictureSource.pictures[0]
+            Write-EpText -Path $picturesPath -Text (ConvertTo-Json -InputObject $pictureSource -Depth 5)
+        }
+    }
+
+    It 'rejects CC BY without a named author on Commons' {
+        $unnamed = Get-CommonsFixture -Name 'cc-by'
+        $unnamed.query.pages[0].imageinfo[0].extmetadata.Artist.value = 'Unknown author'
+        (Get-EpCommonsVerdict -Response $unnamed).Reason | Should -Match 'without a named author'
+        $unnamed.query.pages[0].imageinfo[0].extmetadata.Artist.value = ''
+        (Get-EpCommonsVerdict -Response $unnamed).Accepted | Should -BeFalse
+    }
+
+    It 'rejects a file that is not a picture, and a download URL off the Wikimedia servers' {
+        $document = Get-CommonsFixture -Name 'pd'
+        $document.query.pages[0].imageinfo[0].mime = 'application/pdf'
+        (Get-EpCommonsVerdict -Response $document).Reason | Should -Match 'not a picture'
+        $elsewhere = Get-CommonsFixture -Name 'pd'
+        $elsewhere.query.pages[0].imageinfo[0].thumburl = 'https://example.com/abatis.jpg'
+        (Get-EpCommonsVerdict -Response $elsewhere).Reason | Should -Match 'not on Wikimedia'
+    }
+
+    It 'rejects a category that does not match the Commons licence code' {
+        $fixtureRoot = New-EpFixtureRepo
+        Set-FixturePicture -Root $fixtureRoot -Change { param($picture) $picture.license = 'cc-by-sa-4.0' }
+        ((Get-ErrorMessages -Root $fixtureRoot) -join "`n") | Should -Match 'does not match its Commons code'
+    }
+
+    It 'rejects public domain without a PD- template reason in the record' {
+        $fixtureRoot = New-EpFixtureRepo
+        Set-FixturePicture -Root $fixtureRoot -Change { param($picture) $picture.license = 'pd'; $picture.licenseCategory = 'PD'; $picture.publicDomainReason = 'trust me' }
+        ((Get-ErrorMessages -Root $fixtureRoot) -join "`n") | Should -Match 'public domain without the reason'
+    }
+
+    It 'rejects pages and downloads off Commons, and a record without its hash or fetch date' {
+        $fixtureRoot = New-EpFixtureRepo
+        Set-FixturePicture -Root $fixtureRoot -Change { param($picture) $picture.pageUrl = 'https://example.com/page'; $picture.downloadUrl = 'https://example.com/a.jpg'; $picture.downloadSha256 = ''; $picture.fetched = '' }
+        $errorMessages = (Get-ErrorMessages -Root $fixtureRoot) -join "`n"
+        $errorMessages | Should -Match 'not a Wikimedia Commons file page'
+        $errorMessages | Should -Match 'not on Wikimedia'
+        $errorMessages | Should -Match 'no downloadSha256'
+        $errorMessages | Should -Match 'no fetched'
+    }
+
+    It 'rejects a cached download whose hash differs from the record' {
+        $fixtureRoot = New-EpFixtureRepo
+        $packData = Get-EpPack -RepoRoot $fixtureRoot -Pack 'testland'
+        Write-FixtureFile -Root $fixtureRoot -RelativePath ((Get-EpCacheFilePath -Pack $packData -Picture $packData.Pictures[0]).Substring($packData.RepoRoot.Length + 1)) -Text 'other bytes'
+        ((Get-ErrorMessages -Root $fixtureRoot) -join "`n") | Should -Match 'does not match the SHA-256'
+    }
+
+    It 'warns about public domain that holds only in the United States' {
+        $fixtureRoot = New-EpFixtureRepo
+        Set-FixturePicture -Root $fixtureRoot -Change { param($picture) $picture.license = 'pd'; $picture.licenseCategory = 'PD'; $picture.publicDomainReason = 'PD-US-expired' }
+        @(Test-EpPack -RepoRoot $fixtureRoot -Pack 'testland' | Where-Object { $_.Level -eq 'WARN' -and $_.Message -match 'United States only' }).Count | Should -Be 1
+    }
+
+    It 'keeps the crop and tone of a picture fetched again without them' {
+        $fixtureRoot = New-EpFixtureRepo
+        Set-FixturePicture -Root $fixtureRoot -Change { param($picture) $picture.crop = '30'; $picture.tone = 'warm' }
+        Mock Invoke-RestMethod { Get-CommonsFixture -Name 'cc-by' }
+        Mock Invoke-WebRequest { [System.IO.File]::WriteAllText($OutFile, 'picture bytes') }
+        Invoke-EpFetchPicture -RepoRoot $fixtureRoot -Pack 'testland' -File 'File:Calling of reservists 1939 (Numeroimaton; JOKAHBL3B J06-1).tif' -Key 'abatis' 6>$null | Select-Object -Last 1 | Should -Be 0
+        $picture = (Get-EpPack -RepoRoot $fixtureRoot -Pack 'testland').Pictures[0]
+        $picture.crop | Should -Be '30'
+        $picture.tone | Should -Be 'warm'
+        $picture.downloadSha256 | Should -Be ((Get-FileHash -LiteralPath (Get-EpCacheFilePath -Pack (Get-EpPack -RepoRoot $fixtureRoot -Pack 'testland') -Picture $picture) -Algorithm SHA256).Hash.ToLowerInvariant())
+    }
+}
+
+Describe 'Nothing ships unchecked' {
+    It 'rejects a file in a pack that is neither generated nor a picture of the manifest' {
+        $fixtureRoot = New-EpFixtureRepo
+        Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'testland' 6>$null | Out-Null
+        Write-FixtureDds -Path (Join-Path $fixtureRoot 'packs\testland\gfx\event_pictures\ep_tst\ep_tst_stray.dds')
+        Write-FixtureFile -Root $fixtureRoot -RelativePath 'packs\testland\sound\stray.wav' -Text 'x'
+        $errorMessages = (Get-ErrorMessages -Root $fixtureRoot) -join "`n"
+        $errorMessages | Should -Match 'packs/testland/gfx/event_pictures/ep_tst/ep_tst_stray\.dds: is not generated'
+        $errorMessages | Should -Match 'packs/testland/sound/stray\.wav: is not generated'
+    }
+
+    It 'accepts only country event pictures from the base game' {
+        $fixtureRoot = New-EpFixtureRepo
+        Set-FixtureEvents -Root $fixtureRoot -Change { param($eventSource) $eventSource.events[0].picture = 'vanilla:GFX_news_event_generic_read_write' }
+        ((Get-ErrorMessages -Root $fixtureRoot) -join "`n") | Should -Match 'not a vanilla event picture sprite'
+    }
+}
+
+Describe 'Packs stand alone' {
+    It 'generates two packs side by side without a shared name' {
+        $fixtureRoot = New-EpFixtureRepo -Packs @('testland', 'otherland')
+        foreach ($packName in @('testland', 'otherland')) {
+            Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack $packName 6>$null | Out-Null
+        }
+        Get-ErrorMessages -Root $fixtureRoot -Pack 'testland' | Should -BeNullOrEmpty
+        Get-ErrorMessages -Root $fixtureRoot -Pack 'otherland' | Should -BeNullOrEmpty
+        Test-Path -LiteralPath (Join-Path $fixtureRoot 'packs\otherland\events\ep_tsu_events.txt') | Should -BeTrue
+    }
+
+    It "rejects a trigger that names another pack's flags, and a namespace two packs share" {
+        $fixtureRoot = New-EpFixtureRepo -Packs @('testland', 'otherland')
+        Set-FixtureEvents -Root $fixtureRoot -Pack 'otherland' -Change { param($eventSource) $eventSource.events[0].fire.trigger = 'has_country_flag = ep_tst_fired_1' }
+        ((Get-ErrorMessages -Root $fixtureRoot -Pack 'otherland') -join "`n") | Should -Match "names 'ep_tst' of another pack"
+        Set-FixtureEvents -Root $fixtureRoot -Pack 'otherland' -Change { param($eventSource) $eventSource.namespace = 'ep_tst'; $eventSource.events[0].fire.trigger = '' }
+        ((Get-ErrorMessages -Root $fixtureRoot -Pack 'otherland') -join "`n") | Should -Match 'is used by another pack'
+    }
+}
+
+Describe 'This repository' {
+    It 'every pack passes the check' {
+        $packNames = @(Get-EpPackNames -RepoRoot $script:RepoRoot)
+        $packNames.Count | Should -BeGreaterThan 0
+        foreach ($packName in $packNames) {
+            @(Test-EpPack -RepoRoot $script:RepoRoot -Pack $packName | Where-Object { $_.Level -eq 'ERROR' } | ForEach-Object { "$($_.Where): $($_.Message)" }) | Should -BeNullOrEmpty -Because "pack '$packName' must pass build.ps1 -Check"
+        }
+    }
+
+    It 'every banned pattern is a valid expression' {
+        { Get-EpBannedPatterns -RepoRoot $script:RepoRoot } | Should -Not -Throw
+        (Get-EpBannedPatterns -RepoRoot $script:RepoRoot).Count | Should -BeGreaterThan 20
+    }
+
+    It 'every capped idea modifier is spelled as the game documents it' {
+        $caps = Get-EpCaps -RepoRoot $script:RepoRoot
+        foreach ($modifierName in @($caps.ideaModifiers.PSObject.Properties.Name)) {
+            $modifierName | Should -Match '^[a-z_]+$'
+        }
+    }
+}

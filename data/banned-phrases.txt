@@ -1,0 +1,89 @@
+# Phrases and patterns that mark generic machine prose. One per line, matched without regard to case.
+# A line starting with re: is a .NET regular expression. Lines starting with # are notes.
+# docs/style-guide.md says why each group is here; add a line when the editor or the owner finds a new tic.
+
+# Inflated abstractions
+testament to
+tapestry
+a stark reminder
+stark reminder
+serves as a reminder
+echoes of
+echoes through
+in the heart of
+at the heart of
+woven into
+the fabric of
+a symbol of
+symbolizes
+symbolises
+embodies
+embodiment of
+resilience
+indomitable
+unwavering
+unyielding
+steadfast resolve
+a beacon of
+beacon of hope
+forged in
+a nation forged
+spirit of the nation
+national spirit soars
+the very soul
+the soul of the nation
+navigate the
+navigating the
+delve
+underscores
+underscoring
+pivotal moment
+a pivotal
+a defining moment
+watershed moment
+landscape of
+ever-changing
+ever-evolving
+rich history
+rich tapestry
+vibrant
+bustling
+nestled
+amidst
+in the face of adversity
+against all odds
+stood tall
+stands tall
+paving the way
+paved the way
+a new chapter
+turning the page
+only time will tell
+remains to be seen
+for generations to come
+left an indelible mark
+indelible
+etched in
+sends a clear message
+sent a clear message
+a sense of
+palpable
+little did
+it is worth noting
+notably
+importantly
+moreover
+furthermore
+in conclusion
+ultimately
+
+# Constructions
+re:\bnot (just|only|merely) [^.,;]{1,60}, but\b
+re:\bnot (just|only|merely) [^.,;]{1,60} but (also )?\b
+re:\bnot because [^.]{1,60}, but because\b
+re:\bmore than (just )?a(n)? [a-z]+[;,] it (is|was)\b
+re:\bwhether [^.]{1,60} or not, one thing is (certain|clear)\b
+re:\bone thing is (certain|clear)\b
+re:\bnow more than ever\b
+re:\bas the dust settles\b
+re:\bthe question (is|was|remains) no longer\b
