@@ -45,7 +45,7 @@ Read the new dossier. Drop candidates whose key facts are `UNVERIFIED` or that c
 ## Phase 5: gate
 1. Rehearse the plan without touching the repository: `robocopy . scratch\rehearsal /MIR /XD .git scratch artifacts sources-cache`, then in `scratch\rehearsal` run steps 1 to 6 of the plan exactly as written (they write only the copy). Every step must give what it says to expect; fix the plan, not the copy, and rehearse again.
 2. Fill "Events", list in "Kept on judgment" any `[WARN]` the rehearsal's `-Check -Pack <key>` printed that stays, and set `Status: READY`.
-3. Delete `scratch/rehearsal/`.
+3. Delete the copy: `Remove-Item -Recurse -Force scratch\rehearsal`.
 4. Mark each event of the READY plan in the dossier that holds it: a line `Used: <plan file name>` right under its `## <key>` heading. Change nothing else in a dossier; a candidate the owner or the editor dropped stays unmarked, as the researcher wrote it.
 
 ## Phase 6: hand off

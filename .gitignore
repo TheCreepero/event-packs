@@ -16,5 +16,7 @@ desktop.ini
 *.swp
 *.bak
 .steam_username
+CLAUDE.local.md
+.claude/settings.local.json
 # Downloaded originals of the event pictures (build.ps1 -ConvertPictures downloads them again from source/<pack>/pictures.json)
 sources-cache/

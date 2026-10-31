@@ -38,9 +38,18 @@
       "Bash(*build.ps1*-Deploy*)",
       "Bash(*build.ps1*-DevLink*)",
       "Bash(*build.ps1*-Clean*)",
-      "Bash(*push-wiki.ps1*)"
+      "Bash(*push-wiki.ps1*)",
+      "PowerShell(powershell -File .\\build.ps1 -PreviewPictures*)",
+      "Bash(powershell*build.ps1 -PreviewPictures*)",
+      "PowerShell(Get-Help .\\build.ps1*)",
+      "PowerShell(robocopy . scratch\\rehearsal *)",
+      "Bash(robocopy . scratch*rehearsal *)",
+      "PowerShell(Remove-Item -Recurse -Force scratch\\rehearsal)",
+      "Bash(rm -rf scratch/rehearsal)"
     ],
     "ask": [
+      "Read(tools/EventPacks.ps1)",
+      "Read(tools/HoiModBuild.ps1)",
       "PowerShell(*build.ps1*-NewPack*)",
       "PowerShell(*build.ps1*-PublishSteam*)",
       "PowerShell(*build.ps1*-InstallSteamCmd*)",
@@ -59,6 +68,18 @@
           {
             "type": "command",
             "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/Protect-ProjectFiles.ps1\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/Show-PlanState.ps1\"",
             "timeout": 15
           }
         ]

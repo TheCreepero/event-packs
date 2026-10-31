@@ -46,14 +46,58 @@ try {
 
     if ($toolName -in @('Bash', 'PowerShell')) {
         $command = [string]$hookInput.tool_input.command
-        if (-not $command -or $command -notmatch '(^|[\s"''=(\\/])packs[\\/]|pictures\.json|Event-Pack-') { exit 0 }
+        $protectedPathPattern = '(^|[\s"''=(\\/])packs[\\/]|pictures\.json|(^|[\s"''=(\\/])Event-Pack-[^\s"''\\/]*\.md|tools[\\/]HoiModBuild\.ps1|tests[\\/](BuildEngine\.Tests|Run-Tests|Knowledge\.Tests)\.ps1|\.github[\\/]workflows[\\/]ci\.yml|\.agents[\\/]skills'
+        if (-not $command -or $command -notmatch $protectedPathPattern) { exit 0 }
         $singleBuildCall = '^\s*(&\s*)?((powershell|pwsh)(\.exe)?\s+(-\w+\s+)*-File\s+)?["'']?(\.[\\/])?build\.ps1["'']?(\s+-\w+(\s+("[^"]*"|''[^'']*''|[^\s;&|<>`$]+))?)*\s*$'
-        if ($command -match $singleBuildCall) { exit 0 }
-        if ($command -match '^\s*git\s' -and $command -notmatch '[;&|<>`$]') { exit 0 }
         $writePattern = 'Set-Content|Add-Content|Out-File|Clear-Content|WriteAll|\.Write\(|Copy-Item|Move-Item|Remove-Item|Rename-Item|New-Item|Set-Item|Export-|robocopy|xcopy|\bcopy\b|\bdel\b|\bren\b|sed\s+-i|\bcp\s|\bmv\s|\brm\s|\btee\b|\btouch\s|\bdd\s|\bpython|\bpy\s|\bnode\b|\bperl\b|\bruby\b|Invoke-WebRequest|\bcurl\b|\bwget\b|(?<![2&])>(?!\s*\$null)'
-        if ($command -match $writePattern) {
-            [Console]::Error.WriteLine('The command writes and names a pack folder, a pictures.json or a generated wiki page: a pack changes only through build.ps1 (-Generate, -ConvertPictures, -FetchPicture), run as a command of its own. See docs/source-format.md.')
-            exit 2
+        $locationOrVariablePattern = '^\s*((Set-Location|Push-Location|cd|sl|chdir|pushd)\b|\$[\w:]+\s*=|(export\s+)?[A-Za-z_]\w*=)'
+
+        function Split-CommandStatement {
+            param([string]$CommandText)
+
+            $statements = [System.Collections.Generic.List[string]]::new()
+            $currentStatement = [System.Text.StringBuilder]::new()
+            $openQuote = [char]0
+            for ($index = 0; $index -lt $CommandText.Length; $index++) {
+                $character = $CommandText[$index]
+                $nextCharacter = if ($index + 1 -lt $CommandText.Length) { $CommandText[$index + 1] } else { [char]0 }
+                if ($openQuote -ne [char]0) {
+                    if ($character -eq $openQuote) { $openQuote = [char]0 }
+                    [void]$currentStatement.Append($character)
+                    continue
+                }
+                if ($character -eq [char]'"' -or $character -eq [char]"'") {
+                    $openQuote = $character
+                    [void]$currentStatement.Append($character)
+                    continue
+                }
+                $isSeparator = $character -eq [char]';' -or $character -eq [char]"`n" -or $character -eq [char]"`r"
+                $isDoubleOperator = ($character -eq [char]'&' -and $nextCharacter -eq [char]'&') -or ($character -eq [char]'|' -and $nextCharacter -eq [char]'|')
+                if ($isSeparator -or $isDoubleOperator) {
+                    $statements.Add($currentStatement.ToString())
+                    [void]$currentStatement.Clear()
+                    if ($isDoubleOperator) { $index++ }
+                    continue
+                }
+                [void]$currentStatement.Append($character)
+            }
+            $statements.Add($currentStatement.ToString())
+            return @($statements | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+        }
+
+        $protectedLocationCarried = $false
+        foreach ($statement in @(Split-CommandStatement -CommandText $command)) {
+            $namesProtectedPath = $statement -match $protectedPathPattern
+            if ($statement -match $singleBuildCall) { continue }
+            if ($statement -match '^\s*git\s' -and $statement -notmatch '[|>]') { continue }
+            if ($statement -match $writePattern) {
+                if ($namesProtectedPath -or $protectedLocationCarried) {
+                    [Console]::Error.WriteLine("The statement '$statement' writes to a protected path: a pack folder, a pictures.json or a generated wiki page changes only through build.ps1 (-Generate, -ConvertPictures, -FetchPicture) run as a statement of its own (see docs/source-format.md); a file synced from the Manager or the .agents mirror changes at its source. Git statements and other statements in the same command are not affected.")
+                    exit 2
+                }
+                continue
+            }
+            if ($namesProtectedPath -and $statement -match $locationOrVariablePattern) { $protectedLocationCarried = $true }
         }
         exit 0
     }

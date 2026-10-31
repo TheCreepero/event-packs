@@ -57,7 +57,14 @@ Describe 'Protect-ProjectFiles hook' {
         @{ Command = "python -c `"open('packs/finland/events/x.txt','w').write('x')`"" },
         @{ Command = 'powershell -File .\build.ps1 -Generate; Remove-Item packs\finland\events\ep_fin_events.txt' },
         @{ Command = 'echo x > packs/finland/sound/x.wav' },
-        @{ Command = 'cp other.json source/finland/pictures.json' }
+        @{ Command = 'cp other.json source/finland/pictures.json' },
+        @{ Command = 'Get-ChildItem docs; Set-Content packs\finland\events\x.txt x' },
+        @{ Command = 'cd packs/finland && rm events/x.txt' },
+        @{ Command = "python -c `"import os; open('packs/finland/x.txt','w')`"" },
+        @{ Command = 'Copy-Item x.md wiki\Event-Pack-Finland.md' },
+        @{ Command = 'Set-Content tools\HoiModBuild.ps1 x' },
+        @{ Command = 'Remove-Item tests\Run-Tests.ps1' },
+        @{ Command = 'Set-Content .agents\skills\event-pack-create\SKILL.md x' }
     ) {
         param($Command)
         Invoke-ProtectHook -ToolName 'PowerShell' -ToolInput @{ command = $Command } | Should -Be 2
@@ -70,9 +77,26 @@ Describe 'Protect-ProjectFiles hook' {
         @{ Command = 'git status --short -- packs/finland' },
         @{ Command = 'git diff -- source/finland/pictures.json' },
         @{ Command = 'Get-Content packs\finland\events\ep_fin_events.txt' },
-        @{ Command = 'Get-ChildItem packs\finland -Recurse 2>$null' }
+        @{ Command = 'Get-ChildItem packs\finland -Recurse 2>$null' },
+        @{ Command = 'git mv docs/plans/2026-11-01-finland-pack.md docs/plans/archive/2026-11-01-finland-pack.md; git add packs/finland source/finland' },
+        @{ Command = 'Move-Item docs\plans\x.md docs\plans\archive\x.md; git add docs\plans\archive\x.md packs\finland wiki\Event-Pack-Finland.md' },
+        @{ Command = 'git add packs/finland source/finland && git commit -m "feat(finland): ten events"' },
+        @{ Command = 'Get-Content packs\finland\events\ep_fin_events.txt; Copy-Item docs\a.md scratch\b.md' },
+        @{ Command = 'Copy-Item .claude\skills\event-pack-create\SKILL.md scratch\skill.md' },
+        @{ Command = 'Set-Location packs\finland; git status --short' },
+        @{ Command = 'powershell -File .\build.ps1 -Check -Pack finland 2>&1 | Select-Object -Last 5' }
     ) {
         param($Command)
         Invoke-ProtectHook -ToolName 'PowerShell' -ToolInput @{ command = $Command } | Should -Be 0
+    }
+}
+
+Describe 'Show-PlanState hook' {
+    It 'prints the plan states and the uncommitted files and exits 0' {
+        $planStateHook = Join-Path $script:RepoRoot '.claude\hooks\Show-PlanState.ps1'
+        $hookOutput = @('{}' | & $script:PowerShellExe -NoProfile -ExecutionPolicy Bypass -File $planStateHook -RepoRoot $script:RepoRoot)
+        $LASTEXITCODE | Should -Be 0
+        $hookOutput[0] | Should -BeLike 'Plans in docs/plans*'
+        $hookOutput | Should -Contain 'Uncommitted files (git status --short):'
     }
 }

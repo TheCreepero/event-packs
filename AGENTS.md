@@ -19,7 +19,7 @@ Shared rules for every mod in this tree (file encodings, build commands, engine 
 - Work goes plan first: a skill writes a READY plan in `docs/plans/`, `event-pack-implement` carries it out, the commit waits for the user.
 
 ## Commands beyond build.ps1
-- `build.ps1 -NewPack -Pack <key> -Tag <TAG> -DisplayName "<Country>"`, `-Generate [-Pack] [-DryRun]`, `-FetchPicture -Pack -File -Key [-Crop] [-Tone] [-DryRun]`, `-ConvertPictures [-Pack] [-Force]`, `-PreviewPictures [-Pack]`, `-Check [-Pack]`, `-Audit -Pack`, `-SyncMirrors`. `Get-Help .\build.ps1` lists the parameters; `tools/EventPacks.ps1` holds the code.
+- `build.ps1 -NewPack -Pack <key> -Tag <TAG> -DisplayName "<Country>"`, `-Generate [-Pack] [-DryRun]`, `-FetchPicture -Pack -File -Key [-Crop] [-Tone] [-DryRun]`, `-ConvertPictures [-Pack] [-Force]`, `-PreviewPictures [-Pack]`, `-Check [-Pack]`, `-Audit -Pack`, `-SyncMirrors`. `Get-Help .\build.ps1` lists the parameters. Run the tools; don't read `tools/EventPacks.ps1` or `tools/HoiModBuild.ps1` (about 30k tokens together; a read asks the user first). If one seems broken, report the command and its output.
 - `-ConvertPictures` needs Python 3 with Pillow.
 
 ## Read when
