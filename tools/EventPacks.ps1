@@ -1123,7 +1123,63 @@ function Get-EpCommonsVerdict {
 }
 
 function Get-EpWebHeaders {
-    return @{ 'User-Agent' = 'EventPacksModTools/1.0 (Hearts of Iron IV mod build tool; one request per picture)' }
+    $powerShellVersion = '{0}.{1}' -f $PSVersionTable.PSVersion.Major, $PSVersionTable.PSVersion.Minor
+    return @{ 'User-Agent' = "EventPacksBot/1.0 (https://github.com/TheCreepero/event-packs; Hearts of Iron IV mod build tool, one request at a time) PowerShell/$powerShellVersion" }
+}
+
+function Get-EpWebErrorText {
+    param([Parameter(Mandatory = $true)][System.Management.Automation.ErrorRecord]$ErrorRecord)
+
+    $text = if ($null -ne $ErrorRecord.ErrorDetails -and $ErrorRecord.ErrorDetails.Message) { $ErrorRecord.ErrorDetails.Message } else { $ErrorRecord.Exception.Message }
+    $text = ([regex]::Replace([string]$text, '<[^>]+>', ' ') -replace '\s+', ' ').Trim()
+    if ($text.Length -gt 300) {
+        $text = $text.Substring(0, 300) + '...'
+    }
+    return $text
+}
+
+function Get-EpRetryDelaySeconds {
+    param($Response, [Parameter(Mandatory = $true)][int]$Attempt)
+
+    $backoffSeconds = 5 * [Math]::Pow(2, $Attempt - 1)
+    $retryAfterSeconds = 0
+    $headers = Get-EpProperty -Object $Response -Name 'Headers'
+    if ($null -ne $headers -and -not [int]::TryParse([string]$headers['Retry-After'], [ref]$retryAfterSeconds)) {
+        $retryAfterSeconds = 0
+    }
+    return [int][Math]::Min(120, [Math]::Max($retryAfterSeconds, $backoffSeconds))
+}
+
+function Invoke-EpCommonsRequest {
+    param(
+        [Parameter(Mandatory = $true)][string]$Uri,
+        [string]$OutFile,
+        [int]$MaxAttempts = 5
+    )
+
+    for ($attempt = 1; ; $attempt++) {
+        try {
+            if ($OutFile) {
+                Invoke-WebRequest -Uri $Uri -Headers (Get-EpWebHeaders) -OutFile $OutFile -UseBasicParsing
+                return
+            }
+            return (Invoke-RestMethod -Uri $Uri -Headers (Get-EpWebHeaders) -UseBasicParsing)
+        } catch {
+            $response = Get-EpProperty -Object $_.Exception -Name 'Response'
+            $statusCode = if ($null -ne $response) { [int]$response.StatusCode } else { 0 }
+            if ($statusCode -notin @(429, 503)) {
+                throw
+            }
+            Write-Host "  Wikimedia answered $statusCode`: $(Get-EpWebErrorText -ErrorRecord $_)" -ForegroundColor Yellow
+            if ($attempt -ge $MaxAttempts) {
+                Write-Host "  giving up after $MaxAttempts attempts" -ForegroundColor Yellow
+                throw
+            }
+            $delaySeconds = Get-EpRetryDelaySeconds -Response $response -Attempt $attempt
+            Write-Host "  trying again in $delaySeconds s (attempt $($attempt + 1) of $MaxAttempts)" -ForegroundColor Yellow
+            Start-Sleep -Seconds $delaySeconds
+        }
+    }
 }
 
 function Get-EpCacheFilePath {
@@ -1180,7 +1236,7 @@ function Invoke-EpFetchPicture {
     }
     $packData = Get-EpPack -RepoRoot $RepoRoot -Pack $Pack
     $fileTitle = if ($File -like 'File:*') { $File } else { 'File:' + $File }
-    $response = Invoke-RestMethod -Uri (Get-EpCommonsQueryUrl -FileTitle $fileTitle) -Headers (Get-EpWebHeaders) -UseBasicParsing
+    $response = Invoke-EpCommonsRequest -Uri (Get-EpCommonsQueryUrl -FileTitle $fileTitle)
     $verdict = Get-EpCommonsVerdict -Response $response
     if (-not $verdict.Accepted) {
         Write-Host "REJECTED $fileTitle : $($verdict.Reason)" -ForegroundColor Red
@@ -1203,7 +1259,7 @@ function Invoke-EpFetchPicture {
     if (-not (Test-Path -LiteralPath $packData.CacheDir)) {
         New-Item -ItemType Directory -Path $packData.CacheDir -Force | Out-Null
     }
-    Invoke-WebRequest -Uri $picture.downloadUrl -Headers (Get-EpWebHeaders) -OutFile $cachePath -UseBasicParsing
+    Invoke-EpCommonsRequest -Uri $picture.downloadUrl -OutFile $cachePath
     $picture.downloadSha256 = (Get-FileHash -LiteralPath $cachePath -Algorithm SHA256).Hash.ToLowerInvariant()
     $keptPictures = [System.Collections.Generic.List[PSObject]]::new()
     foreach ($existingPicture in $packData.Pictures) {
@@ -1255,7 +1311,7 @@ function Invoke-EpConvertPictures {
             if (-not (Test-Path -LiteralPath $packData.CacheDir)) {
                 New-Item -ItemType Directory -Path $packData.CacheDir -Force | Out-Null
             }
-            Invoke-WebRequest -Uri $picture.downloadUrl -Headers (Get-EpWebHeaders) -OutFile $cachePath -UseBasicParsing
+            Invoke-EpCommonsRequest -Uri $picture.downloadUrl -OutFile $cachePath
             $downloadedHash = (Get-FileHash -LiteralPath $cachePath -Algorithm SHA256).Hash.ToLowerInvariant()
             if ($picture.downloadSha256 -and $downloadedHash -ne $picture.downloadSha256) {
                 Write-Host "  [WARN] $pictureKey downloaded again with other bytes than recorded; Commons may have re-rendered the thumbnail" -ForegroundColor Yellow
