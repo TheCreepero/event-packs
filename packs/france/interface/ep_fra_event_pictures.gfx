@@ -1,0 +1,74 @@
+spriteTypes = {
+	spriteType = {
+		name = "GFX_ep_fra_alsace_evacuation_1939"
+		texturefile = "gfx/event_pictures/ep_fra/ep_fra_alsace_evacuation_1939.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fra_bastille_day_1939"
+		texturefile = "gfx/event_pictures/ep_fra/ep_fra_bastille_day_1939.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fra_cannes_festival_1939"
+		texturefile = "gfx/event_pictures/ep_fra/ep_fra_cannes_festival_1939.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fra_expo_1937"
+		texturefile = "gfx/event_pictures/ep_fra/ep_fra_expo_1937.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fra_george_vi_front_visit_dec_1939"
+		texturefile = "gfx/event_pictures/ep_fra/ep_fra_george_vi_front_visit_dec_1939.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fra_heavy_water_1940"
+		texturefile = "gfx/event_pictures/ep_fra/ep_fra_heavy_water_1940.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fra_louvre_evacuation_1939"
+		texturefile = "gfx/event_pictures/ep_fra/ep_fra_louvre_evacuation_1939.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fra_marseille_nouvelles_galeries_fire"
+		texturefile = "gfx/event_pictures/ep_fra/ep_fra_marseille_nouvelles_galeries_fire.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fra_mermoz_disappearance"
+		texturefile = "gfx/event_pictures/ep_fra/ep_fra_mermoz_disappearance.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fra_pcf_dissolution_1939"
+		texturefile = "gfx/event_pictures/ep_fra/ep_fra_pcf_dissolution_1939.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fra_phenix_submarine_loss"
+		texturefile = "gfx/event_pictures/ep_fra/ep_fra_phenix_submarine_loss.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fra_polish_army_in_france_1939"
+		texturefile = "gfx/event_pictures/ep_fra/ep_fra_polish_army_in_france_1939.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fra_richelieu_launch_1939"
+		texturefile = "gfx/event_pictures/ep_fra/ep_fra_richelieu_launch_1939.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fra_royal_visit_1938"
+		texturefile = "gfx/event_pictures/ep_fra/ep_fra_royal_visit_1938.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fra_saar_offensive_1939"
+		texturefile = "gfx/event_pictures/ep_fra/ep_fra_saar_offensive_1939.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fra_salengro_affair"
+		texturefile = "gfx/event_pictures/ep_fra/ep_fra_salengro_affair.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fra_transindochinois_1936"
+		texturefile = "gfx/event_pictures/ep_fra/ep_fra_transindochinois_1936.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_fra_world_cup_1938"
+		texturefile = "gfx/event_pictures/ep_fra/ep_fra_world_cup_1938.dds"
+	}
+}

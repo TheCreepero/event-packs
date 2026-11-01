@@ -1,0 +1,403 @@
+add_namespace = ep_fra
+
+country_event = {
+	id = ep_fra.1
+	title = ep_fra.1.t
+	desc = ep_fra.1.desc
+	picture = GFX_ep_fra_transindochinois_1936
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fra.1.a
+		ai_chance = { factor = 60 }
+		add_timed_idea = { idea = ep_fra_transindochinois_traffic days = 120 }
+	}
+
+	option = {
+		name = ep_fra.1.b
+		ai_chance = { factor = 40 }
+		add_stability = 0.02
+	}
+}
+
+country_event = {
+	id = ep_fra.2
+	title = ep_fra.2.t
+	desc = ep_fra.2.desc
+	picture = GFX_report_event_generic_sign_treaty1
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fra.2.a
+		ai_chance = { factor = 60 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_fra.2.b
+		ai_chance = { factor = 40 }
+		add_war_support = 0.01
+	}
+}
+
+country_event = {
+	id = ep_fra.3
+	title = ep_fra.3.t
+	desc = ep_fra.3.desc
+	picture = GFX_ep_fra_salengro_affair
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fra.3.a
+		ai_chance = { factor = 60 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_fra.3.b
+		ai_chance = { factor = 40 }
+		add_stability = 0.01
+		add_war_support = 0.01
+	}
+}
+
+country_event = {
+	id = ep_fra.4
+	title = ep_fra.4.t
+	desc = ep_fra.4.desc
+	picture = GFX_ep_fra_mermoz_disappearance
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fra.4.a
+		ai_chance = { factor = 60 }
+		add_war_support = 0.02
+	}
+
+	option = {
+		name = ep_fra.4.b
+		ai_chance = { factor = 40 }
+		add_stability = 0.02
+	}
+}
+
+country_event = {
+	id = ep_fra.5
+	title = ep_fra.5.t
+	desc = ep_fra.5.desc
+	picture = GFX_ep_fra_expo_1937
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fra.5.a
+		ai_chance = { factor = 50 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_fra.5.b
+		ai_chance = { factor = 50 }
+		add_timed_idea = { idea = ep_fra_palais_de_la_decouverte days = 180 }
+	}
+}
+
+country_event = {
+	id = ep_fra.6
+	title = ep_fra.6.t
+	desc = ep_fra.6.desc
+	picture = GFX_ep_fra_world_cup_1938
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fra.6.a
+		ai_chance = { factor = 60 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_fra.6.b
+		ai_chance = { factor = 40 }
+		add_war_support = 0.02
+	}
+}
+
+country_event = {
+	id = ep_fra.7
+	title = ep_fra.7.t
+	desc = ep_fra.7.desc
+	picture = GFX_ep_fra_royal_visit_1938
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fra.7.a
+		ai_chance = { factor = 60 }
+		add_war_support = 0.02
+	}
+
+	option = {
+		name = ep_fra.7.b
+		ai_chance = { factor = 40 }
+		add_stability = 0.02
+	}
+}
+
+country_event = {
+	id = ep_fra.8
+	title = ep_fra.8.t
+	desc = ep_fra.8.desc
+	picture = GFX_ep_fra_marseille_nouvelles_galeries_fire
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fra.8.a
+		ai_chance = { factor = 60 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_fra.8.b
+		ai_chance = { factor = 40 }
+		add_stability = 0.01
+	}
+}
+
+country_event = {
+	id = ep_fra.9
+	title = ep_fra.9.t
+	desc = ep_fra.9.desc
+	picture = GFX_ep_fra_richelieu_launch_1939
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fra.9.a
+		ai_chance = { factor = 60 }
+		add_war_support = 0.02
+	}
+
+	option = {
+		name = ep_fra.9.b
+		ai_chance = { factor = 40 }
+		add_stability = 0.01
+	}
+}
+
+country_event = {
+	id = ep_fra.10
+	title = ep_fra.10.t
+	desc = ep_fra.10.desc
+	picture = GFX_ep_fra_phenix_submarine_loss
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fra.10.a
+		ai_chance = { factor = 60 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_fra.10.b
+		ai_chance = { factor = 40 }
+		add_war_support = 0.01
+	}
+}
+
+country_event = {
+	id = ep_fra.11
+	title = ep_fra.11.t
+	desc = ep_fra.11.desc
+	picture = GFX_ep_fra_bastille_day_1939
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fra.11.a
+		ai_chance = { factor = 60 }
+		add_war_support = 0.02
+	}
+
+	option = {
+		name = ep_fra.11.b
+		ai_chance = { factor = 40 }
+		add_stability = 0.02
+	}
+}
+
+country_event = {
+	id = ep_fra.12
+	title = ep_fra.12.t
+	desc = ep_fra.12.desc
+	picture = GFX_report_event_generic_read_write
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fra.12.a
+		ai_chance = { factor = 60 }
+		add_timed_idea = { idea = ep_fra_family_code days = 180 }
+	}
+
+	option = {
+		name = ep_fra.12.b
+		ai_chance = { factor = 40 }
+		add_stability = 0.01
+	}
+}
+
+country_event = {
+	id = ep_fra.13
+	title = ep_fra.13.t
+	desc = ep_fra.13.desc
+	picture = GFX_ep_fra_louvre_evacuation_1939
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fra.13.a
+		ai_chance = { factor = 60 }
+		add_war_support = 0.02
+	}
+
+	option = {
+		name = ep_fra.13.b
+		ai_chance = { factor = 40 }
+		add_stability = 0.02
+	}
+}
+
+country_event = {
+	id = ep_fra.14
+	title = ep_fra.14.t
+	desc = ep_fra.14.desc
+	picture = GFX_ep_fra_cannes_festival_1939
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fra.14.a
+		ai_chance = { factor = 60 }
+		add_stability = 0.01
+	}
+
+	option = {
+		name = ep_fra.14.b
+		ai_chance = { factor = 40 }
+		add_stability = 0.02
+		add_war_support = -0.01
+	}
+}
+
+country_event = {
+	id = ep_fra.15
+	title = ep_fra.15.t
+	desc = ep_fra.15.desc
+	picture = GFX_ep_fra_alsace_evacuation_1939
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fra.15.a
+		ai_chance = { factor = 60 }
+		add_timed_idea = { idea = ep_fra_evacuee_relief days = 120 }
+	}
+
+	option = {
+		name = ep_fra.15.b
+		ai_chance = { factor = 40 }
+		add_war_support = 0.01
+	}
+}
+
+country_event = {
+	id = ep_fra.16
+	title = ep_fra.16.t
+	desc = ep_fra.16.desc
+	picture = GFX_ep_fra_saar_offensive_1939
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fra.16.a
+		ai_chance = { factor = 60 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_fra.16.b
+		ai_chance = { factor = 40 }
+		add_war_support = 0.02
+	}
+}
+
+country_event = {
+	id = ep_fra.17
+	title = ep_fra.17.t
+	desc = ep_fra.17.desc
+	picture = GFX_ep_fra_polish_army_in_france_1939
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fra.17.a
+		ai_chance = { factor = 50 }
+		add_war_support = 0.02
+	}
+
+	option = {
+		name = ep_fra.17.b
+		ai_chance = { factor = 50 }
+		add_stability = 0.01
+	}
+}
+
+country_event = {
+	id = ep_fra.18
+	title = ep_fra.18.t
+	desc = ep_fra.18.desc
+	picture = GFX_ep_fra_pcf_dissolution_1939
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fra.18.a
+		ai_chance = { factor = 60 }
+		add_war_support = 0.02
+	}
+
+	option = {
+		name = ep_fra.18.b
+		ai_chance = { factor = 40 }
+		add_stability = 0.02
+	}
+}
+
+country_event = {
+	id = ep_fra.19
+	title = ep_fra.19.t
+	desc = ep_fra.19.desc
+	picture = GFX_ep_fra_george_vi_front_visit_dec_1939
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fra.19.a
+		ai_chance = { factor = 60 }
+		add_war_support = 0.02
+	}
+
+	option = {
+		name = ep_fra.19.b
+		ai_chance = { factor = 40 }
+		add_stability = 0.01
+	}
+}
+
+country_event = {
+	id = ep_fra.20
+	title = ep_fra.20.t
+	desc = ep_fra.20.desc
+	picture = GFX_ep_fra_heavy_water_1940
+	is_triggered_only = yes
+
+	option = {
+		name = ep_fra.20.a
+		ai_chance = { factor = 60 }
+		add_timed_idea = { idea = ep_fra_joliot_curie_laboratory days = 180 }
+	}
+
+	option = {
+		name = ep_fra.20.b
+		ai_chance = { factor = 40 }
+		add_war_support = 0.01
+	}
+}

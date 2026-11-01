@@ -1,0 +1,51 @@
+ideas = {
+	country = {
+		ep_fra_transindochinois_traffic = {
+			removal_cost = -1
+			picture = generic_political_support
+			allowed = { always = no }
+			allowed_civil_war = { always = no }
+			modifier = {
+				production_factory_efficiency_gain_factor = 0.03
+			}
+		}
+		ep_fra_palais_de_la_decouverte = {
+			removal_cost = -1
+			picture = generic_research_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = no }
+			modifier = {
+				research_speed_factor = 0.02
+			}
+		}
+		ep_fra_family_code = {
+			removal_cost = -1
+			picture = generic_political_support
+			allowed = { always = no }
+			allowed_civil_war = { always = no }
+			modifier = {
+				monthly_population = 0.05
+				consumer_goods_factor = 0.02
+			}
+		}
+		ep_fra_evacuee_relief = {
+			removal_cost = -1
+			picture = generic_political_support
+			allowed = { always = no }
+			allowed_civil_war = { always = no }
+			modifier = {
+				stability_factor = 0.03
+				consumer_goods_factor = 0.02
+			}
+		}
+		ep_fra_joliot_curie_laboratory = {
+			removal_cost = -1
+			picture = generic_research_bonus
+			allowed = { always = no }
+			allowed_civil_war = { always = no }
+			modifier = {
+				research_speed_factor = 0.03
+			}
+		}
+	}
+}
