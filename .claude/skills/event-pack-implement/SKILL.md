@@ -30,7 +30,7 @@ The report is a claim. Check:
 2. `powershell -File .\build.ps1 -ValidateOnly` ends `Validation succeeded.`; `powershell -File .\build.ps1 -Test` has no failed test.
 3. `git status --short` lists only `source/<key>/`, `packs/<key>/`, `research/<key>/` (the plan's dossier and its `Used:` marks), `wiki/Event-Pack-<Country>.md` and the plan.
 4. The plan says `Status: DONE`, every box but the ship step is ticked.
-5. Look at each new picture: `powershell -File .\build.ps1 -PreviewPictures -Pack <key>` writes PNG copies of the pack's DDS pictures to `scratch/preview/<key>/`; open each with the Read tool, and `packs/<key>/thumbnail.png` when the plan made one. A crop that cuts the subject goes back to the planner.
+5. Look at each new picture: `powershell -File .\build.ps1 -PreviewPictures -Pack <key>` writes PNG copies of the pack's DDS pictures to `scratch/preview/<key>/`; open each with the Read tool, and `packs/<key>/thumbnail.png` when the plan made one. A crop that cuts the subject goes back to the planner, and so does a thumbnail whose banner or flag covers the picture's subject while an empty band stays bare.
 
 Then dispatch `ep-reviewer` with the task as the owner asked it, the plan path and the summary lines of the three commands. Fix nothing yourself: Critical or Important findings go back to the planner (section 4).
 
