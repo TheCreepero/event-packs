@@ -4,6 +4,7 @@ The researcher's tools (Write only, no Read or Edit) could not edit `2026-10-31-
 
 ## sillanpaa_nobel
 Used: 2026-10-31-finland-first-events.md
+Checked: 2026-11-01-finland-audit.md, 5 kept, 2 fixed, 0 dropped. The facts below are the researcher's notes, not the checked ones: see source/finland/fact-sheets.md.
 Date: 10 November 1939 (announced); December 1939 (presentation, exact day UNVERIFIED)
 Kind: culture
 Suggested window: 1939-11-10 to 1939-12-15 (straddles the war's outbreak)

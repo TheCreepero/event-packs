@@ -3,7 +3,6 @@
     "tag": "FIN",
     "namespace": "ep_fin",
     "displayName": "Finland",
-    "factQuotesFromId": 16,
     "events": [
         {
             "id": 1,
@@ -48,7 +47,7 @@
             "id": 2,
             "key": "red_earth_government",
             "title": "Cajander Forms a Red-Earth Government",
-            "desc": "President Kyösti Kallio, in office since 1 March, has asked Aimo Cajander of the National Progressive Party to form a majority government. The cabinet formed on 12 March joins the Progressives, the Social Democrats, the Agrarian League and the Swedish People's Party. The alliance of the Agrarian League, the Social Democrats and the Progressives is known as punamulta, red-earth.\n\nVäinö Tanner of the Social Democrats takes the finance ministry. Tanner backed Kallio in the February election, and the two have worked together to defend parliamentary government against the far right.",
+            "desc": "Kyösti Kallio has been president since 1 March. After his election, Aimo Cajander, chairman of the National Progressive Party, was asked to form a majority government. The cabinet formed on 12 March joins the Progressives, the Social Democrats, the Agrarian League and the Swedish People's Party. The first three are called punamulta, red-earth.\n\nVäinö Tanner of the Social Democrats takes the finance ministry. In the years of right-wing unrest, Kallio and Tanner worked closely together for parliamentary government and democracy.",
             "picture": "red_earth_government",
             "factSheet": "red_earth_government",
             "anchors": [
@@ -89,7 +88,7 @@
             "id": 3,
             "key": "aalto_world_fairs",
             "title": "Aalto's Timber Pavilion Stands at the Paris Exposition",
-            "desc": "The Paris exposition opened on 25 May, with 45 countries taking part. It runs until 25 November.\n\nFinland's pavilion is the work of Alvar Aalto, who won both first and second prizes in last year's open competition with the entry 'Le bois est en marche'. The pavilion is built entirely of timber. Its purpose is to promote wood, Finland's chief export.",
+            "desc": "The Paris exposition opened on 25 May, with 45 countries taking part. It runs until 25 November.\n\nFinland's pavilion is the work of Alvar Aalto, who won both first and second prize in last year's open competition. His winning entry, 'Le bois est en marche', formed the basis of the pavilion. It is built entirely of timber, an advertisement for Finland's prime export.",
             "picture": "aalto_world_fairs",
             "factSheet": "aalto_world_fairs",
             "anchors": [
@@ -131,7 +130,7 @@
             "id": 4,
             "key": "vickers_six_ton_tanks",
             "title": "The First Vickers Tanks Arrive Without Guns",
-            "desc": "The first Vickers-Armstrongs 6-ton tanks have arrived. The Ministry of Defence ordered 32 on 20 July 1936, enough for a battalion of two 15-tank companies and a headquarters element. Eleven were due by 20 July 1937.\n\nTo save money, the tanks were ordered without optics, radios or armament, at 4,500 pounds each. They now go to the State Artillery Factory, Valtion Tykkitehdas, to be fitted with a 37 mm gun adapted from the licence-built Bofors anti-tank gun. Vickers offered a 47 mm gun, which was turned down for poor penetration.",
+            "desc": "The first Vickers-Armstrongs 6-ton tanks have arrived. The Ministry of Defence ordered 32 on 20 July 1936, to form a battalion of two 15-tank companies and a 2-tank headquarters element. Eleven were due by 20 July 1937.\n\nTo save money, the tanks were ordered without optics, radios or armament, at 4,500 pounds each. They now go to the State Artillery Factory, Valtion Tykkitehdas, to be equipped with guns.",
             "picture": "vanilla:GFX_report_event_tank_factory",
             "factSheet": "vickers_six_ton_tanks",
             "anchors": [
@@ -174,7 +173,7 @@
             "id": 5,
             "key": "maternity_grant_1937",
             "title": "Maternity Grant Law Adopted",
-            "desc": "A law adopted on 24 September gives mothers a maternity grant from 1 January 1938. The grant is worth 450 markkaa per child and can be taken as goods, as cash or as a mix of both. It is for mothers of low income.\n\nThe law answers concern over infant mortality and the falling birth rate.",
+            "desc": "A law adopted on 24 September gives mothers of low income a maternity grant from 1 January 1938. The grant is worth 450 markkaa per child, paid as cash or in kind.\n\nThe law answers concern over the falling birth rate and high child mortality.",
             "picture": "maternity_grant_1937",
             "factSheet": "maternity_grant_1937",
             "anchors": [
@@ -216,14 +215,14 @@
         {
             "id": 6,
             "key": "record_year_1937",
-            "title": "Bank Commissioners Call 1937 a Record Year",
-            "desc": "The parliamentary bank commissioners report that 1937 was a record year for Finnish industry, with rising prices, heavy industrial investment and a good harvest. Sulphate pulp exports rose from 323,200 to 355,700 tonnes, and sulphite pulp from 757,600 to 823,600 tonnes.\n\nIn the depression years forest products made up over 80 per cent of export earnings. The country closed 1937 with an export surplus of 73 million marks.",
+            "title": "1937 Was a Record Year",
+            "desc": "1937 was a record year in many branches of the economy, with sharply rising prices, brisk industrial investment and a good harvest. Industrial activity reached record levels. Sulphate pulp exports rose from 323,200 to 355,700 tonnes, and sulphite pulp from 757,600 to 823,600 tonnes.\n\nExports grew first of all on good timber prices and larger sales of plywood and paper abroad. By preliminary figures the export surplus was 90.9 million marks, against 853.6 million in 1936.",
             "picture": "record_year_1937",
             "factSheet": "record_year_1937",
             "anchors": [
                 "355,700 tonnes",
                 "823,600 tonnes",
-                "73 million marks"
+                "90.9 million marks"
             ],
             "fire": {
                 "after": "1938.1.15",
@@ -257,7 +256,7 @@
             "id": 7,
             "key": "yartsev_talks_1938",
             "title": "A Soviet Diplomat Opens Secret Talks",
-            "desc": "Boris Yartsev, second secretary at the Soviet legation, has opened secret talks with the government on Moscow's behalf. Moscow offers military and economic help if Finland resists a German attack. In return it wants islands in the Gulf of Finland near Leningrad, ceded or leased, and it would let us fortify Åland.\n\nForeign Minister Rudolf Holsti is away this summer, and members of the Cajander government are hearing the offer. The demands have changed several times. How should we answer?",
+            "desc": "Boris Yartsev, a second-class secretary at the Soviet embassy, has opened secret talks with the government on Moscow's behalf. Moscow offers all possible economic and military help if Finland fights a German invasion. In return it wants Finland to cede or lease some islands near Leningrad, and it would permit Finland to fortify Åland.\n\nForeign Minister Rudolf Holsti is away, and members of the Cajander government are hearing the offer. How should we answer?",
             "picture": "vanilla:GFX_report_event_generic_conference",
             "factSheet": "yartsev_talks_1938",
             "anchors": [
@@ -267,8 +266,8 @@
                 "Leningrad"
             ],
             "fire": {
-                "after": "1938.5.1",
-                "before": "1938.9.30",
+                "after": "1938.6.1",
+                "before": "1938.8.31",
                 "chance": 10,
                 "trigger": "has_war = no NOT = { has_government = communism }"
             },
@@ -297,19 +296,19 @@
             "id": 8,
             "key": "olympics_1940_awarded",
             "title": "Helsinki Is Given the 1940 Olympic Games",
-            "desc": "On 14 July Tokyo announced that it is giving up the 1940 Games, which it won in the vote at Berlin in 1936. The IOC has turned to Helsinki.\n\nThe Helsinki Olympic Stadium, designed by Yrjö Lindegren and Toivo Jäntti, opened on 12 June, still unfinished. Its tower stands 72.71 m, the length of Matti Järvinen's winning javelin throw at the 1932 Games. The stadium is to be completed for 1940.",
+            "desc": "Tokyo won the 1940 Games over Helsinki by 36 votes to 27 at Berlin in 1936, but on 16 July it withdrew as host. On 3 September the IOC Executive Board, meeting in Brussels, officially awarded the Games to Helsinki.\n\nThe Helsinki Olympic Stadium, designed by Yrjö Lindegren and Toivo Jäntti, opened on 12 June, still unfinished. Its tower stands 72.71 m, the length of Matti Järvinen's winning javelin throw at the 1932 Games. The stadium is to be completed for 1940.",
             "picture": "olympics_1940_awarded",
             "factSheet": "olympics_1940_awarded",
             "anchors": [
                 "Tokyo",
-                "14 July",
+                "16 July",
                 "Yrjö Lindegren",
                 "Toivo Jäntti",
                 "72.71 m"
             ],
             "fire": {
-                "after": "1938.7.14",
-                "before": "1938.9.15",
+                "after": "1938.9.3",
+                "before": "1938.10.31",
                 "chance": 30,
                 "trigger": "has_war = no"
             },
@@ -341,7 +340,7 @@
             "id": 9,
             "key": "holsti_resignation",
             "title": "Foreign Minister Holsti Resigns",
-            "desc": "Rudolf Holsti has resigned as foreign minister. On 7 November our envoy Aarne Vuorimaa reported accusations against him made by State Secretary Ernst von Weizsäcker. The cabinet feared German retaliation and wanted Holsti to step down.\n\nVäinö Voionmaa of the Social Democrats stands in until a new minister is named.",
+            "desc": "Rudolf Holsti has resigned as foreign minister. On 7 November our envoy Aarne Vuorimaa reported accusations against him made by State Secretary Ernst von Weizsäcker. The cabinet feared German retaliation and wanted Holsti to step down.\n\nVäinö Voionmaa of the Social Democrats is acting foreign minister.",
             "picture": "holsti_resignation",
             "factSheet": "holsti_resignation",
             "anchors": [
@@ -352,7 +351,7 @@
             ],
             "fire": {
                 "after": "1938.11.17",
-                "before": "1938.12.11",
+                "before": "1938.11.30",
                 "chance": 30,
                 "trigger": "has_war = no"
             },
@@ -426,7 +425,7 @@
             "id": 11,
             "key": "taisto_maki_record",
             "title": "Taisto Mäki Runs 10,000 Metres Under 30 Minutes",
-            "desc": "At the Olympic Stadium in Helsinki on 17 September, Taisto Mäki ran 10,000 metres in 29:52.6. No man has run the distance in under 30 minutes before.\n\nThe record he broke was his own: 30:02.0, set in Tampere on 29 September 1938.",
+            "desc": "At the Olympic Stadium in Helsinki on 17 September, Taisto Mäki ran 10,000 metres in 29:52.6, breaking his own world record. No man has run the distance in under 30 minutes before.\n\nHe first broke the record in Tampere on 29 September 1938, running 30:02.0 and beating Ilmari Salminen's old mark by more than three seconds.",
             "picture": "taisto_maki_record",
             "factSheet": "taisto_maki_record",
             "anchors": [
@@ -467,7 +466,7 @@
             "id": 12,
             "key": "sillanpaa_nobel",
             "title": "Sillanpää Awarded the Nobel Prize in Literature",
-            "desc": "The Swedish Academy announced on 10 November that Frans Eemil Sillanpää is awarded the Nobel Prize in Literature for 1939, for his 'deep understanding of his country's peasantry'. He is the first Finn to receive it.\n\nHis novels include Hurskas kurjuus of 1919 and Nuorena nukkunut of 1931. Miehen tie and Ihmiset suviyössa have been translated into several languages.",
+            "desc": "On 10 November the Swedish Academy decided to award Frans Eemil Sillanpää the Nobel Prize in Literature for 1939, for his 'deep understanding of his country's peasantry'. He is the first Finn to win it.\n\nHis novels include Hurskas kurjuus of 1919 and Nuorena nukkunut of 1931. During the 1930s Nuorena nukkunut was translated into seventeen languages, and Miehen tie and Ihmiset suviyössä into eight.",
             "picture": "sillanpaa_nobel",
             "factSheet": "sillanpaa_nobel",
             "anchors": [
@@ -478,7 +477,7 @@
             ],
             "fire": {
                 "after": "1939.11.10",
-                "before": "1939.12.9",
+                "before": "1939.11.29",
                 "chance": 50
             },
             "options": [
@@ -509,13 +508,13 @@
             "id": 13,
             "key": "league_expulsion_1939",
             "title": "The League of Nations Expels the Soviet Union",
-            "desc": "Geneva has answered our appeal. On 11 December the Assembly set up a Special Committee on the case. On 14 December the Council found that the Union of Soviet Socialist Republics 'has placed itself outside the League of Nations.' It is no longer a member.\n\nArgentina brought the motion, citing the League's 1933 definition of aggression. Rudolf Holsti represented Finland.",
+            "desc": "Geneva has answered our appeal. On 11 December the Assembly heard Finland's delegate and set up a Special Committee to study the appeal. On 13 December the delegate of Argentina demanded the expulsion of the Soviet Union.\n\nOn 14 December the Council found that the Union of Soviet Socialist Republics 'has placed itself outside the League of Nations.' It is no longer a member.",
             "picture": "league_expulsion_1939",
             "factSheet": "league_expulsion_1939",
             "anchors": [
                 "14 December",
                 "Argentina",
-                "Rudolf Holsti"
+                "Special Committee"
             ],
             "fire": {
                 "after": "1939.12.14",
@@ -548,7 +547,7 @@
             "id": 14,
             "key": "tolvajarvi_victory",
             "title": "Detachment P Defeats the Enemy at Tolvajärvi",
-            "desc": "Lieutenant Colonel Aaro Pajari reported to Paavo Talvela at 5 pm on 12 December: 'Today, I have attacked and defeated the enemy in Tolvajärvi, and the enemy has retreated with heavy losses to the east.' His Detachment P, part of Group T, has beaten the Soviet 139th Rifle Division. It is the first major Finnish success of the war.\n\nAbout 100 Finns were killed. The Soviet dead are put at ten times as many, and 20 tanks and 60 machine guns were taken. Talvela is promoted to major general and Pajari to colonel.",
+            "desc": "Lieutenant Colonel Aaro Pajari reported to Paavo Talvela at 5 pm on 12 December: 'Today, I have attacked and defeated the enemy in Tolvajärvi, and the enemy has retreated with heavy losses to the east.' His Detachment P, part of Group T, has beaten the Soviet 139th Rifle Division. It is the first major Finnish victory of the war.\n\nAbout 100 Finns were killed in the day's attack. The Soviet dead in the battle are put at ten times as many, and 20 tanks and 60 machine guns were captured. Talvela is promoted to major general and Pajari to colonel.",
             "picture": "tolvajarvi_victory",
             "factSheet": "tolvajarvi_victory",
             "anchors": [
@@ -588,7 +587,7 @@
             "id": 15,
             "key": "finnish_relief_fund",
             "title": "Hoover's Relief Fund Raises 2.5 Million Dollars",
-            "desc": "Herbert Hoover started the Finnish Relief Fund in December. On 20 December he appeared at Madison Square Garden with Hendrik Willem van Loon and Fiorello La Guardia. The fund advertises in 1,400 American newspapers. The proceeds of the first screening of Gone with the Wind in Washington state went to the fund.\n\nBy March the fund has raised 2.5 million dollars.",
+            "desc": "Herbert Hoover started the Finnish Relief Fund in December. On 20 December he appeared at Madison Square Garden with Hendrik Willem van Loon and Fiorello La Guardia. The fund advertises in 1,400 American newspapers. The income from the first screening of Gone with the Wind in Washington state went to the fund.\n\nBy March the fund has raised 2.5 million dollars.",
             "picture": "finnish_relief_fund",
             "factSheet": "finnish_relief_fund",
             "anchors": [
@@ -632,7 +631,7 @@
         {
             "key": "maternity_grant",
             "name": "Maternity Grant",
-            "desc": "Mothers may take the grant of 450 markkaa per child as goods, as cash or as both.",
+            "desc": "Mothers may take the grant of 450 markkaa per child as cash or in kind.",
             "picture": "generic_political_support",
             "modifier": {
                 "monthly_population": 0.05,

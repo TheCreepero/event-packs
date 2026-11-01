@@ -17,7 +17,7 @@ Historical flavor events for Finland, from 1936 to the end of the Winter War in 
 [*]1937: Aalto's Timber Pavilion Stands at the Paris Exposition
 [*]1938: The First Vickers Tanks Arrive Without Guns
 [*]1937: Maternity Grant Law Adopted
-[*]1938: Bank Commissioners Call 1937 a Record Year
+[*]1938: 1937 Was a Record Year
 [*]1938: A Soviet Diplomat Opens Secret Talks
 [*]1938: Helsinki Is Given the 1940 Olympic Games
 [*]1938: Foreign Minister Holsti Resigns

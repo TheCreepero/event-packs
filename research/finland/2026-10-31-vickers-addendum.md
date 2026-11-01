@@ -4,6 +4,7 @@ Replaces the old section in `2026-10-31-dossier.md`, which misread the delivery 
 
 ## vickers_six_ton_tanks
 Used: 2026-10-31-finland-first-events.md
+Checked: 2026-11-01-finland-audit.md, 3 kept, 2 fixed, 0 dropped. The facts below are the researcher's notes, not the checked ones: see source/finland/fact-sheets.md.
 Date: order 20 July 1936; first batch arrived July 1938; 26 tanks delivered by 30 November 1939
 Kind: military
 Suggested window: 1938-07-01 to 1938-09-30 (starts when the first batch arrived), at peace
