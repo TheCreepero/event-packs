@@ -40,6 +40,7 @@ param(
     [string]$File,
 
     [Parameter(ParameterSetName = 'FetchPicture', Mandatory = $true)]
+    [Parameter(ParameterSetName = 'RemovePicture', Mandatory = $true)]
     [string]$Key,
 
     [Parameter(ParameterSetName = 'FetchPicture')]
@@ -47,6 +48,9 @@ param(
 
     [Parameter(ParameterSetName = 'FetchPicture')]
     [string]$Tone,
+
+    [Parameter(ParameterSetName = 'RemovePicture', Mandatory = $true)]
+    [switch]$RemovePicture,
 
     [Parameter(ParameterSetName = 'ConvertPictures', Mandatory = $true)]
     [switch]$ConvertPictures,
@@ -129,6 +133,13 @@ switch ($PSCmdlet.ParameterSetName) {
             exit 1
         }
         exit ([int](@(Invoke-EpFetchPicture -RepoRoot $PSScriptRoot -Pack $Pack -File $File -Key $Key -Crop $Crop -Tone $Tone -DryRun:$DryRun)[-1]))
+    }
+    'RemovePicture' {
+        if (-not $Pack) {
+            Write-Host '-RemovePicture needs -Pack <key>' -ForegroundColor Red
+            exit 1
+        }
+        exit ([int](@(Invoke-EpRemovePicture -RepoRoot $PSScriptRoot -Pack $Pack -Key $Key -DryRun:$DryRun)[-1]))
     }
     'ConvertPictures' {
         $worstExitCode = 0

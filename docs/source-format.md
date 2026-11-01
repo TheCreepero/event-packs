@@ -35,6 +35,7 @@ Everything a pack ships, except its `descriptor.mod` and `thumbnail.png`, is gen
 | Field | Rule |
 |---|---|
 | `namespace` | `ep_` and the tag in lower case. Never changes after a release: saves hold the guard flags `ep_<tag>_fired_<id>`. |
+| `factQuotesFromId` | Optional, a whole number from 1. The fact-sheet sections of events with a lower id may lack quotes: they were planned before facts were quoted. Absent, every event needs them. An audit that quotes those facts removes the field. |
 | `id` | Whole number from 1, unique in the pack, never reused or renumbered after a release. The event is `<namespace>.<id>`. |
 | `key` | Lower-case letters, digits, underscores; names the fact-sheet section by default. |
 | `title`, `desc`, option `name` | English, plain ASCII punctuation, no double quotes (use single quotes), and none of the characters the localisation reads as markup: square brackets [LOC-004] [LOC-006], the section and pound signs [LOC-009], the hash sign, and the dollar sign (a lone one is harmless [LOC-015]; it is refused to keep the texts plain). `desc` 40 to 170 words, at most 2,226 characters [GUW-046]; `\n\n` between paragraphs. The text rules are in `docs/style-guide.md`. |
@@ -49,15 +50,21 @@ Everything a pack ships, except its `descriptor.mod` and `thumbnail.png`, is gen
 
 ## `pictures.json`
 
-Written only by `build.ps1 -FetchPicture`, which reads the licence from the Wikimedia Commons API and refuses anything but public domain (with a `PD-` template stating why), CC0 or CC BY (with a named author), a file tagged for deletion or dispute, a file that is not a picture, and a download outside Wikimedia's servers. `build.ps1 -Check` derives the licence category from the recorded Commons code again, requires the Commons page and download URLs, the hash and the fetch date, and compares the hash with the cached download; `-Audit` warns about a licence read more than 180 days ago. Fetching a picture again keeps its crop and tone unless new ones are given. A Commons request that Wikimedia answers with 429 or 503, in `-FetchPicture` or in the download of a picture missing from the cache, is tried again up to five times in all, waiting 5, 10, 20 and 40 seconds, or longer when its `Retry-After` asks (at most 120), and prints Wikimedia's own message each time. The User-Agent names the repository as its contact, as Wikimedia's User-Agent policy asks. Each row keeps the Commons title and page, the download URL and its SHA-256, author, credit, licence, licence URL, Commons restrictions, the original date and size, the crop (`0` to `100`, `50` centres; or `fit`), the tone (`none`, `grey`, `warm`) and the date it was fetched. To change a crop or tone, fetch the picture again with the new values.
+Written only by `build.ps1 -FetchPicture`, and by `build.ps1 -RemovePicture -Pack <pack> -Key <key> [-DryRun]`, which drops a row no event uses together with its cached download. `-FetchPicture` reads the licence from the Wikimedia Commons API and refuses anything but public domain (with a `PD-` template stating why), CC0 or CC BY (with a named author), own work (`PD-self`, `{{Own}}` or an "Own work" credit) on a picture dated before 1960 (by its date, or failing that the first year in its name, description or title), a file tagged for deletion or dispute, a file that is not a picture, and a download outside Wikimedia's servers. `build.ps1 -Check` fails on a used own-work row dated before 1960 and warns on a used own-work row without a date; it derives the licence category from the recorded Commons code again, requires the Commons page and download URLs, the hash and the fetch date, and compares the hash with the cached download; `-Audit` warns about a licence read more than 180 days ago. Fetching a picture again keeps its crop and tone unless new ones are given. A Commons request that Wikimedia answers with 429 or 503, in `-FetchPicture` or in the download of a picture missing from the cache, is tried again up to five times in all, waiting 5, 10, 20 and 40 seconds, or longer when its `Retry-After` asks (at most 120), and prints Wikimedia's own message each time. The User-Agent names the repository as its contact, as Wikimedia's User-Agent policy asks. Each row keeps the Commons title and page, the download URL and its SHA-256, author, credit, licence, licence URL, Commons restrictions, the original date and size, the crop (`0` to `100`, `50` centres; or `fit`), the tone (`none`, `grey`, `warm`) and the date it was fetched. To change a crop or tone, fetch the picture again with the new values.
 
 ## `fact-sheets.md`
 
-One section per event, headed `## <key>`, with the facts the text may use, each with its source URL. The event's text may use nothing else; the editor cuts what is not here.
+One section per event, headed `## <key>`, with the facts the text may use, one per line, each checked on its page by `ep-audit-researcher`:
+
+```markdown
+- <fact>. Source: <URL> (<page title>). Quote: «<the line of the page that states it, in its language>»
+```
+
+The event's text may use nothing else; the editor cuts what is not here and judges each claim against the quote. `-Check` fails on a fact line without its source and quote in the section of an event at or above `factQuotesFromId`, and on a fact marked `UNVERIFIED` in any section: only facts read on their page belong here. `-Audit` warns while a pack has events below `factQuotesFromId`.
 
 ## `research/<pack>/<YYYY-MM-DD>-dossier.md`
 
-The historical researcher's dossiers, kept with the repository and never deleted or trimmed: one `## <key>` section per candidate event with its date, kind, suggested window, sourced facts, anchors, the government's choice and picture ideas. A section whose event went into a READY plan carries a `Used: <plan file name>` line under its heading; the others are the candidates a later expansion of the pack starts from. Nothing reads these files at build time, and nothing in them ships.
+The historical researcher's dossiers, one per research run (parallel runs of one day write `-2`, `-3` and up), kept with the repository and never deleted or trimmed: one `## <key>` section per candidate event with its date, kind, suggested window, quoted or `UNVERIFIED` facts, anchors, the government's choice and picture ideas. A section whose event went into a READY plan carries a `Used: <plan file name>` line under its heading; the others are the candidates a later expansion of the pack starts from. Nothing reads these files at build time, and nothing in them ships.
 
 ## `workshop-intro.bbcode`
 

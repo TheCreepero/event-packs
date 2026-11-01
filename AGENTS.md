@@ -9,17 +9,17 @@ Shared rules for every mod in this tree (file encodings, build commands, engine 
 - The historical researcher's dossiers stay in `research/<key>/`, every candidate with its sourced facts, used or not: a pack's next events start from them. Never delete or trim one.
 
 ## Mod invariants
-- `packs/<key>/` changes only through `build.ps1 -Generate` and `-ConvertPictures`, its `thumbnail.png` only through a plan's thumbnail step (a copy from `scratch/thumbnail/`); `source/<key>/pictures.json` only through `-FetchPicture`. A hook refuses hand edits.
+- `packs/<key>/` changes only through `build.ps1 -Generate` and `-ConvertPictures`, its `thumbnail.png` only through a plan's thumbnail step (a copy from `scratch/thumbnail/`); `source/<key>/pictures.json` only through `-FetchPicture` and `-RemovePicture`. A hook refuses hand edits.
 - A namespace (`ep_<tag>`), event id or guard flag never changes once a pack is released: saves hold the flags.
 - Pictures come from Wikimedia Commons, licensed public domain (with the `PD-` reason Commons gives), CC0 or CC BY, and only through `-FetchPicture`, which decides the licence. Credits are generated into the pack's wiki page; the Workshop description links to it, so the wiki is pushed before a pack is published.
 - Effects stay within `data/effect-caps.json`: flavor first, small numbers [SCR-088] [SCR-090].
-- Every claim in an event text is in its fact-sheet section with a source; the `ep-editor` agent passes every text before a plan is READY. Voice: `docs/style-guide.md`.
+- Every claim in an event text is in its fact-sheet section with a source and the quote of its page, checked by `ep-audit-researcher` before the text is written; the `ep-editor` agent passes every text before a plan is READY. Voice: `docs/style-guide.md`.
 - Events are `is_triggered_only` and fire from a weekly anchor with a guard flag, a date window and a weekly chance [SCR-080] [SCR-089] [SCR-091].
 - Nothing sits in a pack folder that the source does not account for: `-Check` fails on any other file.
 - Work goes plan first: a skill writes a READY plan in `docs/plans/`, `event-pack-implement` carries it out, the commit waits for the user.
 
 ## Commands beyond build.ps1
-- `build.ps1 -NewPack -Pack <key> -Tag <TAG> -DisplayName "<Country>"`, `-Generate [-Pack] [-DryRun]`, `-FetchPicture -Pack -File -Key [-Crop] [-Tone] [-DryRun]`, `-ConvertPictures [-Pack] [-Force]`, `-PreviewPictures [-Pack]`, `-Check [-Pack]`, `-Audit -Pack`, `-SyncMirrors`. `Get-Help .\build.ps1` lists the parameters. Run the tools; don't read `tools/EventPacks.ps1` or `tools/HoiModBuild.ps1` (about 30k tokens together; a read asks the user first). If one seems broken, report the command and its output.
+- `build.ps1 -NewPack -Pack <key> -Tag <TAG> -DisplayName "<Country>"`, `-Generate [-Pack] [-DryRun]`, `-FetchPicture -Pack -File -Key [-Crop] [-Tone] [-DryRun]`, `-RemovePicture -Pack -Key [-DryRun]`, `-ConvertPictures [-Pack] [-Force]`, `-PreviewPictures [-Pack]`, `-Check [-Pack]`, `-Audit -Pack`, `-SyncMirrors`. `Get-Help .\build.ps1` lists the parameters. Run the tools; don't read `tools/EventPacks.ps1` or `tools/HoiModBuild.ps1` (about 30k tokens together; a read asks the user first). If one seems broken, report the command and its output.
 - `-ConvertPictures` needs Python 3 with Pillow.
 
 ## Read when

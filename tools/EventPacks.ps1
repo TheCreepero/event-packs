@@ -130,6 +130,7 @@ function Get-EpPack {
         Tag            = [string](Get-EpProperty -Object $eventSource -Name 'tag' -Default '')
         Namespace      = $namespace
         DisplayName    = [string](Get-EpProperty -Object $eventSource -Name 'displayName' -Default $Pack)
+        FactQuotesFromId = Get-EpProperty -Object $eventSource -Name 'factQuotesFromId'
         Events         = @(ConvertTo-EpArray (Get-EpProperty -Object $eventSource -Name 'events'))
         Ideas          = @(ConvertTo-EpArray (Get-EpProperty -Object $eventSource -Name 'ideas'))
         Pictures       = $pictures
@@ -650,6 +651,77 @@ function Test-EpText {
     return $problems.ToArray()
 }
 
+function Get-EpFactQuotesFromId {
+    param($Pack)
+
+    $factQuotesFromId = 0
+    if ($null -eq $Pack.FactQuotesFromId) {
+        return 1
+    }
+    if (-not [int]::TryParse([string]$Pack.FactQuotesFromId, [ref]$factQuotesFromId) -or $factQuotesFromId -lt 1) {
+        return $null
+    }
+    return $factQuotesFromId
+}
+
+function Get-EpFactLines {
+    param([AllowEmptyString()][string]$SectionText)
+
+    return @([regex]::Matches([string]$SectionText, '(?m)^-\s.*$') | ForEach-Object { $_.Value.TrimEnd() })
+}
+
+function Test-EpQuotedFact {
+    param([AllowEmptyString()][string]$FactLine)
+
+    $openQuote = [string][char]0x00AB
+    $closeQuote = [string][char]0x00BB
+    return ([string]$FactLine -match ('Source:\s*https?://\S+.*\bQuote:\s*' + $openQuote + '[^' + $closeQuote + ']+' + $closeQuote))
+}
+
+function Get-EpFactLineStart {
+    param([AllowEmptyString()][string]$FactLine)
+
+    $factText = ([string]$FactLine).Substring(1).Trim()
+    if ($factText.Length -le 60) {
+        return $factText
+    }
+    return $factText.Substring(0, 60) + '...'
+}
+
+function Get-EpOwnWorkCutoffYear {
+    return 1960
+}
+
+function Get-EpPictureYear {
+    param([AllowEmptyCollection()][AllowEmptyString()][string[]]$Texts)
+
+    $years = @(foreach ($text in @($Texts)) {
+            foreach ($yearMatch in [regex]::Matches([string]$text, '(?<!\d)(1[89]\d\d|20\d\d)(?!\d)')) {
+                [int]$yearMatch.Value
+            }
+        })
+    if ($years.Count -eq 0) {
+        return $null
+    }
+    return [int]($years | Measure-Object -Minimum).Minimum
+}
+
+function Test-EpOwnWorkClaim {
+    param(
+        [AllowEmptyCollection()][string[]]$Templates,
+        [AllowEmptyString()][string]$PublicDomainReason,
+        [AllowEmptyString()][string]$AttributionText
+    )
+
+    if (@($Templates) -contains 'Template:PD-self' -or @($Templates) -contains 'Template:Own') {
+        return $true
+    }
+    if (@(([string]$PublicDomainReason) -split ',\s*') -contains 'PD-self') {
+        return $true
+    }
+    return ([string]$AttributionText -match '(?i)\bown work\b')
+}
+
 function Test-EpPackSource {
     param($Pack)
 
@@ -658,6 +730,11 @@ function Test-EpPackSource {
     $caps = Get-EpCaps -RepoRoot $Pack.RepoRoot
     $bannedPatterns = Get-EpBannedPatterns -RepoRoot $Pack.RepoRoot
     $sourceWhere = 'source/' + $Pack.Name
+    $factQuotesFromId = Get-EpFactQuotesFromId -Pack $Pack
+    if ($null -eq $factQuotesFromId) {
+        $problems.Add((New-EpProblem -Level 'ERROR' -Where "$sourceWhere/events.json" -Message "factQuotesFromId '$($Pack.FactQuotesFromId)' must be a whole number from 1"))
+        $factQuotesFromId = 1
+    }
 
     if ($Pack.Tag -cnotmatch '^[A-Z][A-Z0-9]{2}$') {
         $problems.Add((New-EpProblem -Level 'ERROR' -Where "$sourceWhere/events.json" -Message "tag '$($Pack.Tag)' is not a country tag"))
@@ -716,6 +793,18 @@ function Test-EpPackSource {
             $problems.Add((New-EpProblem -Level 'ERROR' -Where $eventWhere -Message "no section '## $factSheetKey' in $sourceWhere/fact-sheets.md"))
         } elseif ($factSheetMatch.Groups[1].Value -notmatch 'https?://') {
             $problems.Add((New-EpProblem -Level 'ERROR' -Where $eventWhere -Message "fact sheet '$factSheetKey' cites no source URL"))
+        } else {
+            $factLines = @(Get-EpFactLines -SectionText $factSheetMatch.Groups[1].Value)
+            if ($factLines.Count -eq 0 -and $eventNumber -ge $factQuotesFromId) {
+                $problems.Add((New-EpProblem -Level 'ERROR' -Where $eventWhere -Message "fact sheet '$factSheetKey' has no fact lines: one fact per line, each starting '- '"))
+            }
+            foreach ($factLine in $factLines) {
+                if ($factLine -match '\bUNVERIFIED\b') {
+                    $problems.Add((New-EpProblem -Level 'ERROR' -Where $eventWhere -Message ("fact sheet '$factSheetKey' holds an UNVERIFIED fact; only facts read on their page belong there: " + (Get-EpFactLineStart -FactLine $factLine))))
+                } elseif ($eventNumber -ge $factQuotesFromId -and -not (Test-EpQuotedFact -FactLine $factLine)) {
+                    $problems.Add((New-EpProblem -Level 'ERROR' -Where $eventWhere -Message ("fact sheet '$factSheetKey' has a fact without its source and the quote of its page (Source: <URL> (<title>). Quote: <<...>>): " + (Get-EpFactLineStart -FactLine $factLine))))
+                }
+            }
         }
 
         $fire = Get-EpProperty -Object $packEvent -Name 'fire'
@@ -893,6 +982,13 @@ function Test-EpPackSource {
         }
         if ($usedPictureKeys -notcontains [string]$picture.key) {
             $problems.Add((New-EpProblem -Level 'WARN' -Where $pictureWhere -Message 'no event uses this picture'))
+        } elseif (Test-EpOwnWorkClaim -Templates @() -PublicDomainReason ([string](Get-EpProperty -Object $picture -Name 'publicDomainReason' -Default '')) -AttributionText ([string](Get-EpProperty -Object $picture -Name 'credit' -Default ''))) {
+            $recordedYear = Get-EpPictureYear -Texts @([string](Get-EpProperty -Object $picture -Name 'dateOriginal' -Default ''), [string]$picture.commonsTitle)
+            if ($null -eq $recordedYear) {
+                $problems.Add((New-EpProblem -Level 'WARN' -Where $pictureWhere -Message ('own work without a date in the record: fetch it again, which refuses own work on a picture dated before ' + (Get-EpOwnWorkCutoffYear))))
+            } elseif ($recordedYear -lt (Get-EpOwnWorkCutoffYear)) {
+                $problems.Add((New-EpProblem -Level 'ERROR' -Where $pictureWhere -Message "own work on a picture dated ${recordedYear}: the uploader cannot be its author, so the licence cannot be trusted; replace the picture"))
+            }
         }
     }
     return $problems.ToArray()
@@ -1030,6 +1126,11 @@ function Invoke-EpAudit {
     if ($oldestFetch.Count -gt 0) {
         Write-Host "Oldest licence check: $($oldestFetch[0]) (the audit researcher rechecks Commons for deletions and licence changes)"
     }
+    $factQuotesFromId = Get-EpFactQuotesFromId -Pack $packData
+    $unquotedEventIds = @($packData.Events | Where-Object { $null -ne $factQuotesFromId -and [int]$_.id -lt $factQuotesFromId } | ForEach-Object { [int]$_.id } | Sort-Object)
+    if ($unquotedEventIds.Count -gt 0) {
+        $problems += New-EpProblem -Level 'WARN' -Where "source/$Pack/fact-sheets.md" -Message ("the facts of events $($unquotedEventIds -join ', ') predate quoted facts (factQuotesFromId $factQuotesFromId): recheck them through event-pack-audit, which adds the quotes and removes factQuotesFromId")
+    }
     $refreshCutoff = (Get-Date).AddDays(-180).ToString('yyyy-MM-dd')
     foreach ($stalePicture in @($packData.Pictures | Where-Object { [string]$_.fetched -and [string]$_.fetched -lt $refreshCutoff })) {
         $problems += New-EpProblem -Level 'WARN' -Where ('picture ' + $stalePicture.key) -Message "licence last read from Commons on $($stalePicture.fetched), over 180 days ago: fetch it again (build.ps1 -FetchPicture keeps its crop and tone)"
@@ -1141,6 +1242,14 @@ function Get-EpCommonsVerdict {
     }
     if (-not $licenseCategory) {
         return [PSCustomObject]@{ Accepted = $false; Reason = "licence '$licenseShortName' ($licenseCode) is outside the policy: public domain, CC0 or CC BY only"; Picture = $picture }
+    }
+    if (Test-EpOwnWorkClaim -Templates $pageTemplates -PublicDomainReason $picture.publicDomainReason -AttributionText $picture.credit) {
+        $objectName = ConvertFrom-EpHtml ([string](Get-EpProperty -Object (Get-EpProperty -Object $metadata -Name 'ObjectName') -Name 'value' -Default ''))
+        $imageDescription = ConvertFrom-EpHtml ([string](Get-EpProperty -Object (Get-EpProperty -Object $metadata -Name 'ImageDescription') -Name 'value' -Default ''))
+        $pictureYear = Get-EpPictureYear -Texts @($picture.dateOriginal, $objectName, $imageDescription, $picture.commonsTitle)
+        if ($null -ne $pictureYear -and $pictureYear -lt (Get-EpOwnWorkCutoffYear)) {
+            return [PSCustomObject]@{ Accepted = $false; Reason = "own work on a picture dated ${pictureYear}: the uploader cannot be its author, so the licence cannot be trusted; find the picture's original source and its licence"; Picture = $picture }
+        }
     }
     if ($licenseCategory -eq 'CC BY' -and -not (Test-EpNamedAuthor -Author $picture.author)) {
         return [PSCustomObject]@{ Accepted = $false; Reason = 'CC BY without a named author on Commons: the credit cannot be written'; Picture = $picture }
@@ -1308,6 +1417,52 @@ function Invoke-EpFetchPicture {
     return 0
 }
 
+function Invoke-EpRemovePicture {
+    param(
+        [Parameter(Mandatory = $true)][string]$RepoRoot,
+        [Parameter(Mandatory = $true)][string]$Pack,
+        [Parameter(Mandatory = $true)][string]$Key,
+        [switch]$DryRun
+    )
+
+    $packData = Get-EpPack -RepoRoot $RepoRoot -Pack $Pack
+    $picture = Get-EpPictureByKey -Pack $packData -PictureKey $Key
+    if ($null -eq $picture) {
+        Write-Host "picture '$Key' is not in source\$Pack\pictures.json" -ForegroundColor Red
+        return 1
+    }
+    $usingEvents = @($packData.Events | Where-Object { [string](Get-EpProperty -Object $_ -Name 'picture' -Default '') -eq $Key } | ForEach-Object { $packData.Namespace + '.' + [string]$_.id })
+    if ($usingEvents.Count -gt 0) {
+        Write-Host "picture '$Key' is used by $($usingEvents -join ', '): give the event another picture first" -ForegroundColor Red
+        return 1
+    }
+    $cachePath = Get-EpCacheFilePath -Pack $packData -Picture $picture
+    $ddsPath = Join-Path $packData.PackRoot ((Get-EpPictureRelativePath -Pack $packData -PictureKey $Key).Replace('/', '\'))
+    $filesToRemove = @(@($cachePath, $ddsPath) | Where-Object { Test-Path -LiteralPath $_ })
+    if ($DryRun) {
+        Write-Host "Dry run: would remove '$Key' ($($picture.commonsTitle)) from source\$Pack\pictures.json" -ForegroundColor Gray
+        foreach ($fileToRemove in $filesToRemove) {
+            Write-Host "  would delete $fileToRemove" -ForegroundColor Gray
+        }
+        return 0
+    }
+    $keptPictures = [System.Collections.Generic.List[PSObject]]::new()
+    foreach ($existingPicture in $packData.Pictures) {
+        if ($existingPicture.key -ne $Key) {
+            $keptPictures.Add($existingPicture)
+        }
+    }
+    Save-EpPictures -Pack $packData -Pictures $keptPictures
+    foreach ($fileToRemove in $filesToRemove) {
+        Remove-Item -LiteralPath $fileToRemove -Force
+    }
+    Write-Host "Removed '$Key' ($($picture.commonsTitle)) from source\$Pack\pictures.json" -ForegroundColor Green
+    foreach ($fileToRemove in $filesToRemove) {
+        Write-Host "  deleted $fileToRemove" -ForegroundColor Gray
+    }
+    return 0
+}
+
 function Get-EpPythonExecutable {
     foreach ($pythonName in @('python', 'py')) {
         if (Get-Command -Name $pythonName -ErrorAction SilentlyContinue) {
@@ -1411,7 +1566,8 @@ function Invoke-EpNewPack {
     $eventSource = [PSCustomObject][ordered]@{ pack = $Pack; tag = $Tag; namespace = $namespace; displayName = $DisplayName; events = @(); ideas = @() }
     Write-EpText -Path (Join-Path $sourceDir 'events.json') -Text ((ConvertTo-Json -InputObject $eventSource -Depth 8) + "`r`n")
     Write-EpText -Path (Join-Path $sourceDir 'pictures.json') -Text ((ConvertTo-Json -InputObject ([PSCustomObject]@{ pictures = @() }) -Depth 3) + "`r`n")
-    Write-EpText -Path (Join-Path $sourceDir 'fact-sheets.md') -Text ("# Fact sheets: $DisplayName`r`n`r`nOne section per event, headed ``## <event key>``, written by the historical researcher: the facts the text may use, each with its source URL. The text of an event uses nothing that is not here.`r`n")
+    $quotedFactFormat = '- <fact>. Source: <URL> (<page title>). Quote: ' + [char]0x00AB + '<line from the page>' + [char]0x00BB
+    Write-EpText -Path (Join-Path $sourceDir 'fact-sheets.md') -Text ("# Fact sheets: $DisplayName`r`n`r`nOne section per event, headed ``## <event key>``: the facts the text may use, each checked on its page, one per line as ``$quotedFactFormat``. The text of an event uses nothing that is not here.`r`n")
     Write-EpText -Path (Join-Path $sourceDir 'workshop-intro.bbcode') -Text ("Historical flavor events for $DisplayName, with period photographs.`r`n`r`n[h1]Info:[/h1]`r`n- Works alone and beside any other Event Pack.`r`n- Events change the game checksum: not Ironman compatible.`r`n- The effects are small, so they shouldn't affect balance too much.`r`n")
     $descriptorText = @('version="1.0"', 'tags={', "`t`"Events`"", "`t`"Historical`"", '}', "name=`"Event Pack: $DisplayName`"", 'picture="thumbnail.png"', "supported_version=`"$SupportedVersion`"") -join "`r`n"
     Write-EpText -Path (Join-Path $packRoot 'descriptor.mod') -Text ($descriptorText + "`r`n")

@@ -12,7 +12,7 @@ description: >-
 Plans a pack or new events, down to every text, effect and picture, in one plan file that `event-pack-implement` carries out. Read `docs/source-format.md` and `docs/style-guide.md` before Phase 4.
 
 ## Rules
-- **Every fact comes from the dossier.** A detail the historical researcher did not source does not enter a text, however plausible.
+- **Every fact is verified on its page.** A fact enters the fact sheet only from a Phase 3a `KEEP` or `FIX`, with its source and its quote; a detail no checked page states does not enter a text, however plausible.
 - **The licence is the tool's decision.** A picture enters the plan only after `build.ps1 -FetchPicture ... -DryRun` printed `ACCEPTED` for it.
 - **The editor passes every text.** No plan goes READY with an event the editor has not returned KEEP for in its latest round.
 - **The shipped pack is not touched here.** This skill writes the plan, the dossier under `research/<key>/` and files under `scratch/`; `source/` and `packs/` change when the plan is implemented. The one exception is `-NewPack` for a brand-new pack (Phase 0); its thumbnail is made at implementation (Phase 3).
@@ -26,10 +26,10 @@ Plans a pack or new events, down to every text, effect and picture, in one plan 
 
 ## Phase 1: research
 1. If `research/<key>/` exists, read its dossiers. Their candidates without a `Used:` mark that fit the period and kinds are candidates for this plan too; note their keys.
-2. Dispatch `ep-historical-researcher` with: the country, tag, period, number of candidates (about twice the events wanted, less the usable earlier candidates), the kinds from Phase 0, the titles of the pack's existing events, every candidate of the earlier dossiers as key, date and one line, and the path `research/<key>/<YYYY-MM-DD>-dossier.md` to write (with `-2` and up when that day already has one). Wait for its summary.
+2. Candidates wanted: about one and a half times the events wanted, less the usable earlier candidates. Split them into runs of at most 12, each covering its own slice of the period (for 30: 1936, 1937-1938, 1939-1940), and dispatch one `ep-historical-researcher` per run, all in parallel, each with: the country, tag, its period slice, its number of candidates, the kinds from Phase 0, the titles of the pack's existing events, every candidate of the earlier dossiers as key, date and one line, and its own path `research/<key>/<YYYY-MM-DD>-dossier.md` (with `-2` and up for the other runs, or when that day already has one). Wait for every summary.
 
 ## Phase 2: choose
-Read the new dossier. Drop candidates whose key facts are `UNVERIFIED` or that cannot fill 40 words with sourced detail. Show the owner the rest, with the usable earlier candidates marked as such, as a short list (key, date, kind, one line) with your recommendation of which to keep and why, and take their choice.
+Read the new dossiers. Drop candidates whose key facts are `UNVERIFIED`, that cannot fill 40 words with quoted facts, or that duplicate a candidate of another run. Show the owner the rest, with the usable earlier candidates marked as such, as a short list (key, date, kind, one line) with your recommendation of which to keep and why, and take their choice.
 
 ## Phase 3: pictures
 1. Dispatch `ep-picture-researcher` with the chosen events: key, date, place and the dossier's picture ideas.
@@ -38,10 +38,19 @@ Read the new dossier. Drop candidates whose key facts are `UNVERIFIED` or that c
 4. Fill the plan's "Pictures" table with what the dry runs printed.
 5. Thumbnail, for a new pack or one whose `packs/<key>/thumbnail.png` still has the hash of `assets/thumbnail_master.png` (`Get-FileHash`): the background is one of the pack's own event pictures, not a vanilla loading screen. Pick a picture that printed `ACCEPTED`, PD or CC0 preferred; CC BY also does, as the generated Workshop description credits every picture an event uses. Prefer a picture that still reads when centre-cropped to a square (crop `center`, or `left`, `right`, `top`, `bottom` where the subject sits there). Write its key on the plan's "Thumbnail" line and fill step 4 of "Implementation steps": picture key, country in capitals, crop, the flag drawn below the country, and the pack's two colours. The flag: the tag, the game root `Get-HoiGameInfo` prints, and as flag variant the ruling party ideology `Get-HoiCountryHistory -Tag <TAG> -Section politics` prints. Check the flag while planning with the same generator command and `--out-dirs "scratch\thumbnail\<key>"` but no `--bg-image`: when it stops with `No flag for '<TAG>'`, pick the variant from the list it prints. The colours come from that flag as the game draws it, never a preset theme, so every pack wears its own nation's colours: list the file's commonest colours with `python -I -c "from PIL import Image; from collections import Counter; print(['#%02X%02X%02X' % c for c, n in Counter(Image.open(r'<the overlay_source the check printed>').convert('RGB').getdata()).most_common(6)])"`. The main colour is the one the flag is known by, never white (Finland: its blue `#003580`); it frames the picture and fills the banner behind the text. The text colour is `#FFFFFF`, or `#000000` when the main colour is light (a yellow, a pale blue). A dry run downloads nothing, so the thumbnail is made at implementation, after step 3, from the copy `-FetchPicture` saves in `sources-cache/<key>/` (the Commons rendering, up to 1600 px wide), never from the 210x176 DDS. A pack that already has its own thumbnail: write `Thumbnail: unchanged` and make step 4 read `Thumbnail unchanged: nothing to run.`, so the step numbers stay.
 
+## Phase 3a: verify
+Runs after the owner's choice, at the same time as Phase 3 if you like; a researcher's quote is a lead, not yet a check.
+1. Dispatch `ep-audit-researcher` on the chosen events, at most five per agent, all in parallel. Paste each event's dossier section whole; send no pictures.
+2. Only `KEEP` and `FIX` facts go on, each with the source and quote the checker returned. An event left with less than 40 words of verified detail goes back to Phase 2 for a replacement, and the replacement comes through Phase 3a too.
+3. Fill the plan's "Fact verification": agents and events per agent, the `KEEP`, `FIX` and `DROP` counts, the facts dropped and the events replaced.
+
 ## Phase 4: write
-1. Copy each chosen event's section, from whichever dossier holds it, into the plan's `markdown fact-sheets` block, keeping only the facts with sources.
-2. Write the events into the `json events` block: for an existing pack, start from the current `source/<key>/events.json` and add to it. Follow `docs/source-format.md` for every field and `docs/style-guide.md` for every text. Effects small and matching their option; a timed idea only where the event earns one.
-3. Dispatch `ep-editor` with the plan path, the path of every dossier that holds a chosen event and the event keys. Apply every REWRITE as given; drop or replace a REJECT (back to Phase 2 for a replacement). Record each round in "Editor record". Send the changed events back to the editor until every event is KEEP; at most three rounds, then ask the owner.
+1. Write each chosen event's section of the plan's `markdown fact-sheets` block from its Phase 3a results only: every fact line is `- <fact>. Source: <URL> (<page title>). Quote: «<line from the page>»`. Never copy a dossier fact straight in.
+2. Write the events into the `json events` block: for an existing pack, start from the current `source/<key>/events.json` and add to it. Follow `docs/source-format.md` for every field and `docs/style-guide.md` for every text. Effects small and matching their option; a timed idea only where the event earns one. Three rules the editor holds you to:
+   - No claim made by joining two facts, unless one quote states the joined claim.
+   - Titles and roles as they were on the event's date, not as they became later.
+   - The text stays true on every day of the `fire` window: nothing it calls recent or upcoming may already be over, or not yet happened, on another day of the window.
+3. Dispatch `ep-editor` with the plan path (its `markdown fact-sheets` block is the fact sheet) and the event keys. Apply every REWRITE as given; drop or replace a REJECT (back to Phase 2 for a replacement). Record each round in "Editor record". Send the changed events back to the editor until every event is KEEP; at most three rounds, then ask the owner.
 
 ## Phase 5: gate
 1. Rehearse the plan without touching the repository: `robocopy . scratch\rehearsal /MIR /XD .git scratch artifacts sources-cache`, then in `scratch\rehearsal` run steps 1 to 7 of the plan exactly as written (they write only the copy). Every step must give what it says to expect; fix the plan, not the copy, and rehearse again.
@@ -50,6 +59,6 @@ Read the new dossier. Drop candidates whose key facts are `UNVERIFIED` or that c
 4. Mark each event of the READY plan in the dossier that holds it: a line `Used: <plan file name>` right under its `## <key>` heading. Change nothing else in a dossier; a candidate the owner or the editor dropped stays unmarked, as the researcher wrote it.
 
 ## Phase 6: hand off
-Report to the owner: the plan path, the dossier path with how many candidates it keeps for later, the events with their titles, the picture licences (how many PD, CC0, CC BY), the thumbnail's picture, the editor's totals, and that `event-pack-implement` carries it out. Then stop.
+Report to the owner: the plan path, the dossier paths with how many candidates they keep for later, the events with their titles, the picture licences (how many PD, CC0, CC BY), the thumbnail's picture, the fact verification totals, the editor's totals, and that `event-pack-implement` carries it out. Then stop.
 
 Antigravity: pass each agent brief's path to `invoke_subagent`; where no subagent can be dispatched, read the brief and do its work yourself, keeping the editor's work in a separate pass that reads only the draft, the fact sheet and the style guide.

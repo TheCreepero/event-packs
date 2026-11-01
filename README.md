@@ -13,7 +13,7 @@ Small packs of historical flavor events for Hearts of Iron IV, one pack per coun
 ```
 event-packs/
 |-- build.ps1                 # lifecycle and pack commands (Get-Help .\build.ps1)
-|-- source/<pack>/            # hand-written: events.json, fact-sheets.md, workshop-intro.bbcode; pictures.json from -FetchPicture
+|-- source/<pack>/            # hand-written: events.json, fact-sheets.md, workshop-intro.bbcode; pictures.json from -FetchPicture and -RemovePicture
 |-- packs/<pack>/             # one Workshop item: descriptor.mod, thumbnail.png and everything -Generate writes
 |-- research/<pack>/          # the researcher's dossiers, kept: every candidate event with its sourced facts, used or not
 |-- data/                     # effect caps and banned phrases the checks use

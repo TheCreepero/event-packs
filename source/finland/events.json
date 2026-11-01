@@ -3,6 +3,7 @@
     "tag": "FIN",
     "namespace": "ep_fin",
     "displayName": "Finland",
+    "factQuotesFromId": 16,
     "events": [
         {
             "id": 1,

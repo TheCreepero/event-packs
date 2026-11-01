@@ -62,7 +62,7 @@ Describe 'Text lint' {
 Describe 'Description rules' {
     BeforeAll {
         function New-ProbePack {
-            param([string]$Desc, [string[]]$Anchors, [string]$FactSheet = "## probe`r`n`r`n- Fact. Source: https://example.org/a`r`n")
+            param([string]$Desc, [string[]]$Anchors, [string]$FactSheet = ("## probe`r`n`r`n- Fact. Source: https://example.org/a (Probe). Quote: " + [char]0x00AB + 'Fact.' + [char]0x00BB + "`r`n"))
 
             $probeEvent = [PSCustomObject]@{
                 id = 1; key = 'probe'; title = 'Probe'; desc = $Desc; picture = 'vanilla:GFX_report_event_generic_read_write'; factSheet = 'probe'; anchors = $Anchors

@@ -31,6 +31,10 @@ Every row passed `build.ps1 -FetchPicture ... -DryRun` while planning; the licen
 
 Thumbnail: <picture key, the background of step 4> | unchanged
 
+## Fact verification
+
+<Phase 3a of event-pack-create, or Phase 1 of an audit: the ep-audit-researcher agents and the events each checked, the KEEP, FIX and DROP counts, the facts dropped and the events sent back for a replacement.>
+
 ## Editor record
 
 <The ep-editor verdicts per event and round (KEEP, REWRITE, REJECT), and what the planner did with each.>
@@ -68,7 +72,7 @@ Thumbnail: <picture key, the background of step 4> | unchanged
 ```markdown fact-sheets
 ## <key>
 
-- <fact>. Source: <URL> (<page title>)
+- <fact>. Source: <URL> (<page title>). Quote: «<line from the page>»
 ```
 
 ## Events source

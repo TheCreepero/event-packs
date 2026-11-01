@@ -47,6 +47,22 @@ BeforeAll {
         }
     }
 
+    function Get-FixtureFactLine {
+        param([switch]$WithoutQuote)
+
+        $factLine = '- Volunteers dug on the Karelian Isthmus in 1937, Taipale to Summa. Source: https://example.org/isthmus (Isthmus works)'
+        if ($WithoutQuote) {
+            return $factLine
+        }
+        return $factLine + '. Quote: ' + [char]0x00AB + 'Kesalla 1937 vapaaehtoiset kaivoivat Taipaleen ja Summan valilla.' + [char]0x00BB
+    }
+
+    function Set-FixtureFactSheet {
+        param([string]$Root, [string[]]$FactLines)
+
+        Write-FixtureFile -Root $Root -RelativePath 'source\testland\fact-sheets.md' -Text ("# Fact sheets`r`n`r`n## border_fortification`r`n`r`n" + ($FactLines -join "`r`n") + "`r`n")
+    }
+
     function New-EpFixtureRepo {
         param([string[]]$Packs = @('testland'))
 
@@ -76,7 +92,7 @@ BeforeAll {
             $picture.fetched = '2026-10-31'
             $picture.downloadSha256 = '0000000000000000000000000000000000000000000000000000000000000000'
             Write-FixtureFile -Root $fixtureRoot -RelativePath "source\$packName\pictures.json" -Text (ConvertTo-Json -InputObject ([PSCustomObject]@{ pictures = @($picture) }) -Depth 5)
-            Write-FixtureFile -Root $fixtureRoot -RelativePath "source\$packName\fact-sheets.md" -Text "# Fact sheets`r`n`r`n## border_fortification`r`n`r`n- Volunteers dug on the Karelian Isthmus in 1937, Taipale to Summa. Source: https://example.org/isthmus`r`n"
+            Write-FixtureFile -Root $fixtureRoot -RelativePath "source\$packName\fact-sheets.md" -Text ("# Fact sheets`r`n`r`n## border_fortification`r`n`r`n" + (Get-FixtureFactLine) + "`r`n")
             Write-FixtureFile -Root $fixtureRoot -RelativePath "source\$packName\workshop-intro.bbcode" -Text 'Fixture intro.'
             Write-FixtureDds -Path (Join-Path $fixtureRoot "packs\$packName\gfx\event_pictures\ep_$($tag.ToLowerInvariant())\ep_$($tag.ToLowerInvariant())_abatis.dds")
         }
@@ -428,6 +444,165 @@ Describe 'The licence record cannot be bent by hand' {
         Mock Invoke-RestMethod { throw 'not found' }
         { Invoke-EpCommonsRequest -Uri 'https://commons.wikimedia.org/w/api.php' 6>$null } | Should -Throw 'not found'
         Should -Invoke Start-Sleep -Times 2 -Exactly
+    }
+}
+
+Describe 'Facts are quoted from their page' {
+    It 'accepts a fact line with its source and the quote of its page' {
+        $fixtureRoot = New-EpFixtureRepo
+        @(Get-ErrorMessages -Root $fixtureRoot | Where-Object { $_ -match 'fact sheet' }) | Should -BeNullOrEmpty
+    }
+
+    It 'rejects a fact line without a quote, and one without a source' {
+        $fixtureRoot = New-EpFixtureRepo
+        Set-FixtureFactSheet -Root $fixtureRoot -FactLines @((Get-FixtureFactLine), (Get-FixtureFactLine -WithoutQuote), '- The army supplied the tools. Quote: <<no source>>')
+        $factErrors = @(Get-ErrorMessages -Root $fixtureRoot | Where-Object { $_ -match 'without its source and the quote' })
+        $factErrors.Count | Should -Be 2
+        $factErrors[0] | Should -Match 'Volunteers dug on the Karelian Isthmus'
+    }
+
+    It 'exempts the events below factQuotesFromId, and only those' {
+        $fixtureRoot = New-EpFixtureRepo
+        Set-FixtureFactSheet -Root $fixtureRoot -FactLines @(Get-FixtureFactLine -WithoutQuote)
+        Set-FixtureEvents -Root $fixtureRoot -Change { param($eventSource) $eventSource | Add-Member -NotePropertyName 'factQuotesFromId' -NotePropertyValue 2 }
+        @(Get-ErrorMessages -Root $fixtureRoot | Where-Object { $_ -match 'fact sheet' }) | Should -BeNullOrEmpty
+        Set-FixtureEvents -Root $fixtureRoot -Change { param($eventSource) $eventSource.factQuotesFromId = 1 }
+        @(Get-ErrorMessages -Root $fixtureRoot | Where-Object { $_ -match 'without its source and the quote' }).Count | Should -Be 1
+    }
+
+    It 'rejects an UNVERIFIED fact in a fact sheet, also in an exempt event' {
+        $fixtureRoot = New-EpFixtureRepo
+        Set-FixtureFactSheet -Root $fixtureRoot -FactLines @((Get-FixtureFactLine), '- The work went on until the autumn rain. UNVERIFIED')
+        Set-FixtureEvents -Root $fixtureRoot -Change { param($eventSource) $eventSource | Add-Member -NotePropertyName 'factQuotesFromId' -NotePropertyValue 5 }
+        ((Get-ErrorMessages -Root $fixtureRoot) -join "`n") | Should -Match 'holds an UNVERIFIED fact.*autumn rain'
+        Set-FixtureFactSheet -Root $fixtureRoot -FactLines @((Get-FixtureFactLine), '- The army supplied the tools. UNVERIFIED (no page found)')
+        ((Get-ErrorMessages -Root $fixtureRoot) -join "`n") | Should -Match 'holds an UNVERIFIED fact.*supplied the tools'
+    }
+
+    It 'rejects a covered section written as prose, without fact lines' {
+        $fixtureRoot = New-EpFixtureRepo
+        Set-FixtureFactSheet -Root $fixtureRoot -FactLines @('Volunteers dug on the Karelian Isthmus in 1937. Source: https://example.org/isthmus')
+        ((Get-ErrorMessages -Root $fixtureRoot) -join "`n") | Should -Match 'has no fact lines'
+    }
+
+    It 'rejects a factQuotesFromId that is not a whole number from 1' {
+        $fixtureRoot = New-EpFixtureRepo
+        foreach ($badValue in @(0, 'later', 2.5)) {
+            Set-FixtureEvents -Root $fixtureRoot -Change { param($eventSource) $eventSource | Add-Member -NotePropertyName 'factQuotesFromId' -NotePropertyValue $badValue -Force }
+            ((Get-ErrorMessages -Root $fixtureRoot) -join "`n") | Should -Match 'factQuotesFromId .* must be a whole number from 1'
+        }
+    }
+
+    It 'warns in the audit about the events that predate quoted facts' {
+        $fixtureRoot = New-EpFixtureRepo
+        Set-FixtureFactSheet -Root $fixtureRoot -FactLines @(Get-FixtureFactLine -WithoutQuote)
+        Set-FixtureEvents -Root $fixtureRoot -Change { param($eventSource) $eventSource | Add-Member -NotePropertyName 'factQuotesFromId' -NotePropertyValue 2 }
+        Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'testland' 6>$null | Out-Null
+        $auditText = (Invoke-EpAudit -RepoRoot $fixtureRoot -Pack 'testland' 6>&1 | Out-String)
+        $auditText | Should -Match '\[WARN\].*the facts of events 1 predate quoted facts \(factQuotesFromId 2\)'
+    }
+
+    It 'writes the quoted fact format into the fact sheet of a new pack' {
+        $fixtureRoot = New-EpFixtureRepo
+        Invoke-EpNewPack -RepoRoot $fixtureRoot -Pack 'newland' -Tag 'NWL' -DisplayName 'Newland' 6>$null | Out-Null
+        $factSheetText = [System.IO.File]::ReadAllText((Join-Path $fixtureRoot 'source\newland\fact-sheets.md'), [System.Text.Encoding]::UTF8)
+        $factSheetText | Should -Match ('Quote: ' + [char]0x00AB)
+    }
+}
+
+Describe 'Own work on an old picture' {
+    It 'rejects own work on a 1936 press photograph, dated only in its description' {
+        $ownWork = Get-EpCommonsVerdict -Response (Get-CommonsFixture -Name 'pd-self-old')
+        $ownWork.Accepted | Should -BeFalse
+        $ownWork.Reason | Should -Match 'own work on a picture dated 1936'
+    }
+
+    It 'accepts own work on a recent picture, and an old public domain picture that is not own work' {
+        $recent = Get-CommonsFixture -Name 'pd-self-old'
+        $recent.query.pages[0].imageinfo[0].extmetadata.ImageDescription.value = 'The treaty memorial in Paris, photographed in 1985.'
+        (Get-EpCommonsVerdict -Response $recent).Accepted | Should -BeTrue
+        $oldPublicDomain = Get-EpCommonsVerdict -Response (Get-CommonsFixture -Name 'pd')
+        $oldPublicDomain.Accepted | Should -BeTrue
+        $oldPublicDomain.Picture.dateOriginal | Should -Match '1939'
+    }
+
+    It 'takes the earliest year of the date, name, description and title, so a scan date does not hide the picture''s own' {
+        $scanned = Get-CommonsFixture -Name 'pd-self-old'
+        $scanned.query.pages[0].imageinfo[0].extmetadata | Add-Member -NotePropertyName 'DateTimeOriginal' -NotePropertyValue ([PSCustomObject]@{ value = '2007-06-01' }) -Force
+        (Get-EpCommonsVerdict -Response $scanned).Reason | Should -Match 'dated 1936'
+        Get-EpPictureYear -Texts @('2018-10-28', 'Magazine page of 1937', '') | Should -Be 1937
+        Get-EpPictureYear -Texts @('', 'no year here') | Should -BeNullOrEmpty
+    }
+
+    It 'rejects a recorded own-work row dated before 1960 that an event uses, and warns when the record has no date' {
+        $fixtureRoot = New-EpFixtureRepo
+        $picturesPath = Join-Path $fixtureRoot 'source\testland\pictures.json'
+        $pictureSource = Read-EpJson -Path $picturesPath
+        $pictureSource.pictures[0].license = 'pd'
+        $pictureSource.pictures[0].licenseCategory = 'PD'
+        $pictureSource.pictures[0].publicDomainReason = 'PD-self'
+        $pictureSource.pictures[0].dateOriginal = '1937'
+        Write-EpText -Path $picturesPath -Text (ConvertTo-Json -InputObject $pictureSource -Depth 5)
+        ((Get-ErrorMessages -Root $fixtureRoot) -join "`n") | Should -Match 'own work on a picture dated 1937'
+        $pictureSource.pictures[0].dateOriginal = ''
+        $pictureSource.pictures[0].commonsTitle = 'File:Reservists.tif'
+        Write-EpText -Path $picturesPath -Text (ConvertTo-Json -InputObject $pictureSource -Depth 5)
+        @(Test-EpPack -RepoRoot $fixtureRoot -Pack 'testland' | Where-Object { $_.Level -eq 'WARN' -and $_.Message -match 'own work without a date' }).Count | Should -Be 1
+        ((Get-ErrorMessages -Root $fixtureRoot) -join "`n") | Should -Not -Match 'own work'
+    }
+
+    It 'leaves an unused own-work row to the unused-picture warning' {
+        $fixtureRoot = New-EpFixtureRepo
+        Set-FixtureEvents -Root $fixtureRoot -Change { param($eventSource) $eventSource.events[0].picture = 'vanilla:GFX_report_event_generic_read_write' }
+        $picturesPath = Join-Path $fixtureRoot 'source\testland\pictures.json'
+        $pictureSource = Read-EpJson -Path $picturesPath
+        $pictureSource.pictures[0].credit = 'Own work'
+        $pictureSource.pictures[0].dateOriginal = '1936'
+        Write-EpText -Path $picturesPath -Text (ConvertTo-Json -InputObject $pictureSource -Depth 5)
+        $pictureProblems = @(Test-EpPack -RepoRoot $fixtureRoot -Pack 'testland' | Where-Object { $_.Where -eq 'picture abatis' })
+        @($pictureProblems | Where-Object { $_.Message -match 'own work' }) | Should -BeNullOrEmpty
+        @($pictureProblems | Where-Object { $_.Message -eq 'no event uses this picture' }).Count | Should -Be 1
+    }
+}
+
+Describe 'Removing a picture row' {
+    BeforeAll {
+        function Add-FixtureSparePicture {
+            param([string]$Root)
+
+            $picturesPath = Join-Path $Root 'source\testland\pictures.json'
+            $pictureSource = Read-EpJson -Path $picturesPath
+            $sparePicture = $pictureSource.pictures[0].PSObject.Copy()
+            $sparePicture.key = 'spare'
+            $pictureSource.pictures = @($pictureSource.pictures[0], $sparePicture)
+            Write-EpText -Path $picturesPath -Text (ConvertTo-Json -InputObject $pictureSource -Depth 5)
+            $packData = Get-EpPack -RepoRoot $Root -Pack 'testland'
+            $cachePath = Get-EpCacheFilePath -Pack $packData -Picture (Get-EpPictureByKey -Pack $packData -PictureKey 'spare')
+            Write-FixtureFile -Root $Root -RelativePath $cachePath.Substring($packData.RepoRoot.Length + 1) -Text 'spare bytes'
+            return $cachePath
+        }
+    }
+
+    It 'removes an unused row, its cached download and a stale DDS, and a dry run removes nothing' {
+        $fixtureRoot = New-EpFixtureRepo
+        $cachePath = Add-FixtureSparePicture -Root $fixtureRoot
+        $staleDdsPath = Join-Path $fixtureRoot 'packs\testland\gfx\event_pictures\ep_tst\ep_tst_spare.dds'
+        Write-FixtureDds -Path $staleDdsPath
+        Invoke-EpRemovePicture -RepoRoot $fixtureRoot -Pack 'testland' -Key 'spare' -DryRun 6>$null | Select-Object -Last 1 | Should -Be 0
+        @((Get-EpPack -RepoRoot $fixtureRoot -Pack 'testland').Pictures).Count | Should -Be 2
+        Test-Path -LiteralPath $cachePath | Should -BeTrue
+        Test-Path -LiteralPath $staleDdsPath | Should -BeTrue
+        Invoke-EpRemovePicture -RepoRoot $fixtureRoot -Pack 'testland' -Key 'spare' 6>$null | Select-Object -Last 1 | Should -Be 0
+        @((Get-EpPack -RepoRoot $fixtureRoot -Pack 'testland').Pictures | ForEach-Object { $_.key }) | Should -Be @('abatis')
+        Test-Path -LiteralPath $cachePath | Should -BeFalse
+        Test-Path -LiteralPath $staleDdsPath | Should -BeFalse
+    }
+
+    It 'refuses a picture an event uses, and a key that is not recorded' {
+        $fixtureRoot = New-EpFixtureRepo
+        Invoke-EpRemovePicture -RepoRoot $fixtureRoot -Pack 'testland' -Key 'abatis' 6>$null | Select-Object -Last 1 | Should -Be 1
+        Invoke-EpRemovePicture -RepoRoot $fixtureRoot -Pack 'testland' -Key 'nothing_here' 6>$null | Select-Object -Last 1 | Should -Be 1
+        @((Get-EpPack -RepoRoot $fixtureRoot -Pack 'testland').Pictures).Count | Should -Be 1
     }
 }
 
