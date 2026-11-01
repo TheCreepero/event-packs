@@ -173,13 +173,13 @@ Describe 'Effect caps' {
         $fixtureRoot = New-EpFixtureRepo
         Set-FixtureEvents -Root $fixtureRoot -Change {
             param($eventSource)
-            $eventSource.events[0].options[0].effects[0].war_support = 0.05
+            $eventSource.events[0].options[0].effects[0].war_support = 0.15
             $eventSource.events[0].options[0].effects[1].days = 365
             $eventSource.events[0].options[1].effects = @([PSCustomObject]@{ add_manpower = 1000 })
             $eventSource.ideas[0].modifier = [PSCustomObject]@{ industrial_capacity_dockyard = 0.1 }
         }
         $errorMessages = (Get-ErrorMessages -Root $fixtureRoot) -join "`n"
-        $errorMessages | Should -Match 'war_support 0\.05 is over the cap of 0\.03'
+        $errorMessages | Should -Match 'war_support 0\.15 is over the cap of 0\.1 \[SCR-088\]'
         $errorMessages | Should -Match 'timed idea for 365 days'
         $errorMessages | Should -Match "effect 'add_manpower' is not one of"
         $errorMessages | Should -Match "modifier 'industrial_capacity_dockyard' is not in data/effect-caps.json"
@@ -195,6 +195,49 @@ Describe 'Effect caps' {
         $errorMessages = (Get-ErrorMessages -Root $fixtureRoot) -join "`n"
         $errorMessages | Should -Match "timed_idea 'no_such_idea' is not in the pack's ideas"
         $errorMessages | Should -Match "picture 'some_custom_picture' is not one of"
+    }
+
+    It 'writes experience, command power, manpower and popularity effects' {
+        $fixtureRoot = New-EpFixtureRepo
+        Set-FixtureEvents -Root $fixtureRoot -Change {
+            param($eventSource)
+            $eventSource.events[0].options[1].effects = @(
+                [PSCustomObject]@{ army_experience = 5 },
+                [PSCustomObject]@{ command_power = -5 },
+                [PSCustomObject]@{ manpower = 1500 },
+                [PSCustomObject][ordered]@{ popularity = 0.03; ideology = 'communism' }
+            )
+        }
+        Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'testland' 6>$null | Select-Object -Last 1 | Should -Be 0
+        Get-ErrorMessages -Root $fixtureRoot | Should -BeNullOrEmpty
+        $eventsText = [System.IO.File]::ReadAllText((Join-Path $fixtureRoot 'packs\testland\events\ep_tst_events.txt'))
+        $eventsText | Should -Match 'army_experience = 5'
+        $eventsText | Should -Match 'add_command_power = -5'
+        $eventsText | Should -Match 'add_manpower = 1500'
+        $eventsText | Should -Match 'add_popularity = \{ ideology = communism popularity = 0\.03 \}'
+    }
+
+    It 'rejects a new effect over its cap, fractional manpower and a popularity without a known ideology' {
+        $fixtureRoot = New-EpFixtureRepo
+        Set-FixtureEvents -Root $fixtureRoot -Change {
+            param($eventSource)
+            $eventSource.events[0].options[0].effects = @(
+                [PSCustomObject]@{ command_power = 12 },
+                [PSCustomObject]@{ manpower = 500.5 },
+                [PSCustomObject]@{ popularity = 0.02 }
+            )
+            $eventSource.events[0].options[1].effects = @(
+                [PSCustomObject][ordered]@{ popularity = 0.02; ideology = 'monarchism' },
+                [PSCustomObject]@{ ideology = 'fascism' }
+            )
+        }
+        $errorMessages = (Get-ErrorMessages -Root $fixtureRoot) -join "`n"
+        $errorMessages | Should -Match 'command_power 12 is over the cap of 10'
+        $errorMessages | Should -Not -Match 'command_power 12 is over the cap of 10 \['
+        $errorMessages | Should -Match 'manpower 500\.5 is not a whole number'
+        $errorMessages | Should -Match 'ep_tst\.1\.a: popularity needs an ideology'
+        $errorMessages | Should -Match 'ep_tst\.1\.b: popularity needs an ideology'
+        $errorMessages | Should -Match "ideology 'fascism' without popularity"
     }
 }
 
@@ -438,6 +481,12 @@ Describe 'This repository' {
     It 'every banned pattern is a valid expression' {
         { Get-EpBannedPatterns -RepoRoot $script:RepoRoot } | Should -Not -Throw
         (Get-EpBannedPatterns -RepoRoot $script:RepoRoot).Count | Should -BeGreaterThan 20
+    }
+
+    It 'every capped option effect is one the generator writes' {
+        $capped = @((Get-EpCaps -RepoRoot $script:RepoRoot).optionEffects.PSObject.Properties.Name | Sort-Object)
+        $written = @(@((Get-EpEffectCommands).Keys) + 'popularity' | Sort-Object)
+        $capped | Should -Be $written
     }
 
     It 'every capped idea modifier is spelled as the game documents it' {

@@ -1,9 +1,21 @@
 {
     "optionEffects": {
-        "stability": 0.03,
-        "war_support": 0.03,
-        "political_power": 50
+        "stability": 0.1,
+        "war_support": 0.1,
+        "political_power": 40,
+        "army_experience": 10,
+        "navy_experience": 10,
+        "air_experience": 10,
+        "command_power": 10,
+        "manpower": 2000,
+        "popularity": 0.05
     },
+    "ideologies": [
+        "democratic",
+        "communism",
+        "fascism",
+        "neutrality"
+    ],
     "ideaMaxDays": 180,
     "ideaMaxModifiers": 3,
     "ideaModifiers": {
@@ -17,7 +29,12 @@
         "production_speed_buildings_factor": 0.05,
         "production_factory_efficiency_gain_factor": 0.05,
         "army_morale_factor": 0.05,
-        "monthly_population": 0.1
+        "monthly_population": 0.1,
+        "experience_gain_army_factor": 0.05,
+        "experience_gain_navy_factor": 0.05,
+        "experience_gain_air_factor": 0.05,
+        "command_power_gain_mult": 0.1,
+        "drift_defence_factor": 0.1
     },
     "ideaPictures": [
         "generic_morale_bonus",

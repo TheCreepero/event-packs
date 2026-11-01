@@ -172,23 +172,36 @@ function Get-EpOptionLetter {
     return [string][char](97 + $Index)
 }
 
+# The source key of each plain number effect and the effect it writes; popularity and timed_idea take a second field.
+function Get-EpEffectCommands {
+    return [ordered]@{
+        stability       = 'add_stability'
+        war_support     = 'add_war_support'
+        political_power = 'add_political_power'
+        army_experience = 'army_experience'
+        navy_experience = 'navy_experience'
+        air_experience  = 'air_experience'
+        command_power   = 'add_command_power'
+        manpower        = 'add_manpower'
+    }
+}
+
 function Get-EpEffectLines {
     param($Pack, $Effect)
 
     $effectLines = [System.Collections.Generic.List[string]]::new()
-    $stabilityValue = Get-EpProperty -Object $Effect -Name 'stability'
-    $warSupportValue = Get-EpProperty -Object $Effect -Name 'war_support'
-    $politicalPowerValue = Get-EpProperty -Object $Effect -Name 'political_power'
+    $effectCommands = Get-EpEffectCommands
+    foreach ($effectName in $effectCommands.Keys) {
+        $effectValue = Get-EpProperty -Object $Effect -Name $effectName
+        if ($null -ne $effectValue) {
+            $effectLines.Add($effectCommands[$effectName] + ' = ' + (Format-EpNumber $effectValue))
+        }
+    }
+    $popularityValue = Get-EpProperty -Object $Effect -Name 'popularity'
+    if ($null -ne $popularityValue) {
+        $effectLines.Add('add_popularity = { ideology = ' + (Get-EpProperty -Object $Effect -Name 'ideology') + ' popularity = ' + (Format-EpNumber $popularityValue) + ' }')
+    }
     $timedIdea = Get-EpProperty -Object $Effect -Name 'timed_idea'
-    if ($null -ne $stabilityValue) {
-        $effectLines.Add('add_stability = ' + (Format-EpNumber $stabilityValue))
-    }
-    if ($null -ne $warSupportValue) {
-        $effectLines.Add('add_war_support = ' + (Format-EpNumber $warSupportValue))
-    }
-    if ($null -ne $politicalPowerValue) {
-        $effectLines.Add('add_political_power = ' + (Format-EpNumber $politicalPowerValue))
-    }
     if ($null -ne $timedIdea) {
         $effectLines.Add('add_timed_idea = { idea = ' + $Pack.Namespace + '_' + $timedIdea + ' days = ' + (Format-EpNumber (Get-EpProperty -Object $Effect -Name 'days' -Default 180)) + ' }')
     }
@@ -759,6 +772,12 @@ function Test-EpPackSource {
                     if ($effectName -eq 'days') {
                         continue
                     }
+                    if ($effectName -eq 'ideology') {
+                        if ($null -eq (Get-EpProperty -Object $effect -Name 'popularity')) {
+                            $problems.Add((New-EpProblem -Level 'ERROR' -Where $optionWhere -Message "ideology '$($effectProperty.Value)' without popularity"))
+                        }
+                        continue
+                    }
                     if ($effectName -eq 'timed_idea') {
                         if ($ideaKeys -notcontains [string]$effectProperty.Value) {
                             $problems.Add((New-EpProblem -Level 'ERROR' -Where $optionWhere -Message "timed_idea '$($effectProperty.Value)' is not in the pack's ideas"))
@@ -772,8 +791,24 @@ function Test-EpPackSource {
                     $effectCap = Get-EpProperty -Object $caps.optionEffects -Name $effectName
                     if ($null -eq $effectCap) {
                         $problems.Add((New-EpProblem -Level 'ERROR' -Where $optionWhere -Message "effect '$effectName' is not one of: $(@($caps.optionEffects.PSObject.Properties.Name) -join ', '), timed_idea"))
-                    } elseif ([Math]::Abs([double]$effectProperty.Value) -gt [double]$effectCap) {
-                        $problems.Add((New-EpProblem -Level 'ERROR' -Where $optionWhere -Message "$effectName $($effectProperty.Value) is over the cap of $effectCap [SCR-088]"))
+                        continue
+                    }
+                    $capCitation = switch ($effectName) {
+                        { $_ -in 'stability', 'war_support' } { ' [SCR-088]' }
+                        'popularity' { ' [SCR-104]' }
+                        default { '' }
+                    }
+                    if ([Math]::Abs([double]$effectProperty.Value) -gt [double]$effectCap) {
+                        $problems.Add((New-EpProblem -Level 'ERROR' -Where $optionWhere -Message "$effectName $($effectProperty.Value) is over the cap of $effectCap$capCitation"))
+                    }
+                    if ($effectName -in 'manpower', 'army_experience', 'navy_experience', 'air_experience' -and [double]$effectProperty.Value -ne [Math]::Truncate([double]$effectProperty.Value)) {
+                        $problems.Add((New-EpProblem -Level 'ERROR' -Where $optionWhere -Message "$effectName $($effectProperty.Value) is not a whole number"))
+                    }
+                    if ($effectName -eq 'popularity') {
+                        $ideology = [string](Get-EpProperty -Object $effect -Name 'ideology' -Default '')
+                        if (@($caps.ideologies) -cnotcontains $ideology) {
+                            $problems.Add((New-EpProblem -Level 'ERROR' -Where $optionWhere -Message "popularity needs an ideology, one of: $(@($caps.ideologies) -join ', ') [SCR-104]"))
+                        }
                     }
                 }
             }
