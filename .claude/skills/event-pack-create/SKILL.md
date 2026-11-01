@@ -16,7 +16,7 @@ Plans a pack or new events, down to every text, effect and picture, in one plan 
 - **The licence is the tool's decision.** A picture enters the plan only after `build.ps1 -FetchPicture ... -DryRun` printed `ACCEPTED` for it.
 - **The editor passes every text.** No plan goes READY with an event the editor has not returned KEEP for in its latest round.
 - **The shipped pack is not touched here.** This skill writes the plan, the dossier under `research/<key>/` and files under `scratch/`; `source/` and `packs/` change when the plan is implemented. The one exception is `-NewPack` for a brand-new pack (Phase 0); its thumbnail is made at implementation (Phase 3).
-- **Dossiers are kept.** Every dossier stays in `research/<key>/`, never deleted or trimmed, also when the plan is dropped: the candidates not chosen and the facts not used are where the next expansion of the pack starts. It is committed with the plan when the plan ships, or on the owner's word.
+- **Dossiers are kept.** Every dossier stays in `research/<key>/`, never deleted or trimmed, also when the plan is dropped: the candidates not chosen and the facts not used are where the next expansion of the pack starts. The only additions are the `Used:` and `Checked:` lines of Phase 5.4. It is committed with the plan when the plan ships, or on the owner's word.
 - Ask the owner only the questions in Phase 0 and Phase 2.
 
 ## Phase 0: scope
@@ -25,7 +25,7 @@ Plans a pack or new events, down to every text, effect and picture, in one plan 
 3. Copy `docs/plans/TEMPLATE-pack.md` to `docs/plans/<YYYY-MM-DD>-<key>-<what>.md` and fill the header, "Context" and "Decisions". An existing pack: note its last event id; new ids continue from it.
 
 ## Phase 1: research
-1. If `research/<key>/` exists, read its dossiers. Their candidates without a `Used:` mark that fit the period and kinds are candidates for this plan too; note their keys.
+1. If `research/<key>/` exists, read its dossiers. Their candidates without a `Used:` mark that fit the period and kinds are candidates for this plan too; note their keys. A candidate with a `Checked:` line has been checked on its pages; judge it by the place its newest `Checked:` line names, not by the facts written under it. A fact sheet there holds every checked fact. A plan's "Fact verification" holds only the fixes and drops, so the dossier facts it does not name were kept. If chosen, it still goes through Phase 3a.
 2. Candidates wanted: about one and a half times the events wanted, less the usable earlier candidates. Split them into runs of at most 12, each covering its own slice of the period (for 30: 1936, 1937-1938, 1939-1940), and dispatch one `ep-historical-researcher` per run, all in parallel, each with: the country, tag, its period slice, its number of candidates, the kinds from Phase 0, the titles of the pack's existing events, every candidate of the earlier dossiers as key, date and one line, and its own path `research/<key>/<YYYY-MM-DD>-dossier.md` (with `-2` and up for the other runs, or when that day already has one). Wait for every summary.
 
 ## Phase 2: choose
@@ -42,7 +42,7 @@ Read the new dossiers. Drop candidates whose key facts are `UNVERIFIED`, that ca
 Runs after the owner's choice, at the same time as Phase 3 if you like; a researcher's quote is a lead, not yet a check.
 1. Dispatch `ep-audit-researcher` on the chosen events, at most five per agent, all in parallel. Paste each event's dossier section whole; send no pictures.
 2. Only `KEEP` and `FIX` facts go on, each with the source and quote the checker returned. An event left with less than 40 words of verified detail goes back to Phase 2 for a replacement, and the replacement comes through Phase 3a too.
-3. Fill the plan's "Fact verification": agents and events per agent, the `KEEP`, `FIX` and `DROP` counts, the facts dropped and the events replaced.
+3. Fill the plan's "Fact verification": agents and events per agent; per checked event, replaced ones included, the `KEEP`, `FIX` and `DROP` counts, each fixed fact with its correction and each dropped fact; the events replaced.
 
 ## Phase 4: write
 1. Write each chosen event's section of the plan's `markdown fact-sheets` block from its Phase 3a results only: every fact line is `- <fact>. Source: <URL> (<page title>). Quote: «<line from the page>»`. Never copy a dossier fact straight in.
@@ -56,7 +56,10 @@ Runs after the owner's choice, at the same time as Phase 3 if you like; a resear
 1. Rehearse the plan without touching the repository: `robocopy . scratch\rehearsal /MIR /XD .git scratch artifacts sources-cache`, then in `scratch\rehearsal` run steps 1 to 7 of the plan exactly as written (they write only the copy). Every step must give what it says to expect; fix the plan, not the copy, and rehearse again.
 2. Fill "Events", list in "Kept on judgment" any `[WARN]` the rehearsal's `-Check -Pack <key>` printed that stays, and set `Status: READY`.
 3. Delete the copy: `Remove-Item -Recurse -Force scratch\rehearsal`.
-4. Mark each event of the READY plan in the dossier that holds it: a line `Used: <plan file name>` right under its `## <key>` heading. Change nothing else in a dossier; a candidate the owner or the editor dropped stays unmarked, as the researcher wrote it.
+4. Mark the dossiers, in every section of the candidate's key (dossier and addendum alike):
+   - Each event of the READY plan gets a line `Used: <plan file name>` right under its `## <key>` heading.
+   - Every candidate Phase 3a checked, the replaced ones included, then gets a line below that (below its heading if it has no `Used:`, below any earlier `Checked:` line): `Checked: <plan file name>, <K> kept, <F> fixed, <D> dropped. The facts below are the researcher's notes, not the checked ones: see <where>.` The counts are its own from "Fact verification". `<where>` is `source/<key>/fact-sheets.md` for an event of the plan, and `the plan's "Fact verification"` for a replaced one.
+   - Change nothing else in a dossier. A candidate never checked stays unmarked, as the researcher wrote it.
 
 ## Phase 6: hand off
 Report to the owner: the plan path, the dossier paths with how many candidates they keep for later, the events with their titles, the picture licences (how many PD, CC0, CC BY), the thumbnail's picture, the fact verification totals, the editor's totals, and that `event-pack-implement` carries it out. Then stop.

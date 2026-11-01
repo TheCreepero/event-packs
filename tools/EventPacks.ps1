@@ -1539,6 +1539,56 @@ function Invoke-EpConvertPictures {
     return $converterExitCode
 }
 
+function Add-EpPackageSettingText {
+    param(
+        [Parameter(Mandatory = $true)][string]$Text,
+        [Parameter(Mandatory = $true)][string]$Pack
+    )
+
+    $unitMatch = [regex]::Match($Text, '(?m)^([ \t]+)\S')
+    $unit = if ($unitMatch.Success) { $unitMatch.Groups[1].Value } else { '    ' }
+    $entryLines = @(('"{0}": {{' -f $Pack), ($unit + ('"root": "packs/{0}",' -f $Pack)), ($unit + ('"modFolderName": "event_pack_{0}"' -f $Pack)), '}')
+    $packagesMatch = [regex]::Match($Text, '"packages"\s*:\s*\{')
+    if ($packagesMatch.Success) {
+        $openIndex = $packagesMatch.Index + $packagesMatch.Length - 1
+    } else {
+        $openIndex = $Text.IndexOf([char]'{')
+        $entryLines = @('"packages": {') + @($entryLines | ForEach-Object { $unit + $_ }) + @('}')
+    }
+    $depth = 0
+    $inString = $false
+    $closeIndex = -1
+    for ($index = $openIndex; $index -lt $Text.Length -and $closeIndex -lt 0; $index++) {
+        $character = $Text[$index]
+        if ($inString) {
+            if ($character -eq [char]'\') { $index++ } elseif ($character -eq [char]'"') { $inString = $false }
+        } elseif ($character -eq [char]'"') {
+            $inString = $true
+        } elseif ($character -eq [char]'{' -or $character -eq [char]'[') {
+            $depth++
+        } elseif ($character -eq [char]'}' -or $character -eq [char]']') {
+            $depth--
+            if ($depth -eq 0) { $closeIndex = $index }
+        }
+    }
+    $newline = if ($Text.Contains("`r`n")) { "`r`n" } else { "`n" }
+    $lineStart = $Text.LastIndexOf([char]10, $openIndex) + 1
+    $indent = [regex]::Match($Text.Substring($lineStart), '^[ \t]*').Value
+    $insertIndex = $closeIndex
+    while ([char]::IsWhiteSpace($Text[$insertIndex - 1])) { $insertIndex-- }
+    $insertText = if ($insertIndex -gt $openIndex + 1) { ',' } else { '' }
+    $insertText += -join @($entryLines | ForEach-Object { $newline + $indent + $unit + $_ })
+    if ($Text.IndexOf([char]10, $insertIndex, $closeIndex - $insertIndex) -lt 0) {
+        $insertText += $newline + $indent
+    }
+    $newText = $Text.Substring(0, $insertIndex) + $insertText + $Text.Substring($insertIndex)
+    $packages = Get-EpProperty -Object ($newText | ConvertFrom-Json) -Name 'packages'
+    if ($null -eq $packages -or $null -eq (Get-EpProperty -Object $packages -Name $Pack)) {
+        throw "tools\HoiModBuild.json: package '$Pack' did not land in the top-level packages object; add it by hand."
+    }
+    return $newText
+}
+
 function Invoke-EpNewPack {
     param(
         [Parameter(Mandatory = $true)][string]$RepoRoot,
@@ -1576,12 +1626,8 @@ function Invoke-EpNewPack {
         Copy-Item -LiteralPath $masterThumbnail -Destination (Join-Path $packRoot 'thumbnail.png')
     }
     $settingsPath = Join-Path $RepoRoot 'tools\HoiModBuild.json'
-    $settings = if (Test-Path -LiteralPath $settingsPath) { Read-EpJson -Path $settingsPath } else { [PSCustomObject]@{} }
-    if ($null -eq (Get-EpProperty -Object $settings -Name 'packages')) {
-        $settings | Add-Member -NotePropertyName 'packages' -NotePropertyValue ([PSCustomObject]@{}) -Force
-    }
-    $settings.packages | Add-Member -NotePropertyName $Pack -NotePropertyValue ([PSCustomObject][ordered]@{ root = "packs/$Pack"; modFolderName = "event_pack_$Pack" })
-    Write-EpText -Path $settingsPath -Text ((ConvertTo-Json -InputObject $settings -Depth 6) + "`r`n")
+    $settingsText = if (Test-Path -LiteralPath $settingsPath) { [System.IO.File]::ReadAllText($settingsPath, [System.Text.Encoding]::UTF8) } else { "{`r`n}`r`n" }
+    Write-EpText -Path $settingsPath -Text (Add-EpPackageSettingText -Text $settingsText -Pack $Pack)
     Write-Host "Created pack '$Pack' ($Tag, namespace $namespace): source\$Pack and packs\$Pack; registered in tools\HoiModBuild.json." -ForegroundColor Green
     Write-Host ('  Next: the event-pack-create skill (research, pictures, texts, plan); replace packs\' + $Pack + '\thumbnail.png with the mod-thumbnail-generator.') -ForegroundColor Gray
     return (Invoke-EpGenerate -RepoRoot $RepoRoot -Pack $Pack)

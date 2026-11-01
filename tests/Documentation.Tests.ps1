@@ -102,4 +102,14 @@ Describe 'Plan template and guides' {
             $rulesText | Should -Match ([regex]::Escape($guidePath))
         }
     }
+
+    It 'the rules, the source format, the plan template and the skills agree on the Checked line of a dossier' {
+        $checkedLine = 'Checked: <plan file name>, <K> kept, <F> fixed, <D> dropped. The facts below are the researcher''s notes, not the checked ones: see'
+        foreach ($documentPath in @('docs\source-format.md', '.claude\skills\event-pack-create\SKILL.md', '.claude\skills\event-pack-audit\SKILL.md')) {
+            [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot $documentPath), [System.Text.Encoding]::UTF8) | Should -Match ([regex]::Escape($checkedLine)) -Because "$documentPath gives the form of the Checked line"
+        }
+        foreach ($documentPath in @('AGENTS.md', 'docs\plans\TEMPLATE-pack.md', '.claude\skills\event-pack-implement\SKILL.md')) {
+            [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot $documentPath), [System.Text.Encoding]::UTF8) | Should -Match '`Checked:`' -Because "$documentPath names the Checked line"
+        }
+    }
 }

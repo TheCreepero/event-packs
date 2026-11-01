@@ -508,6 +508,47 @@ Describe 'Facts are quoted from their page' {
         $factSheetText = [System.IO.File]::ReadAllText((Join-Path $fixtureRoot 'source\newland\fact-sheets.md'), [System.Text.Encoding]::UTF8)
         $factSheetText | Should -Match ('Quote: ' + [char]0x00AB)
     }
+
+    It 'adds only the new pack entry to hand-written build settings' {
+        $fixtureRoot = New-EpFixtureRepo
+        $settingsPath = Join-Path $fixtureRoot 'tools\HoiModBuild.json'
+        $originalLines = @('{', '    "packages": {', '        "testland": {', '            "root": "packs/testland",', '            "modFolderName": "event_pack_testland"', '        }', '    },', '    "testSuites": {', '        "Documentation": ["build.ps1", ".claude/skills/**", "AGENTS.md"],', '        "none": ["assets/**", "research/**"]', '    }', '}')
+        Write-FixtureFile -Root $fixtureRoot -RelativePath 'tools\HoiModBuild.json' -Text (($originalLines -join "`r`n") + "`r`n")
+        Invoke-EpNewPack -RepoRoot $fixtureRoot -Pack 'newland' -Tag 'NWL' -DisplayName 'Newland' 6>$null | Out-Null
+        $settingsText = [System.IO.File]::ReadAllText($settingsPath, [System.Text.Encoding]::UTF8)
+        $expectedLines = @($originalLines[0..4]) + @('        },', '        "newland": {', '            "root": "packs/newland",', '            "modFolderName": "event_pack_newland"', '        }') + @($originalLines[6..11])
+        $settingsText | Should -BeExactly (($expectedLines -join "`r`n") + "`r`n")
+        $settings = $settingsText | ConvertFrom-Json
+        $original = ($originalLines -join "`r`n") | ConvertFrom-Json
+        ConvertTo-Json -InputObject $settings.testSuites -Compress | Should -BeExactly (ConvertTo-Json -InputObject $original.testSuites -Compress)
+        ConvertTo-Json -InputObject $settings.packages.testland -Compress | Should -BeExactly (ConvertTo-Json -InputObject $original.packages.testland -Compress)
+        $settings.packages.newland.root | Should -BeExactly 'packs/newland'
+        $settings.packages.newland.modFolderName | Should -BeExactly 'event_pack_newland'
+    }
+
+    It 'follows the indent of the build settings and refuses a packages key that is not at the top level' {
+        $twoSpaceText = "{`n  `"packages`": {`n    `"testland`": {`n      `"root`": `"packs/testland`"`n    }`n  }`n}`n"
+        $expectedText = "{`n  `"packages`": {`n    `"testland`": {`n      `"root`": `"packs/testland`"`n    },`n    `"newland`": {`n      `"root`": `"packs/newland`",`n      `"modFolderName`": `"event_pack_newland`"`n    }`n  }`n}`n"
+        Add-EpPackageSettingText -Text $twoSpaceText -Pack 'newland' | Should -BeExactly $expectedText
+        { Add-EpPackageSettingText -Text '{ "other": { "packages": {} } }' -Pack 'newland' } | Should -Throw '*top-level packages object*'
+    }
+
+    It 'writes the packages object in the hand-written layout when the build settings have <Case>' -TestCases @(
+        @{ Case = 'no packages'; Original = "{`r`n    `"testSuites`": {`r`n        `"none`": [`"research/**`"]`r`n    }`r`n}`r`n"; Prefix = @('{', '    "testSuites": {', '        "none": ["research/**"]', '    },') },
+        @{ Case = 'no file'; Original = $null; Prefix = @('{') }
+    ) {
+        param($Case, $Original, $Prefix)
+        $fixtureRoot = New-EpFixtureRepo
+        $settingsPath = Join-Path $fixtureRoot 'tools\HoiModBuild.json'
+        if ($null -eq $Original) {
+            Remove-Item -LiteralPath $settingsPath
+        } else {
+            Write-FixtureFile -Root $fixtureRoot -RelativePath 'tools\HoiModBuild.json' -Text $Original
+        }
+        Invoke-EpNewPack -RepoRoot $fixtureRoot -Pack 'newland' -Tag 'NWL' -DisplayName 'Newland' 6>$null | Out-Null
+        $expectedLines = @($Prefix) + @('    "packages": {', '        "newland": {', '            "root": "packs/newland",', '            "modFolderName": "event_pack_newland"', '        }', '    }', '}')
+        [System.IO.File]::ReadAllText($settingsPath, [System.Text.Encoding]::UTF8) | Should -BeExactly (($expectedLines -join "`r`n") + "`r`n")
+    }
 }
 
 Describe 'Own work on an old picture' {

@@ -33,7 +33,7 @@ Thumbnail: <picture key, the background of step 4>; subject <where it sits>; tex
 
 ## Fact verification
 
-<Phase 3a of event-pack-create, or Phase 1 of an audit: the ep-audit-researcher agents and the events each checked, the KEEP, FIX and DROP counts, the facts dropped and the events sent back for a replacement.>
+<Phase 3a of event-pack-create, or Phase 1 of an audit: the ep-audit-researcher agents and the events each checked; per checked event, replaced ones included, the KEEP, FIX and DROP counts, each fixed fact with its correction and each dropped fact; the events sent back for a replacement. The dossiers' `Checked:` lines take their counts from here.>
 
 ## Editor record
 
