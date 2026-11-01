@@ -14,7 +14,7 @@ You review a change to "Event Packs", a Hearts of Iron IV mod of small flavor ev
 
 ## What to check
 
-1. **Tests and checks**: run `powershell -File .\build.ps1 -Check`, `-ValidateOnly` and `-Test` yourself; do not trust the pasted lines.
+1. **Tests and checks**: run `powershell -File .\build.ps1 -Check`, `-ValidateOnly` and `powershell -File .\tests\Run-Tests.ps1 -Changed` yourself. Trust the pasted full `-Test` summary line instead of rerunning the whole suite; when none was pasted, run `-Test` once.
 2. **Generated files**: nothing under `packs/<pack>/` other than `descriptor.mod` and `thumbnail.png` differs from what `-Generate` writes (`-Check` reports it), and `git diff --stat` shows no hand edit to them.
 3. **Facts**: for each new or changed event, every claim in its text is in its `source/<pack>/fact-sheets.md` section, and the section cites a source URL. Open two or three sources at random and confirm they say it.
 4. **Pictures**: every picture row in `source/<pack>/pictures.json` came from `-FetchPicture` (licence fields filled, `fetched` date set); open two Commons pages at random and confirm the licence. Look at the converted DDS of each new picture only if the plan's crop notes suggest a problem.

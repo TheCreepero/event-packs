@@ -450,6 +450,17 @@ Describe 'Packages' {
         $vdfText | Should -Not -Match ([regex]::Escape('\"'))
     }
 
+    It 'refuses an upload with a double quote inside a BBCode tag and names the line' {
+        $fixtureRoot = New-FixturePackRepo
+        Write-TestFile -Root $fixtureRoot -RelativePath 'packs\alpha\WORKSHOP_DESCRIPTION_GUIDELINES.md' -Text "# alpha`r`n`r`n``````bbcode`r`n[h1]alpha[/h1]`r`nSee [url=`"https://example.com`"]the wiki[/url].`r`n```````r`n"
+        $config = Get-ModBuildConfig -RepoDir $fixtureRoot -PackageName 'alpha'
+        $publishOutput = @(Invoke-ModPublish -Config $config -DryRun -UpdateDescription -SteamUser 'tester' 6>&1)
+        [int]$publishOutput[-1] | Should -Be 1
+        $errorLines = @($publishOutput | ForEach-Object { "$_" } | Where-Object { $_ -match '\[ERROR\]' })
+        $errorLines.Count | Should -Be 1
+        $errorLines[0] | Should -BeLike '*Line: See `[url="https://example.com"`]the wiki`[/url`].'
+    }
+
     It 'passes -Pack on to the engine' {
         function Invoke-PackProbe {
             param([switch]$Deploy, [string]$Pack, [string]$Generate)
@@ -522,6 +533,123 @@ Describe 'Workshop VDF' {
     }
 }
 
+Describe 'Test runner selection by changed files' {
+    BeforeAll {
+        $script:RunnerText = [System.IO.File]::ReadAllText((Join-Path $PSScriptRoot 'Run-Tests.ps1'))
+
+        function New-RunnerRepo {
+            $runnerRoot = New-TestDirectory
+            foreach ($suiteName in @('Alpha', 'Beta', 'Knowledge')) {
+                Write-TestFile -Root $runnerRoot -RelativePath "tests\$suiteName.Tests.ps1" -Text "Describe '$suiteName' { It 'passes' { 1 | Should -Be 1 } }"
+            }
+            Write-TestFile -Root $runnerRoot -RelativePath 'tests\Run-Tests.ps1' -Text $script:RunnerText
+            Write-TestFile -Root $runnerRoot -RelativePath 'tools\HoiModBuild.json' -Text '{ "testSuites": { "Alpha": ["Common/Alpha/**"], "Beta": ["common/beta/*.txt", "gfx folder/**/*.dds"], "Knowledge": ["*.md"], "none": ["artwork/**"], "all": ["tools/shared.ps1"] } }'
+            foreach ($trackedFile in @('common\alpha\a.txt', 'common\beta\b.txt', 'README.md', 'other\c.txt', 'tools\shared.ps1')) {
+                Write-TestFile -Root $runnerRoot -RelativePath $trackedFile
+            }
+            & git -C $runnerRoot -c core.autocrlf=false init -q | Out-Null
+            & git -C $runnerRoot -c core.autocrlf=false add -A | Out-Null
+            & git -C $runnerRoot -c core.autocrlf=false -c user.name=Tester -c user.email=tester@example.com commit -q -m fixture | Out-Null
+            return $runnerRoot
+        }
+
+        function Invoke-Runner {
+            param(
+                [Parameter(Mandatory = $true)][string]$Root,
+                [string[]]$RunnerArguments = @('-Changed', '-ListOnly')
+            )
+
+            $runnerOutput = @(& $script:PowerShellExe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $Root 'tests\Run-Tests.ps1') @RunnerArguments | ForEach-Object { "$_" })
+            return [PSCustomObject]@{
+                ExitCode = $LASTEXITCODE
+                Output   = $runnerOutput
+                Suites   = @($runnerOutput | Where-Object { $_ -match '^Suite: ' } | ForEach-Object { $_.Substring(7) })
+            }
+        }
+    }
+
+    It 'selects only the suite mapped to a changed file, whatever the case of the glob' {
+        $runnerRoot = New-RunnerRepo
+        Write-TestFile -Root $runnerRoot -RelativePath 'common\alpha\a.txt' -Text 'changed'
+        $runnerResult = Invoke-Runner -Root $runnerRoot
+        $runnerResult.ExitCode | Should -Be 0
+        $runnerResult.Suites | Should -Be @('Alpha')
+    }
+
+    It 'selects a changed test file as its own suite, with Knowledge for the citations in a script' {
+        $runnerRoot = New-RunnerRepo
+        Write-TestFile -Root $runnerRoot -RelativePath 'tests\Beta.Tests.ps1' -Text "Describe 'Beta' { It 'still passes' { 2 | Should -Be 2 } }"
+        (Invoke-Runner -Root $runnerRoot).Suites | Should -Be @('Beta', 'Knowledge')
+    }
+
+    It 'selects every suite for an untracked file outside the map and names the file' {
+        $runnerRoot = New-RunnerRepo
+        Write-TestFile -Root $runnerRoot -RelativePath 'other\new.txt'
+        $runnerResult = Invoke-Runner -Root $runnerRoot
+        $runnerResult.Suites | Should -Be @('Alpha', 'Beta', 'Knowledge')
+        ($runnerResult.Output -join "`n") | Should -Match ([regex]::Escape('other/new.txt'))
+    }
+
+    It 'selects every suite for a script outside the map, although the built-in Knowledge entry reads it too' {
+        $runnerRoot = New-RunnerRepo
+        Write-TestFile -Root $runnerRoot -RelativePath 'tools\new.ps1'
+        $runnerResult = Invoke-Runner -Root $runnerRoot
+        $runnerResult.Suites | Should -Be @('Alpha', 'Beta', 'Knowledge')
+        ($runnerResult.Output -join "`n") | Should -Match ([regex]::Escape('tools/new.ps1'))
+    }
+
+    It 'keeps a single star within one folder' {
+        $runnerRoot = New-RunnerRepo
+        Write-TestFile -Root $runnerRoot -RelativePath 'common\beta\sub\b.txt'
+        (Invoke-Runner -Root $runnerRoot).Suites | Should -Be @('Alpha', 'Beta', 'Knowledge')
+    }
+
+    It 'selects every suite for a file mapped to all' {
+        $runnerRoot = New-RunnerRepo
+        Write-TestFile -Root $runnerRoot -RelativePath 'tools\shared.ps1' -Text 'changed'
+        (Invoke-Runner -Root $runnerRoot).Suites | Should -Be @('Alpha', 'Beta', 'Knowledge')
+    }
+
+    It 'selects no suite in a clean tree and exits 0' {
+        $runnerResult = Invoke-Runner -Root (New-RunnerRepo)
+        $runnerResult.ExitCode | Should -Be 0
+        $runnerResult.Suites | Should -BeNullOrEmpty
+        ($runnerResult.Output -join "`n") | Should -Match 'No changed file needs a test suite'
+    }
+
+    It 'skips a file mapped to none and selects Knowledge for a markdown file the map gives it' {
+        $runnerRoot = New-RunnerRepo
+        Write-TestFile -Root $runnerRoot -RelativePath 'artwork\source.psd'
+        Write-TestFile -Root $runnerRoot -RelativePath 'README.md' -Text 'changed'
+        (Invoke-Runner -Root $runnerRoot).Suites | Should -Be @('Knowledge')
+    }
+
+    It 'maps a renamed file by its new path' {
+        $runnerRoot = New-RunnerRepo
+        & git -C $runnerRoot mv common/beta/b.txt common/alpha/b.txt | Out-Null
+        (Invoke-Runner -Root $runnerRoot).Suites | Should -Be @('Alpha')
+    }
+
+    It 'matches untracked files in a new folder with a space, at the top of a double star and below it' {
+        $runnerRoot = New-RunnerRepo
+        Write-TestFile -Root $runnerRoot -RelativePath 'gfx folder\icon.dds'
+        Write-TestFile -Root $runnerRoot -RelativePath 'gfx folder\sub\deep\icon.dds'
+        (Invoke-Runner -Root $runnerRoot).Suites | Should -Be @('Beta')
+    }
+
+    It 'refuses -Changed together with -Suite' {
+        (Invoke-Runner -Root (New-RunnerRepo) -RunnerArguments @('-Changed', '-Suite', 'Alpha')).ExitCode | Should -Be 1
+    }
+
+    It 'runs only the selected suite and names the selection in the summary line' {
+        $runnerRoot = New-RunnerRepo
+        Write-TestFile -Root $runnerRoot -RelativePath 'common\alpha\a.txt' -Text 'changed'
+        $runnerResult = Invoke-Runner -Root $runnerRoot -RunnerArguments @('-Changed')
+        $runnerResult.ExitCode | Should -Be 0
+        @($runnerResult.Output | Where-Object { $_ -match 'Summary:' })[-1] | Should -Match ([regex]::Escape('1 Passed, 0 Failed, 0 Skipped (changed: Alpha)'))
+    }
+}
+
 Describe 'This repository' {
     BeforeAll {
         if ($script:IsModRepo) {
@@ -565,6 +693,21 @@ Describe 'This repository' {
             }
         }
         @($staleTargets) | Should -BeNullOrEmpty -Because 'the Manager copies them with Scripts\Sync-ModScaffold.ps1'
+    }
+
+    It 'names only existing suites in the testSuites map of tools\HoiModBuild.json' {
+        $settingsPath = Join-Path $script:RepoRoot 'tools\HoiModBuild.json'
+        if (-not $script:IsModRepo -or -not (Test-Path -LiteralPath $settingsPath)) {
+            Set-ItResult -Skipped -Because 'this file runs from the Modding Manager, or the mod has no tools\HoiModBuild.json'
+            return
+        }
+        $settings = [System.IO.File]::ReadAllText($settingsPath, [System.Text.Encoding]::UTF8) | ConvertFrom-Json
+        if (-not $settings.PSObject.Properties['testSuites']) {
+            Set-ItResult -Skipped -Because 'the mod has no testSuites map'
+            return
+        }
+        $unknownSuites = @($settings.testSuites.PSObject.Properties.Name | Where-Object { @('all', 'none') -notcontains $_ -and -not (Test-Path -LiteralPath (Join-Path $PSScriptRoot "$_.Tests.ps1")) })
+        $unknownSuites | Should -BeNullOrEmpty -Because 'a misspelt suite name selects nothing while its files still count as mapped'
     }
 
     It 'packages exactly the content folders and the descriptor and thumbnail' {
