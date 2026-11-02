@@ -463,17 +463,19 @@ def drop_card(canvas, window, centre, angle):
 
 def pile(windows, background, seed):
     """The windows thrown on a pile: the first on top near the middle, the rest spread under it, each
-    turned a little. The same seed gives the same pile."""
+    turned a little, half of them each way. The same seed gives the same pile."""
     rng = random.Random(seed)
     canvas = background.convert("RGBA")
     width, height = canvas.size
     under = windows[1:]
+    sides = [1 if k % 2 == 0 else -1 for k in range(len(under))]
+    rng.shuffle(sides)
     places = []
     for k, window in enumerate(under):
         share = k / (len(under) - 1) if len(under) > 1 else 0.5
         x = width * (0.2 + 0.6 * share) + rng.uniform(-40, 40)
         y = height * (0.36 if k % 2 == 0 else 0.64) + rng.uniform(-30, 30)
-        places.append((window, (x, y), rng.uniform(-PILE_TURN, PILE_TURN)))
+        places.append((window, (x, y), sides[k] * rng.uniform(PILE_TURN / 4, PILE_TURN)))
     rng.shuffle(places)
     for window, centre, angle in places:
         drop_card(canvas, window, centre, angle)
