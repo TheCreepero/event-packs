@@ -729,6 +729,30 @@ Describe 'Event renders for the Workshop page' {
         }
     }
 
+    It 'reads an uncompressed 32-bit DDS in one step, to the pixels Pillow decodes, with and without alpha' {
+        if (-not $script:PythonExecutable) { Set-ItResult -Skipped -Because 'Python 3 with Pillow is not installed'; return }
+        $probe = @'
+import os, struct, sys
+sys.path.insert(0, sys.argv[1])
+import render_event_cards
+from PIL import Image
+for flags, alpha_mask in ((0x41, 0xFF000000), (0x40, 0)):
+    width, height = 5, 3
+    pixels = b"".join(bytes(((x * 40) % 256, (y * 70) % 256, (200 - x * 30) % 256, (x * 50 + 10) % 256)) for y in range(height) for x in range(width))
+    header = struct.pack("<4s7I44x8I5I", b"DDS ", 124, 0x100F, height, width, width * 4, 0, 0, 32, flags, 0, 32, 0xFF0000, 0xFF00, 0xFF, alpha_mask, 0x1000, 0, 0, 0, 0)
+    path = os.path.join(sys.argv[2], "probe_%x.dds" % flags)
+    with open(path, "wb") as handle:
+        handle.write(header + pixels)
+    ours = render_event_cards.open_image(path)
+    same = ours.convert("RGBA").tobytes() == Image.open(path).convert("RGBA").tobytes()
+    print("%x fast=%s same=%s" % (flags, ours.format is None, same))
+'@
+        $probePath = Join-Path $TestDrive 'dds_probe.py'
+        [System.IO.File]::WriteAllText($probePath, $probe, [System.Text.UTF8Encoding]::new($false))
+        $probeOutput = @(& $script:PythonExecutable -I -B $probePath (Join-Path $script:RepoRoot 'tools') $TestDrive 2>&1 | ForEach-Object { "$_" })
+        $probeOutput | Should -Be @('41 fast=True same=True', '40 fast=True same=True') -Because ($probeOutput -join "`n")
+    }
+
     It 'draws one 16:9 image per event of a pack, all of one size, with the window at 1:1, and an overview' {
         if (-not $script:PythonExecutable) { Set-ItResult -Skipped -Because 'Python 3 with Pillow is not installed'; return }
         $outputDir = Join-Path $TestDrive 'renders'

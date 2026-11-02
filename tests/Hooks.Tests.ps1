@@ -3,7 +3,7 @@ BeforeAll {
     $script:ProtectHook = Join-Path $script:RepoRoot '.claude\hooks\Protect-ProjectFiles.ps1'
     $script:PowerShellExe = (Get-Process -Id $PID).Path
 
-    function Invoke-ProtectHook {
+    function Invoke-ProtectHookProcess {
         param([string]$ToolName, [hashtable]$ToolInput)
 
         $hookJson = ConvertTo-Json -InputObject @{ tool_name = $ToolName; tool_input = $ToolInput } -Depth 4 -Compress
@@ -16,6 +16,35 @@ BeforeAll {
             $ErrorActionPreference = $previousErrorAction
         }
         return $hookExitCode
+    }
+
+    function Invoke-ProtectHook {
+        param([string]$ToolName, [hashtable]$ToolInput)
+
+        $hookJson = ConvertTo-Json -InputObject @{ tool_name = $ToolName; tool_input = $ToolInput } -Depth 4 -Compress
+        $previousErrorAction = $ErrorActionPreference
+        $previousIn = [Console]::In
+        $previousError = [Console]::Error
+        $ErrorActionPreference = 'Continue'
+        $global:LASTEXITCODE = $null
+        try {
+            [Console]::SetIn([System.IO.StringReader]::new($hookJson))
+            [Console]::SetError([System.IO.StringWriter]::new())
+            $null = & $script:ProtectHook -RepoRoot $script:RepoRoot 2>&1
+            $hookExitCode = $LASTEXITCODE
+        } finally {
+            [Console]::SetIn($previousIn)
+            [Console]::SetError($previousError)
+            $ErrorActionPreference = $previousErrorAction
+        }
+        return $hookExitCode
+    }
+}
+
+Describe 'Protect-ProjectFiles hook in its own process' {
+    It 'refuses a pack file and allows a pack thumbnail, as Claude Code runs it' {
+        Invoke-ProtectHookProcess -ToolName 'Write' -ToolInput @{ file_path = (Join-Path $script:RepoRoot 'packs\finland\events\ep_fin_events.txt') } | Should -Be 2
+        Invoke-ProtectHookProcess -ToolName 'PowerShell' -ToolInput @{ command = 'Copy-Item scratch\thumbnail\finland\thumbnail.png packs\finland\thumbnail.png' } | Should -Be 0
     }
 }
 

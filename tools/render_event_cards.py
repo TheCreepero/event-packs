@@ -28,6 +28,7 @@ import json
 import os
 import random
 import re
+import struct
 import sys
 import zlib
 
@@ -68,6 +69,24 @@ def find_game_dir(explicit=None):
         if candidate and os.path.isfile(os.path.join(candidate, "interface", "eventwindow.gui")):
             return candidate
     return None
+
+
+def open_image(path):
+    """An image file, with uncompressed 32-bit DDS files (the loading screens and many sprites) read in one step:
+    Pillow decodes those pixel by pixel in Python, about 5 s for one loading screen."""
+    if path.lower().endswith(".dds"):
+        with open(path, "rb") as handle:
+            header = handle.read(128)
+            if len(header) == 128 and header[:4] == b"DDS ":
+                height, width = struct.unpack_from("<II", header, 12)
+                flags, _fourcc, bits, red, green, blue, alpha = struct.unpack_from("<I4sIIIII", header, 80)
+                if flags & 0x40 and not flags & 0x4 and bits == 32 and (red, green, blue) == (0xFF0000, 0xFF00, 0xFF):
+                    pixels = handle.read(width * height * 4)
+                    if len(pixels) == width * height * 4:
+                        image = Image.frombuffer("RGBA", (width, height), pixels, "raw", "BGRA", 0, 1).copy()
+                        has_alpha = flags & 0x1 and alpha == 0xFF000000
+                        return image if has_alpha else image.convert("RGB")
+    return Image.open(path)
 
 
 def read_text(path):
@@ -224,7 +243,7 @@ class BitmapFont:
             path, page_file = key
             stem = os.path.splitext(path)[0]
             candidates = ([os.path.join(os.path.dirname(path), page_file)] if page_file else []) + [stem + ".dds", stem + ".tga"]
-            self.pages[key] = Image.open(next(c for c in candidates if os.path.isfile(c))).convert("RGBA")
+            self.pages[key] = open_image(next(c for c in candidates if os.path.isfile(c))).convert("RGBA")
         return self.pages[key]
 
     def draw(self, canvas, x, y, text):
@@ -315,7 +334,7 @@ class EventWindow:
     def image(self, sprite_name):
         if sprite_name not in self.images:
             entry = self.sprites.get(sprite_name)
-            self.images[sprite_name] = Image.open(entry[0]).convert("RGBA") if entry and os.path.isfile(entry[0]) else None
+            self.images[sprite_name] = open_image(entry[0]).convert("RGBA") if entry and os.path.isfile(entry[0]) else None
         return self.images[sprite_name]
 
     def background(self, block):
@@ -421,7 +440,7 @@ def backdrop(path, size):
     """A loading screen filling size, blurred and dimmed so the window stands out."""
     if not path:
         return Image.new("RGB", size, BACKDROP)
-    img = Image.open(path).convert("RGB")
+    img = open_image(path).convert("RGB")
     scale = max(size[0] / img.width, size[1] / img.height)
     img = img.resize((max(size[0], round(img.width * scale)), max(size[1], round(img.height * scale))), Image.LANCZOS)
     left, top = (img.width - size[0]) // 2, (img.height - size[1]) // 2
@@ -486,7 +505,7 @@ def pile(windows, background, seed):
 
 def save(framed, folder, stem):
     path = os.path.join(folder, stem + ".png")
-    framed.save(path, optimize=True)
+    framed.save(path)
     if os.path.getsize(path) > MAX_BYTES:
         os.remove(path)
         path = os.path.join(folder, stem + ".jpg")
