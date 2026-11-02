@@ -43,7 +43,7 @@ What the usual steps mean:
 - **`-ConvertPictures -Pack <pack>`**: must end `failed=0`.
 - **`-Generate -Pack <pack>`**: must end `Generated pack '<pack>'`; an `[ERROR]` line is a stop condition.
 - **`-Check -Pack <pack>`**: must end `Check OK`. A `[WARN]` line the plan's "Kept on judgment" does not list is a stop condition.
-- **`-RenderEvents -Pack <pack>`**: must end `Rendered <n> events to ...`, one image per event in `artifacts/workshop-images/<pack>/`. A `[WARN]` line (a title or option that overflows its box) the plan's "Kept on judgment" does not list, or an `[ERROR]`, is a stop condition.
+- **`-RenderEvents -Pack <pack>`**: must end `Rendered <n> events to ...`, one image per event in `artifacts/workshop-images/<pack>/` and `00-overview`. A `[WARN]` line (a title or option that overflows its box) the plan's "Kept on judgment" does not list, or an `[ERROR]`, is a stop condition.
 - **`-ValidateOnly` and `-Test`**: must end `Validation succeeded.` and with no failed test.
 
 ## 3. Stop conditions

@@ -33,5 +33,5 @@ Each pack is its own Workshop item. Follow the shared `hoi4-mod-release` skill, 
 
 ## 5. Event images on the Workshop page
 SteamCMD uploads only the thumbnail, so the event images go up by hand.
-1. `powershell -File .\build.ps1 -RenderEvents -Pack <key>`, from the committed pack: one image per event in `artifacts/workshop-images/<key>/`, named `NN-<event key>` (the id in two digits). No `[ERROR]`, and no `[WARN]` outside the "Kept on judgment" of the plan that made the events.
+1. `powershell -File .\build.ps1 -RenderEvents -Pack <key>`, from the committed pack: one image per event in `artifacts/workshop-images/<key>/`, named `NN-<event key>` (the id in two digits), and `00-overview` with several events on a pile, which comes first. No `[ERROR]`, and no `[WARN]` outside the "Kept on judgment" of the plan that made the events.
 2. Give the owner the folder's full path and these steps: on the item's Workshop page, "Add/edit images & videos"; on an update where events or their texts changed, remove the old event images first; upload the files in name order, so the gallery follows the events' order.

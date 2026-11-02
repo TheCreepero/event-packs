@@ -729,17 +729,22 @@ Describe 'Event renders for the Workshop page' {
         }
     }
 
-    It 'draws one 16:9 image per event of a pack, all of one size, with the window at 1:1' {
+    It 'draws one 16:9 image per event of a pack, all of one size, with the window at 1:1, and an overview' {
         if (-not $script:PythonExecutable) { Set-ItResult -Skipped -Because 'Python 3 with Pillow is not installed'; return }
         $outputDir = Join-Path $TestDrive 'renders'
         $result = Invoke-EventRenderer -SourceDir (Join-Path $script:RepoRoot 'source\finland') -PackDir (Join-Path $script:RepoRoot 'packs\finland') -OutputDir $outputDir
         if ($result.Text -match 'no Hearts of Iron IV install found') { Set-ItResult -Skipped -Because 'the game is not installed here'; return }
         $result.ExitCode | Should -Be 0 -Because $result.Text
         $eventCount = @(([System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'source\finland\events.json'), [System.Text.Encoding]::UTF8) | ConvertFrom-Json).events).Count
-        $renderFiles = @(Get-ChildItem -LiteralPath $outputDir -File | Where-Object { $_.Extension -in @('.png', '.jpg') })
+        $allFiles = @(Get-ChildItem -LiteralPath $outputDir -File | Where-Object { $_.Extension -in @('.png', '.jpg') } | Sort-Object Name)
+        $allFiles[0].BaseName | Should -Be '00-overview'
+        $renderFiles = @($allFiles | Select-Object -Skip 1)
         $renderFiles.Count | Should -Be $eventCount
         $renderFiles[0].Name | Should -Match '^01-[a-z0-9_]+\.(png|jpg)$'
         Add-Type -AssemblyName System.Drawing
+        $overviewImage = [System.Drawing.Image]::FromFile($allFiles[0].FullName)
+        try { '{0}x{1}' -f $overviewImage.Width, $overviewImage.Height | Should -Be '1600x900' } finally { $overviewImage.Dispose() }
+        $result.Text | Should -Match '00-overview: 7 events on a pile'
         $imageSizes = @(foreach ($renderFile in $renderFiles) {
             $renderImage = [System.Drawing.Image]::FromFile($renderFile.FullName)
             try { '{0}x{1}' -f $renderImage.Width, $renderImage.Height } finally { $renderImage.Dispose() }

@@ -14,7 +14,9 @@ Each window sits at 1:1 in the middle of a 16:9 image, the same size for every e
 a blurred and dimmed vanilla loading screen (gfx/loadingscreens/load_<n>.dds): the screens in turn by
 default, one named screen, or none (a plain dark backdrop). Each image is written as
 NN-<event key>.png (a JPEG when the PNG is over 1 MB) into artifacts/workshop-images/<pack>/, which is
-emptied first.
+emptied first. 00-overview.png throws up to PILE_CARDS of the windows, spread over the pack, on a pile
+over the first background: the first event on top, the rest turned a little and overlapping, laid out
+the same way on every run of the pack.
 
 Prints [WARN] for a title or option text that overflows its box, [ERROR] for a picture that cannot be found,
 and ends with "Rendered <n> events to <folder>". Exit code 1 on any [ERROR].
@@ -24,8 +26,10 @@ Fonts and sprite reading follow mods/hoi4-1440p-ui-mod/tools/guiparse.py.
 import argparse
 import json
 import os
+import random
 import re
 import sys
+import zlib
 
 from PIL import Image, ImageChops, ImageEnhance, ImageFilter
 
@@ -39,6 +43,9 @@ BLUR = 12
 DIM = 0.6
 SHADOW_DROP = 8
 SHADOW_BLUR = 10
+PILE_CARDS = 7
+PILE_SIZE = (1600, 900)
+PILE_TURN = 12
 
 
 def find_game_dir(explicit=None):
@@ -434,6 +441,47 @@ def compose(window, background):
     return canvas.convert("RGB")
 
 
+def spread(items, count):
+    """Up to count items, evenly spaced from the first to the last."""
+    if len(items) <= count:
+        return list(items)
+    return [items[round(i * (len(items) - 1) / (count - 1))] for i in range(count)]
+
+
+def drop_card(canvas, window, centre, angle):
+    """A window turned by angle degrees, with its shadow, centred on centre."""
+    card = window.rotate(angle, resample=Image.BICUBIC, expand=True)
+    x, y = round(centre[0] - card.width / 2), round(centre[1] - card.height / 2)
+    shadow = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
+    alpha = card.split()[3].point(lambda a: a * 4 // 5)
+    shadow.paste(Image.new("RGBA", card.size, (0, 0, 0, 255)), (x + SHADOW_DROP, y + 2 * SHADOW_DROP), alpha)
+    canvas.alpha_composite(shadow.filter(ImageFilter.GaussianBlur(2 * SHADOW_BLUR)))
+    layer = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
+    layer.paste(card, (x, y), card)
+    canvas.alpha_composite(layer)
+
+
+def pile(windows, background, seed):
+    """The windows thrown on a pile: the first on top near the middle, the rest spread under it, each
+    turned a little. The same seed gives the same pile."""
+    rng = random.Random(seed)
+    canvas = background.convert("RGBA")
+    width, height = canvas.size
+    under = windows[1:]
+    places = []
+    for k, window in enumerate(under):
+        share = k / (len(under) - 1) if len(under) > 1 else 0.5
+        x = width * (0.2 + 0.6 * share) + rng.uniform(-40, 40)
+        y = height * (0.36 if k % 2 == 0 else 0.64) + rng.uniform(-30, 30)
+        places.append((window, (x, y), rng.uniform(-PILE_TURN, PILE_TURN)))
+    rng.shuffle(places)
+    for window, centre, angle in places:
+        drop_card(canvas, window, centre, angle)
+    if windows:
+        drop_card(canvas, windows[0], (width / 2 + rng.uniform(-30, 30), height / 2 + rng.uniform(-20, 20)), rng.uniform(-PILE_TURN / 3, PILE_TURN / 3))
+    return canvas.convert("RGB")
+
+
 def save(framed, folder, stem):
     path = os.path.join(folder, stem + ".png")
     framed.save(path, optimize=True)
@@ -513,6 +561,10 @@ def main():
     for index, (event, image) in enumerate(rendered):
         screen = screens[index % len(screens)] if screens else None
         save(compose(image, backdrop(screen, size)), out, "%02d-%s" % (event["id"], event["key"]))
+    if rendered:
+        chosen = spread([image for _event, image in rendered], PILE_CARDS)
+        save(pile(chosen, backdrop(screens[0] if screens else None, PILE_SIZE), zlib.crc32(args.pack.encode("utf-8"))), out, "00-overview")
+        print("  00-overview: %d events on a pile" % len(chosen))
     print("Rendered %d events to %s" % (len(events), out))
     return 1 if errors else 0
 
