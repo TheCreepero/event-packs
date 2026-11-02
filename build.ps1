@@ -67,6 +67,9 @@ param(
     [Parameter(ParameterSetName = 'SyncMirrors', Mandatory = $true)]
     [switch]$SyncMirrors,
 
+    [Parameter(ParameterSetName = 'TestMod', Mandatory = $true)]
+    [switch]$TestMod,
+
     [switch]$Validate,
     [switch]$NoValidate,
     [switch]$Clean,
@@ -85,6 +88,7 @@ param(
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'tools\HoiModBuild.ps1')
 . (Join-Path $PSScriptRoot 'tools\EventPacks.ps1')
+. (Join-Path $PSScriptRoot 'tools\EventPacksTestMod.ps1')
 
 function Get-SelectedPackNames {
     if ($Pack) {
@@ -169,6 +173,10 @@ switch ($PSCmdlet.ParameterSetName) {
     }
     'SyncMirrors' {
         exit (Sync-SkillMirrors)
+    }
+    'TestMod' {
+        $launcherModDir = $(if ($ModDir) { $ModDir } else { Get-ModDefaultModDir })
+        exit ([int](@(Invoke-EpTestMod -RepoRoot $PSScriptRoot -Pack (Get-SelectedPackNames) -ModDir $launcherModDir -DryRun:$DryRun)[-1]))
     }
 }
 

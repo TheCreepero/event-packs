@@ -1,6 +1,7 @@
 BeforeAll {
     $script:RepoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
     . (Join-Path $script:RepoRoot 'tools\EventPacks.ps1')
+    . (Join-Path $script:RepoRoot 'tools\EventPacksTestMod.ps1')
     $script:CommonsFixtureDir = Join-Path $PSScriptRoot 'fixtures\commons'
 
     function Get-CommonsFixture {
@@ -682,6 +683,37 @@ Describe 'Packs stand alone' {
         ((Get-ErrorMessages -Root $fixtureRoot -Pack 'otherland') -join "`n") | Should -Match "names 'ep_tst' of another pack"
         Set-FixtureEvents -Root $fixtureRoot -Pack 'otherland' -Change { param($eventSource) $eventSource.namespace = 'ep_tst'; $eventSource.events[0].fire.trigger = '' }
         ((Get-ErrorMessages -Root $fixtureRoot -Pack 'otherland') -join "`n") | Should -Match 'is used by another pack'
+    }
+}
+
+Describe 'The test mod' {
+    It 'fires every event of every pack to its country and writes nothing into the packs' {
+        $fixtureRoot = New-EpFixtureRepo -Packs @('testland', 'otherland')
+        Set-FixtureEvents -Root $fixtureRoot -Change { param($eventSource) $secondEvent = Get-FixtureEvent; $secondEvent.id = 2; $eventSource.events = @($eventSource.events) + $secondEvent }
+        $launcherDir = Join-Path $fixtureRoot 'launcher'
+        $packsRoot = Join-Path $fixtureRoot 'packs'
+        $packFilesBefore = @(Get-ChildItem -LiteralPath $packsRoot -Recurse -File | ForEach-Object { $_.FullName + ' ' + (Get-FileHash -LiteralPath $_.FullName).Hash })
+        Invoke-EpTestMod -RepoRoot $fixtureRoot -Pack @('testland') -ModDir $launcherDir -DryRun 6>$null | Select-Object -Last 1 | Should -Be 0
+        Test-Path -LiteralPath (Join-Path $fixtureRoot 'artifacts') | Should -BeFalse
+        Test-Path -LiteralPath $launcherDir | Should -BeFalse
+        Invoke-EpTestMod -RepoRoot $fixtureRoot -Pack @('testland', 'otherland') -ModDir $launcherDir 6>$null | Select-Object -Last 1 | Should -Be 0
+        @(Get-ChildItem -LiteralPath $packsRoot -Recurse -File | ForEach-Object { $_.FullName + ' ' + (Get-FileHash -LiteralPath $_.FullName).Hash }) | Should -Be $packFilesBefore
+        $effectsText = [System.IO.File]::ReadAllText((Join-Path $fixtureRoot 'artifacts\event_packs_test\common\scripted_effects\ep_test_effects.txt'))
+        $effectsText | Should -Match '(?s)d_ep_tst_all = \{\s+TST = \{\s+set_country_flag = ep_tst_fired_1\s+country_event = \{ id = ep_tst\.1 \}\s+set_country_flag = ep_tst_fired_2\s+country_event = \{ id = ep_tst\.2 \}\s+\}\s+\}'
+        $effectsText | Should -Match '(?s)d_ep_tst_reset = \{\s+TST = \{\s+clr_country_flag = ep_tst_fired_1\s+clr_country_flag = ep_tst_fired_2\s+\}\s+\}'
+        $effectsText | Should -Match '(?s)d_ep_tsu_all = \{\s+TSU = \{\s+set_country_flag = ep_tsu_fired_1\s+country_event = \{ id = ep_tsu\.1 \}\s+\}\s+\}'
+        [System.IO.File]::ReadAllText((Join-Path $launcherDir 'event_packs_test.mod')) | Should -Match ('path="' + [regex]::Escape($fixtureRoot.Replace('\', '/')) + '/artifacts/event_packs_test"')
+        [System.IO.File]::ReadAllText((Join-Path $fixtureRoot 'artifacts\event_packs_test\descriptor.mod')) | Should -Not -Match 'path='
+    }
+
+    It 'sets the same guard flags and fires the same events as the weekly anchor' {
+        $fixtureRoot = New-EpFixtureRepo
+        Set-FixtureEvents -Root $fixtureRoot -Change { param($eventSource) $secondEvent = Get-FixtureEvent; $secondEvent.id = 2; $eventSource.events = @($eventSource.events) + $secondEvent }
+        $testPack = Get-EpPack -RepoRoot $fixtureRoot -Pack 'testland'
+        $anchorLines = @((New-EpOnActionsText -Pack $testPack) -split "`r`n" | ForEach-Object { $_.Trim() } | Where-Object { $_ -match '^(set_country_flag|country_event) ' })
+        $anchorLines.Count | Should -Be 4
+        $allLines = @(([regex]::Match((New-EpTestEffectsText -Packs @($testPack)), '(?s)d_ep_tst_all = \{.*?\r\n\}').Value -split "`r`n") | ForEach-Object { $_.Trim() } | Where-Object { $_ -match '^(set_country_flag|country_event) ' })
+        $allLines | Should -Be $anchorLines
     }
 }
 

@@ -38,7 +38,7 @@ Then dispatch `ep-reviewer` with the task as the owner asked it, the plan path a
 The implementer reported `STOPPED`, a check failed, or the reviewer found a problem. Leave the files, report to the owner (the step, the exact output, what the plan would need), and stop. Once the plan is corrected, dispatch again: the implementer resumes at the first unticked step.
 
 ## 5. Report and ship
-Report: the `-Check` line, the files changed, the reviewer's verdict, and that the plan is ready to ship. Offer an in-game look: `powershell -File .\build.ps1 -DevLink -Pack <key>`, then in the game console `event ep_<tag>.<id>` for each new event. Then stop.
+Report: the `-Check` line, the files changed, the reviewer's verdict, and that the plan is ready to ship. Offer an in-game look: `powershell -File .\build.ps1 -DevLink -Pack <key>`, then in the game console `event ep_<tag>.<id>` for each new event; or enable "Event Packs Test (dev only)" (written by `build.ps1 -TestMod -Pack <key>`) and run `ep_<tag>_all` to fire every event of the pack. Then stop.
 
 On the owner's word:
 1. Tick the ship box.

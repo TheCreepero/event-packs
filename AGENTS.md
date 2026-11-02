@@ -19,7 +19,8 @@ Shared rules for every mod in this tree (file encodings, build commands, engine 
 - Work goes plan first: a skill writes a READY plan in `docs/plans/`, `event-pack-implement` carries it out, the commit waits for the user.
 
 ## Commands beyond build.ps1
-- `build.ps1 -NewPack -Pack <key> -Tag <TAG> -DisplayName "<Country>"`, `-Generate [-Pack] [-DryRun]`, `-FetchPicture -Pack -File -Key [-Crop] [-Tone] [-DryRun]`, `-RemovePicture -Pack -Key [-DryRun]`, `-ConvertPictures [-Pack] [-Force]`, `-PreviewPictures [-Pack]`, `-Check [-Pack]`, `-Audit -Pack`, `-SyncMirrors`. `Get-Help .\build.ps1` lists the parameters. Run the tools; don't read `tools/EventPacks.ps1` or `tools/HoiModBuild.ps1` (about 30k tokens together; a read asks the user first). If one seems broken, report the command and its output.
+- `build.ps1 -NewPack -Pack <key> -Tag <TAG> -DisplayName "<Country>"`, `-Generate [-Pack] [-DryRun]`, `-FetchPicture -Pack -File -Key [-Crop] [-Tone] [-DryRun]`, `-RemovePicture -Pack -Key [-DryRun]`, `-ConvertPictures [-Pack] [-Force]`, `-PreviewPictures [-Pack]`, `-Check [-Pack]`, `-Audit -Pack`, `-SyncMirrors`, `-TestMod [-Pack] [-ModDir] [-DryRun]`. `Get-Help .\build.ps1` lists the parameters. Run the tools; don't read `tools/EventPacks.ps1` or `tools/HoiModBuild.ps1` (about 30k tokens together; a read asks the user first). If one seems broken, report the command and its output.
+- `-TestMod` writes the unpublished mod "Event Packs Test (dev only)" to `artifacts/event_packs_test/` with its launcher file: console commands `ep_<tag>_all` (fire every event of the pack to its country) and `ep_<tag>_reset` (clear the guard flags) [AUTO-043]. It never touches a pack. Each run replaces the whole mod: with `-Pack`, only that pack's commands remain.
 - `-ConvertPictures` needs Python 3 with Pillow.
 
 ## Read when

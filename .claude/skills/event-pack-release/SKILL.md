@@ -18,8 +18,8 @@ Each pack is its own Workshop item. Follow the shared `hoi4-mod-release` skill, 
 4. Any picture whose Commons page lists restrictions (the audit prints them as `[WARN]`): the owner has looked at it and agreed.
 
 ## 2. In-game check
-1. `powershell -File .\build.ps1 -DevLink -Pack <key>`.
-2. Ask the owner to start a game as the pack's country with only this pack enabled (plus their usual playset if they want), and to run `event ep_<tag>.<id>` in the console for each new or changed event: picture, title, text and options as planned, effects as the tooltip shows them.
+1. `powershell -File .\build.ps1 -DevLink -Pack <key>`, and `powershell -File .\build.ps1 -TestMod -Pack <key>` for the console commands.
+2. Ask the owner to start a game as the pack's country with only this pack and "Event Packs Test (dev only)" enabled (plus their usual playset if they want), and to run `event ep_<tag>.<id>` in the console for each new or changed event, or `ep_<tag>_all` for every event: picture, title, text and options as planned, effects as the tooltip shows them. The test mod is never part of the upload. Until [AUTO-043] is `confirmed`, report whether `ep_<tag>_all` worked as a command so the register can be updated.
 3. Read `Documents\Paradox Interactive\Hearts of Iron IV\logs\error.log` for lines naming `ep_<tag>` or the pack's files. Done when the owner reports what they saw and the log has no such line.
 
 ## 3. Change note and credits
