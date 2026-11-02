@@ -1621,15 +1621,39 @@ function Invoke-EpNewPack {
     Write-EpText -Path (Join-Path $sourceDir 'workshop-intro.bbcode') -Text ("Historical flavor events for $DisplayName, with period photographs.`r`n`r`n[h1]Info:[/h1]`r`n- Works alone and beside any other Event Pack.`r`n- Events change the game checksum: not Ironman compatible.`r`n- The effects are small, so they shouldn't affect balance too much.`r`n")
     $descriptorText = @('version="1.0"', 'tags={', "`t`"Events`"", "`t`"Historical`"", '}', "name=`"Event Pack: $DisplayName`"", 'picture="thumbnail.png"', "supported_version=`"$SupportedVersion`"") -join "`r`n"
     Write-EpText -Path (Join-Path $packRoot 'descriptor.mod') -Text ($descriptorText + "`r`n")
-    $masterThumbnail = Join-Path $RepoRoot 'assets\thumbnail_master.png'
-    if (Test-Path -LiteralPath $masterThumbnail) {
-        Copy-Item -LiteralPath $masterThumbnail -Destination (Join-Path $packRoot 'thumbnail.png')
-    }
     $settingsPath = Join-Path $RepoRoot 'tools\HoiModBuild.json'
     $settingsText = if (Test-Path -LiteralPath $settingsPath) { [System.IO.File]::ReadAllText($settingsPath, [System.Text.Encoding]::UTF8) } else { "{`r`n}`r`n" }
     Write-EpText -Path $settingsPath -Text (Add-EpPackageSettingText -Text $settingsText -Pack $Pack)
     Write-Host "Created pack '$Pack' ($Tag, namespace $namespace): source\$Pack and packs\$Pack; registered in tools\HoiModBuild.json." -ForegroundColor Green
-    Write-Host ('  Next: the event-pack-create skill (research, pictures, texts, plan); replace packs\' + $Pack + '\thumbnail.png with the mod-thumbnail-generator.') -ForegroundColor Gray
+    $managerRoot = if (Get-Command -Name 'Get-ModManagerRoot' -ErrorAction SilentlyContinue) { Get-ModManagerRoot } else { $null }
+    $thumbnailScriptPath = if ($managerRoot) { Join-Path $managerRoot 'Scripts\Showcase\New-HoiThumbnail.ps1' } else { '<Modding Manager>\Scripts\Showcase\New-HoiThumbnail.ps1' }
+    $thumbnailProblem = 'the Modding Manager was not found'
+    $thumbnailRendered = $false
+    if ($managerRoot) {
+        try {
+            $global:LASTEXITCODE = 0
+            $thumbnailOutput = @(& $thumbnailScriptPath -Path $RepoRoot -Pack $Pack -Apply -PassThru)
+            if ($LASTEXITCODE -eq 0) {
+                $thumbnailRendered = $true
+            } else {
+                $thumbnailProblem = (@($thumbnailOutput | ForEach-Object { [string]$_ }) -join ' ').Trim()
+            }
+        } catch {
+            $thumbnailProblem = $_.Exception.Message
+        }
+    }
+    if ($thumbnailRendered) {
+        Write-Host ('  Rendered packs\' + $Pack + '\thumbnail.png over the family''s default loading screen; the plan''s thumbnail step sets the pack''s own picture.') -ForegroundColor Gray
+    } else {
+        $masterThumbnail = Join-Path $RepoRoot 'assets\thumbnail_master.png'
+        $placeholderNote = ''
+        if (Test-Path -LiteralPath $masterThumbnail) {
+            Copy-Item -LiteralPath $masterThumbnail -Destination (Join-Path $packRoot 'thumbnail.png')
+            $placeholderNote = " packs\$Pack\thumbnail.png is a copy of assets\thumbnail_master.png."
+        }
+        Write-Host ("  No thumbnail rendered: $($thumbnailProblem.TrimEnd('.')).$placeholderNote Render it later: & `"$thumbnailScriptPath`" -Path `"$RepoRoot`" -Pack $Pack -Apply") -ForegroundColor Gray
+    }
+    Write-Host ('  Next: the event-pack-create skill (research, pictures, texts, plan); its thumbnail step picks the pack''s own picture in assets\thumbnail.json.') -ForegroundColor Gray
     return (Invoke-EpGenerate -RepoRoot $RepoRoot -Pack $Pack)
 }
 

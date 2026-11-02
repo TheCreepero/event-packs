@@ -42,9 +42,10 @@ BeforeAll {
 }
 
 Describe 'Protect-ProjectFiles hook in its own process' {
-    It 'refuses a pack file and allows a pack thumbnail, as Claude Code runs it' {
+    It 'refuses a pack file and a copy into a pack thumbnail and allows the thumbnail tool, as Claude Code runs it' {
         Invoke-ProtectHookProcess -ToolName 'Write' -ToolInput @{ file_path = (Join-Path $script:RepoRoot 'packs\finland\events\ep_fin_events.txt') } | Should -Be 2
-        Invoke-ProtectHookProcess -ToolName 'PowerShell' -ToolInput @{ command = 'Copy-Item scratch\thumbnail\finland\thumbnail.png packs\finland\thumbnail.png' } | Should -Be 0
+        Invoke-ProtectHookProcess -ToolName 'PowerShell' -ToolInput @{ command = 'Copy-Item scratch\thumbnail\finland\thumbnail.png packs\finland\thumbnail.png' } | Should -Be 2
+        Invoke-ProtectHookProcess -ToolName 'PowerShell' -ToolInput @{ command = 'powershell -File "C:\dev\Hearts of Iron IV Modding Manager\Scripts\Showcase\New-HoiThumbnail.ps1" -Path . -Pack finland -Apply' } | Should -Be 0
     }
 }
 
@@ -56,6 +57,7 @@ Describe 'Protect-ProjectFiles hook' {
         @{ Path = 'packs\finland\sound\x.wav' },
         @{ Path = 'packs\finland\history\x.txt' },
         @{ Path = 'packs\finland\WORKSHOP_DESCRIPTION_GUIDELINES.md' },
+        @{ Path = 'packs\finland\thumbnail.png' },
         @{ Path = 'source\finland\pictures.json' },
         @{ Path = 'wiki\Event-Pack-Finland.md' },
         @{ Path = 'tools\HoiModBuild.ps1' },
@@ -67,7 +69,6 @@ Describe 'Protect-ProjectFiles hook' {
 
     It 'allows an edit of <Path>' -TestCases @(
         @{ Path = 'packs\finland\descriptor.mod' },
-        @{ Path = 'packs\finland\thumbnail.png' },
         @{ Path = 'source\finland\events.json' },
         @{ Path = 'source\finland\fact-sheets.md' },
         @{ Path = 'docs\plans\2026-11-01-finland-pack.md' },
@@ -94,7 +95,10 @@ Describe 'Protect-ProjectFiles hook' {
         @{ Command = 'Set-Content tools\HoiModBuild.ps1 x' },
         @{ Command = 'Remove-Item tests\Run-Tests.ps1' },
         @{ Command = 'Set-Content .agents\skills\event-pack-create\SKILL.md x' },
-        @{ Command = 'python "W:\Antigravity\Mod Thumbnail Generator\generate_branding.py" --title "EVENT PACK" --subtitle "FINLAND" --hoi4 --out-dirs "packs\finland"' },
+        @{ Command = 'python render.py --out-dirs "packs\finland"' },
+        @{ Command = 'Copy-Item scratch\thumbnail\finland\thumbnail.png packs\finland\thumbnail.png' },
+        @{ Command = 'Copy-Item -LiteralPath "scratch\thumbnail\finland\thumbnail.png" -Destination "packs\finland\thumbnail.png" -Force' },
+        @{ Command = 'Get-ChildItem scratch\thumbnail\finland; Copy-Item scratch\thumbnail\finland\thumbnail.png .\packs\finland\thumbnail.png' },
         @{ Command = 'Copy-Item scratch\thumbnail\finland\thumbnail.png packs\finland\descriptor.mod' },
         @{ Command = 'Copy-Item scratch\thumbnail\finland\thumbnail.png packs\finland\gfx\thumbnail.png' },
         @{ Command = 'Copy-Item scratch\thumbnail\finland\thumbnail.png packs\finland\thumbnail.png.bak' },
@@ -124,7 +128,8 @@ Describe 'Protect-ProjectFiles hook' {
         @{ Command = 'python -c "x=\"; y\"; open(''packs/finland/x.txt'',''w'')"' },
         @{ Command = "python - <<EOF`nopen('packs/finland/x.txt','w')`nEOF" },
         @{ Command = "rm \`npacks/finland/events/x.txt" },
-        @{ Command = 'echo `rm packs/finland/events/x.txt`' }
+        @{ Command = 'echo `rm packs/finland/events/x.txt`' },
+        @{ Command = 'cp scratch/thumbnail/finland/thumbnail.png packs/finland/thumbnail.png' }
     ) {
         param($Command)
         Invoke-ProtectHook -ToolName 'Bash' -ToolInput @{ command = $Command } | Should -Be 2
@@ -145,17 +150,16 @@ Describe 'Protect-ProjectFiles hook' {
         @{ Command = 'Copy-Item .claude\skills\event-pack-create\SKILL.md scratch\skill.md' },
         @{ Command = 'Set-Location packs\finland; git status --short' },
         @{ Command = 'powershell -File .\build.ps1 -Check -Pack finland 2>&1 | Select-Object -Last 5' },
-        @{ Command = 'python "W:\Antigravity\Mod Thumbnail Generator\generate_branding.py" --bg-image (Get-Item sources-cache\finland\abatis.*).FullName --title "EVENT PACK" --subtitle "FINLAND" --theme white --text-pos top --hoi4 --json --out-dirs "scratch\thumbnail\finland"' },
-        @{ Command = 'Copy-Item scratch\thumbnail\finland\thumbnail.png packs\finland\thumbnail.png' },
-        @{ Command = 'Copy-Item -LiteralPath "scratch\thumbnail\finland\thumbnail.png" -Destination "packs\finland\thumbnail.png" -Force' },
-        @{ Command = 'Get-ChildItem scratch\thumbnail\finland; Copy-Item scratch\thumbnail\finland\thumbnail.png .\packs\finland\thumbnail.png' }
+        @{ Command = 'powershell -File "C:\dev\Hearts of Iron IV Modding Manager\Scripts\Showcase\New-HoiThumbnail.ps1" -Path . -Pack finland' },
+        @{ Command = 'powershell -File "C:\dev\Hearts of Iron IV Modding Manager\Scripts\Showcase\New-HoiThumbnail.ps1" -Path "C:\dev\Hearts of Iron IV Modding Manager\mods\event-packs" -Pack finland -Apply' },
+        @{ Command = '& "..\..\Scripts\Showcase\New-HoiThumbnail.ps1" "Event Packs" -Pack finland -Apply' }
     ) {
         param($Command)
         Invoke-ProtectHook -ToolName 'PowerShell' -ToolInput @{ command = $Command } | Should -Be 0
     }
 
-    It 'allows the Bash copy of a generated thumbnail into a pack' {
-        Invoke-ProtectHook -ToolName 'Bash' -ToolInput @{ command = 'cp scratch/thumbnail/finland/thumbnail.png packs/finland/thumbnail.png' } | Should -Be 0
+    It 'allows the Bash call of the Manager thumbnail tool' {
+        Invoke-ProtectHook -ToolName 'Bash' -ToolInput @{ command = 'powershell -File "C:/dev/Hearts of Iron IV Modding Manager/Scripts/Showcase/New-HoiThumbnail.ps1" -Path . -Pack finland -Apply' } | Should -Be 0
     }
 }
 

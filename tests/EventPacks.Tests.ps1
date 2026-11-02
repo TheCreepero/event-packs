@@ -510,6 +510,37 @@ Describe 'Facts are quoted from their page' {
         $factSheetText | Should -Match ('Quote: ' + [char]0x00AB)
     }
 
+    It 'renders the thumbnail of a new pack with the Manager thumbnail tool' {
+        $fixtureRoot = New-EpFixtureRepo
+        $fakeManagerRoot = Join-Path $TestDrive ([guid]::NewGuid().ToString('N').Substring(0, 8))
+        Write-FixtureFile -Root $fakeManagerRoot -RelativePath 'Scripts\Showcase\New-HoiThumbnail.ps1' -Text ("param([string]`$Path, [string]`$Pack, [switch]`$Apply, [switch]`$PassThru)`r`n[System.IO.File]::WriteAllText((Join-Path `$Path ('packs\' + `$Pack + '\thumbnail.png')), ('rendered apply=' + `$Apply + ' passthru=' + `$PassThru))`r`n")
+        function Get-ModManagerRoot { return $fakeManagerRoot }
+        $newPackOutput = @(Invoke-EpNewPack -RepoRoot $fixtureRoot -Pack 'newland' -Tag 'NWL' -DisplayName 'Newland' 6>&1 | ForEach-Object { [string]$_ }) -join "`n"
+        [System.IO.File]::ReadAllText((Join-Path $fixtureRoot 'packs\newland\thumbnail.png')) | Should -BeExactly 'rendered apply=True passthru=True'
+        $newPackOutput | Should -Match 'Rendered packs\\newland\\thumbnail\.png'
+        $newPackOutput | Should -Not -Match 'mod-thumbnail-generator'
+    }
+
+    It 'falls back to the master thumbnail and names the command when the thumbnail tool <Case>' -TestCases @(
+        @{ Case = 'is not found'; FakeScript = $null; Problem = 'the Modding Manager was not found' },
+        @{ Case = 'fails'; FakeScript = "Write-Output 'New-HoiThumbnail.ps1: no game install was found'`r`nexit 1`r`n"; Problem = 'New-HoiThumbnail.ps1: no game install was found' }
+    ) {
+        param($Case, $FakeScript, $Problem)
+        $fixtureRoot = New-EpFixtureRepo
+        New-Item -ItemType Directory -Path (Join-Path $fixtureRoot 'assets') -Force | Out-Null
+        [System.IO.File]::WriteAllBytes((Join-Path $fixtureRoot 'assets\thumbnail_master.png'), [byte[]](1, 2, 3))
+        $fakeManagerRoot = $null
+        if ($FakeScript) {
+            $fakeManagerRoot = Join-Path $TestDrive ([guid]::NewGuid().ToString('N').Substring(0, 8))
+            Write-FixtureFile -Root $fakeManagerRoot -RelativePath 'Scripts\Showcase\New-HoiThumbnail.ps1' -Text $FakeScript
+        }
+        function Get-ModManagerRoot { return $fakeManagerRoot }
+        $newPackOutput = @(Invoke-EpNewPack -RepoRoot $fixtureRoot -Pack 'newland' -Tag 'NWL' -DisplayName 'Newland' 6>&1 | ForEach-Object { [string]$_ }) -join "`n"
+        [System.IO.File]::ReadAllBytes((Join-Path $fixtureRoot 'packs\newland\thumbnail.png')) | Should -Be ([byte[]](1, 2, 3))
+        $newPackOutput | Should -Match ([regex]::Escape("No thumbnail rendered: $Problem."))
+        $newPackOutput | Should -Match ('New-HoiThumbnail\.ps1" -Path "' + [regex]::Escape($fixtureRoot) + '" -Pack newland -Apply')
+    }
+
     It 'adds only the new pack entry to hand-written build settings' {
         $fixtureRoot = New-EpFixtureRepo
         $settingsPath = Join-Path $fixtureRoot 'tools\HoiModBuild.json'

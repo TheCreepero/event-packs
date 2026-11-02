@@ -29,7 +29,7 @@ Every row passed `build.ps1 -FetchPicture ... -DryRun` while planning; the licen
 | Key | Commons file | Licence (from the dry run) | Crop | Tone | Event |
 |---|---|---|---|---|---|
 
-Thumbnail: <picture key, the background of step 4>; subject <where it sits>; text <top|bottom>, flag <below-text|top-left|top-right|bottom-left|bottom-right> | unchanged
+Thumbnail: <picture key, the background of step 4>, crop <crop> | unchanged
 
 ## Fact verification
 
@@ -49,9 +49,10 @@ Thumbnail: <picture key, the background of step 4>; subject <where it sits>; tex
 - [ ] 2. Write the fact sheets: add each section of the `markdown fact-sheets` block below to `source/<pack>/fact-sheets.md`, replacing a section of the same key.
 - [ ] 3. Fetch the pictures, one command per row of the picture table, each expected to print `ACCEPTED`:
   - `powershell -File .\build.ps1 -FetchPicture -Pack <pack> -File "<File:...>" -Key <key> -Crop <crop> -Tone <tone>`
-- [ ] 4. Make the thumbnail from the picture fetched in step 3, two commands (when "Thumbnail" says unchanged, this step reads `Thumbnail unchanged: nothing to run.`):
-  - `python "W:\Antigravity\Mod Thumbnail Generator\generate_branding.py" --bg-image (Get-Item sources-cache\<pack>\<picture key>.*).FullName --bg-crop <crop> --title "EVENT PACK" --subtitle "<COUNTRY>" --flag-tag <TAG> --flag-variant <flag variant> --game-dir "<game root>" --theme "<main colour>" --banner --banner-color "<main colour>" --text-color "<text colour>" --accent-color "<text colour>" --text-pos <top|bottom> --overlay-pos <flag position> --hoi4 --json --out-dirs "scratch\thumbnail\<pack>"`: expect `"status": "success"`, `"workshop_limit_exceeded": false` and an `"overlay_source"` naming the flag file.
-  - `Copy-Item scratch\thumbnail\<pack>\thumbnail.png packs\<pack>\thumbnail.png`
+- [ ] 4. Make the thumbnail from the picture fetched in step 3 (when "Thumbnail" says unchanged, this step reads `Thumbnail unchanged: nothing to run.`):
+  - In `assets/thumbnail.json`, set `packs.<pack>.background` to `{ "path": "sources-cache/<pack>/<picture key>.*", "crop": <crop> }`, adding the pack's entry under `packs` when it has none.
+  - `powershell -File "<Manager root>\Scripts\Showcase\New-HoiThumbnail.ps1" -Path . -Pack <pack>`: expect the pack's line with `new` or `changed` and no `Warning:` line; open the preview it names with the Read tool.
+  - `powershell -File "<Manager root>\Scripts\Showcase\New-HoiThumbnail.ps1" -Path . -Pack <pack> -Apply`: expect the pack's line with `new` or `changed`.
 - [ ] 5. `powershell -File .\build.ps1 -ConvertPictures -Pack <pack>`: expect `failed=0`.
 - [ ] 6. `powershell -File .\build.ps1 -Generate -Pack <pack>`: expect `Generated pack '<pack>'`.
 - [ ] 7. `powershell -File .\build.ps1 -Check -Pack <pack>`: expect `Check OK`, with no warning outside "Kept on judgment".

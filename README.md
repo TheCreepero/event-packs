@@ -40,7 +40,7 @@ Work goes through the agent skills in `.claude/skills` (mirrored in `.agents/ski
 .\build.ps1 -Package                                               # one zip per pack in artifacts/
 ```
 
-Publishing goes through the Modding Manager: `Scripts\Publish-Mod.ps1 "Event Packs" -Pack <pack>`.
+Publishing goes through the Modding Manager: `Scripts\Publish-Mod.ps1 "Event Packs" -Pack <pack>`. So do the thumbnails: `Scripts\Showcase\New-HoiThumbnail.ps1 "Event Packs" -Pack <pack>` previews a pack's `thumbnail.png` from `assets/thumbnail.json`, and `-Apply` writes it.
 
 ## Picture credits
 

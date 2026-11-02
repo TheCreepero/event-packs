@@ -1,0 +1,15 @@
+{
+    "version": 1,
+    "packs": {
+        "finland": {
+            "background": {
+                "path": "sources-cache/finland/record_year_1937.*"
+            }
+        },
+        "france": {
+            "background": {
+                "path": "sources-cache/france/bastille_day_1939.*"
+            }
+        }
+    }
+}
