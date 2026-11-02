@@ -53,8 +53,8 @@ Runs after the owner's choice, at the same time as Phase 3 if you like; a resear
 3. Dispatch `ep-editor` with the plan path (its `markdown fact-sheets` block is the fact sheet) and the event keys. Apply every REWRITE as given; drop or replace a REJECT (back to Phase 2 for a replacement). Record each round in "Editor record". Send the changed events back to the editor until every event is KEEP; at most three rounds, then ask the owner.
 
 ## Phase 5: gate
-1. Rehearse the plan without touching the repository: `robocopy . scratch\rehearsal /MIR /XD .git scratch artifacts sources-cache`, then in `scratch\rehearsal` run steps 1 to 7 of the plan exactly as written (they write only the copy). Every step must give what it says to expect; fix the plan, not the copy, and rehearse again.
-2. Fill "Events", list in "Kept on judgment" any `[WARN]` the rehearsal's `-Check -Pack <key>` printed that stays, and set `Status: READY`.
+1. Rehearse the plan without touching the repository: `robocopy . scratch\rehearsal /MIR /XD .git scratch artifacts sources-cache`, then in `scratch\rehearsal` run steps 1 to 8 of the plan exactly as written (they write only the copy). Every step must give what it says to expect; fix the plan, not the copy, and rehearse again. Step 8 draws each event as the game's window (`scratch\rehearsal\artifacts\workshop-images\<key>\`): open the images with the Read tool, and shorten a title or option the render prints a `[WARN]` for: it overflows its box into the text below [GUW-027].
+2. Fill "Events", list in "Kept on judgment" any `[WARN]` the rehearsal's `-Check -Pack <key>` or `-RenderEvents -Pack <key>` printed that stays, and set `Status: READY`.
 3. Delete the copy: `Remove-Item -Recurse -Force scratch\rehearsal`.
 4. Mark the dossiers, in every section of the candidate's key (dossier and addendum alike):
    - Each event of the READY plan gets a line `Used: <plan file name>` right under its `## <key>` heading.

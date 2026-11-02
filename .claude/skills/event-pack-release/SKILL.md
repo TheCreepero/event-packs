@@ -30,3 +30,8 @@ Each pack is its own Workshop item. Follow the shared `hoi4-mod-release` skill, 
 1. `Publish-Mod.ps1 "Event Packs" -Pack <key> -DryRun -ChangeNote "<note>"`: show the owner the VDF (title `Event Pack: <Country>`) and the file list (only that pack's content, descriptor and thumbnail).
 2. Give the owner the upload command for their own terminal: `powershell -NoProfile -File "<Manager root>\Scripts\Publish-Mod.ps1" "Event Packs" -Pack <key> -ChangeNote "<note>"`, with `-UpdateDescription` per step 3.2.
 3. A first upload writes the new id into `packs/<key>/descriptor.mod`: ask the owner to commit it. The command tags `workshop-<key>-<date>`; pushing the tag is the owner's call.
+
+## 5. Event images on the Workshop page
+SteamCMD uploads only the thumbnail, so the event images go up by hand.
+1. `powershell -File .\build.ps1 -RenderEvents -Pack <key>`, from the committed pack: one image per event in `artifacts/workshop-images/<key>/`, named `NN-<event key>` (the id in two digits). No `[ERROR]`, and no `[WARN]` outside the "Kept on judgment" of the plan that made the events.
+2. Give the owner the folder's full path and these steps: on the item's Workshop page, "Add/edit images & videos"; on an update where events or their texts changed, remove the old event images first; upload the files in name order, so the gallery follows the events' order.

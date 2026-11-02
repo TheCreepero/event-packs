@@ -31,6 +31,7 @@ The report is a claim. Check:
 3. `git status --short` lists only `source/<key>/`, `packs/<key>/`, `research/<key>/` (the plan's dossier, and the `Used:` and `Checked:` lines the plan added), `wiki/Event-Pack-<Country>.md` and the plan.
 4. The plan says `Status: DONE`, every box but the ship step is ticked.
 5. Look at each new picture: `powershell -File .\build.ps1 -PreviewPictures -Pack <key>` writes PNG copies of the pack's DDS pictures to `scratch/preview/<key>/`; open each with the Read tool, and `packs/<key>/thumbnail.png` when the plan made one. A crop that cuts the subject goes back to the planner, and so does a thumbnail whose banner or flag covers the picture's subject while an empty band stays bare.
+6. Look at the event renders the plan's render step wrote to `artifacts/workshop-images/<key>/`, one per event, drawn as the game's event window: open each new or changed event's image with the Read tool. A title or option running into the text below, a text that reads wrong in the window, or a picture that sits badly goes back to the planner. These images are what the owner uploads to the Workshop page (`event-pack-release`).
 
 Then dispatch `ep-reviewer` with the task as the owner asked it, the plan path and the summary lines of the three commands. Fix nothing yourself: Critical or Important findings go back to the planner (section 4).
 

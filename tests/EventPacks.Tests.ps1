@@ -717,6 +717,67 @@ Describe 'The test mod' {
     }
 }
 
+Describe 'Event renders for the Workshop page' {
+    BeforeAll {
+        $script:PythonExecutable = Get-EpPythonExecutable
+
+        function Invoke-EventRenderer {
+            param([string]$SourceDir, [string]$PackDir, [string]$OutputDir)
+
+            $rendererOutput = @(& $script:PythonExecutable -I (Join-Path $script:RepoRoot 'tools\render_event_cards.py') --pack finland --source-dir $SourceDir --pack-dir $PackDir --out $OutputDir 2>&1 | ForEach-Object { "$_" })
+            return [PSCustomObject]@{ ExitCode = $LASTEXITCODE; Text = ($rendererOutput -join "`n") }
+        }
+    }
+
+    It 'draws one 16:9 image per event of a pack, all of one size, with the window at 1:1' {
+        if (-not $script:PythonExecutable) { Set-ItResult -Skipped -Because 'Python 3 with Pillow is not installed'; return }
+        $outputDir = Join-Path $TestDrive 'renders'
+        $result = Invoke-EventRenderer -SourceDir (Join-Path $script:RepoRoot 'source\finland') -PackDir (Join-Path $script:RepoRoot 'packs\finland') -OutputDir $outputDir
+        if ($result.Text -match 'no Hearts of Iron IV install found') { Set-ItResult -Skipped -Because 'the game is not installed here'; return }
+        $result.ExitCode | Should -Be 0 -Because $result.Text
+        $eventCount = @(([System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'source\finland\events.json'), [System.Text.Encoding]::UTF8) | ConvertFrom-Json).events).Count
+        $renderFiles = @(Get-ChildItem -LiteralPath $outputDir -File | Where-Object { $_.Extension -in @('.png', '.jpg') })
+        $renderFiles.Count | Should -Be $eventCount
+        $renderFiles[0].Name | Should -Match '^01-[a-z0-9_]+\.(png|jpg)$'
+        Add-Type -AssemblyName System.Drawing
+        $imageSizes = @(foreach ($renderFile in $renderFiles) {
+            $renderImage = [System.Drawing.Image]::FromFile($renderFile.FullName)
+            try { '{0}x{1}' -f $renderImage.Width, $renderImage.Height } finally { $renderImage.Dispose() }
+        })
+        @($imageSizes | Sort-Object -Unique).Count | Should -Be 1
+        $width, $height = @($imageSizes[0] -split 'x' | ForEach-Object { [int]$_ })
+        $width | Should -Be ([math]::Round($height * 16 / 9))
+        $width | Should -BeGreaterThan 581
+        $result.Text | Should -Match "Rendered $eventCount events to"
+    }
+
+    It 'warns of a title or option that overflows its box, and fails on a missing picture' {
+        if (-not $script:PythonExecutable) { Set-ItResult -Skipped -Because 'Python 3 with Pillow is not installed'; return }
+        $sourceDir = Join-Path $TestDrive 'source\finland'
+        $packDir = Join-Path $TestDrive 'packs\finland'
+        $eventSource = [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'source\finland\events.json'), [System.Text.Encoding]::UTF8) | ConvertFrom-Json
+        $eventSource.events = @($eventSource.events[0])
+        Write-EpText -Path (Join-Path $sourceDir 'events.json') -Text (ConvertTo-Json -InputObject $eventSource -Depth 8)
+        Copy-Item -LiteralPath (Join-Path $script:RepoRoot 'packs\finland') -Destination $packDir -Recurse
+        $localisationPath = Join-Path $packDir 'localisation\english\ep_fin_l_english.yml'
+        $localisationText = [System.IO.File]::ReadAllText($localisationPath, [System.Text.Encoding]::UTF8)
+        $longTitle = 'Three Finns Take Gold, Silver and Bronze in the 10,000 Metres Final at the Berlin Olympic Games'
+        $longOption = 'Meet the whole team at the harbour in Helsinki when the ship brings them home from Germany, with the band, the flags, the ministers and every sports club of the capital'
+        $localisationText = [regex]::Replace($localisationText, '(?m)^ ep_fin\.1\.t:0 ".*"', " ep_fin.1.t:0 `"$longTitle`"")
+        $localisationText = [regex]::Replace($localisationText, '(?m)^ ep_fin\.1\.a:0 ".*"', " ep_fin.1.a:0 `"$longOption`"")
+        Write-EpText -Path $localisationPath -Text $localisationText -Bom
+        $result = Invoke-EventRenderer -SourceDir $sourceDir -PackDir $packDir -OutputDir (Join-Path $TestDrive 'long-title')
+        if ($result.Text -match 'no Hearts of Iron IV install found') { Set-ItResult -Skipped -Because 'the game is not installed here'; return }
+        $result.ExitCode | Should -Be 0 -Because $result.Text
+        $result.Text | Should -Match '\[WARN\] ep_fin\.1: title is \d+ px wide, over its 551 px box; it wraps to 2 lines'
+        $result.Text | Should -Match '\[WARN\] ep_fin\.1: option 1 is \d+ px wide; it wraps to \d lines at 340 px'
+        Remove-Item -LiteralPath (Join-Path $packDir ('gfx\event_pictures\ep_fin\ep_fin_' + $eventSource.events[0].picture + '.dds'))
+        $result = Invoke-EventRenderer -SourceDir $sourceDir -PackDir $packDir -OutputDir (Join-Path $TestDrive 'no-picture')
+        $result.ExitCode | Should -Be 1
+        $result.Text | Should -Match '\[ERROR\] ep_fin\.1: picture GFX_ep_fin_\w+ not found'
+    }
+}
+
 Describe 'This repository' {
     It 'every pack passes the check' {
         $packNames = @(Get-EpPackNames -RepoRoot $script:RepoRoot)

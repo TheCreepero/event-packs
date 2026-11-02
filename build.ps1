@@ -58,6 +58,12 @@ param(
     [Parameter(ParameterSetName = 'PreviewPictures', Mandatory = $true)]
     [switch]$PreviewPictures,
 
+    [Parameter(ParameterSetName = 'RenderEvents', Mandatory = $true)]
+    [switch]$RenderEvents,
+
+    [Parameter(ParameterSetName = 'RenderEvents')]
+    [string]$GameDir,
+
     [Parameter(ParameterSetName = 'Check', Mandatory = $true)]
     [switch]$Check,
 
@@ -157,6 +163,14 @@ switch ($PSCmdlet.ParameterSetName) {
         $worstExitCode = 0
         foreach ($packName in (Get-SelectedPackNames)) {
             $packExitCode = [int](@(Export-EpPicturePreviews -RepoRoot $PSScriptRoot -Pack $packName)[-1])
+            if ($packExitCode -ne 0) { $worstExitCode = $packExitCode }
+        }
+        exit $worstExitCode
+    }
+    'RenderEvents' {
+        $worstExitCode = 0
+        foreach ($packName in (Get-SelectedPackNames)) {
+            $packExitCode = [int](@(Export-EpEventRenders -RepoRoot $PSScriptRoot -Pack $packName -GameDir $GameDir)[-1])
             if ($packExitCode -ne 0) { $worstExitCode = $packExitCode }
         }
         exit $worstExitCode

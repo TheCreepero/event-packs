@@ -41,7 +41,7 @@ Thumbnail: <picture key, the background of step 4>; subject <where it sits>; tex
 
 ## Kept on judgment
 
-<Each `[WARN]` line of `build.ps1 -Check` that stays, with the reason. The implementer stops on any other warning.>
+<Each `[WARN]` line of `build.ps1 -Check` or `-RenderEvents` that stays, with the reason. The implementer stops on any other warning.>
 
 ## Implementation steps
 
@@ -55,8 +55,9 @@ Thumbnail: <picture key, the background of step 4>; subject <where it sits>; tex
 - [ ] 5. `powershell -File .\build.ps1 -ConvertPictures -Pack <pack>`: expect `failed=0`.
 - [ ] 6. `powershell -File .\build.ps1 -Generate -Pack <pack>`: expect `Generated pack '<pack>'`.
 - [ ] 7. `powershell -File .\build.ps1 -Check -Pack <pack>`: expect `Check OK`, with no warning outside "Kept on judgment".
-- [ ] 8. `powershell -File .\build.ps1 -ValidateOnly` then `powershell -File .\build.ps1 -Test`: expect `Validation succeeded.` and no failed test.
-- [ ] 9. Ship (after the user confirms): move this plan to `docs/plans/archive/`, commit with the message `feat(<pack>): <summary>`, then `powershell -File .\wiki\push-wiki.ps1`.
+- [ ] 8. `powershell -File .\build.ps1 -RenderEvents -Pack <pack>`: expect `Rendered <n> events to ...artifacts\workshop-images\<pack>`, with no `[WARN]` outside "Kept on judgment".
+- [ ] 9. `powershell -File .\build.ps1 -ValidateOnly` then `powershell -File .\build.ps1 -Test`: expect `Validation succeeded.` and no failed test.
+- [ ] 10. Ship (after the user confirms): move this plan to `docs/plans/archive/`, commit with the message `feat(<pack>): <summary>`, then `powershell -File .\wiki\push-wiki.ps1`.
 
 ## Stop conditions
 

@@ -1670,6 +1670,30 @@ function Export-EpPicturePreviews {
     return 0
 }
 
+function Export-EpEventRenders {
+    param(
+        [Parameter(Mandatory = $true)][string]$RepoRoot,
+        [Parameter(Mandatory = $true)][string]$Pack,
+        [string]$GameDir,
+        [string]$OutputDir
+    )
+
+    $pythonExecutable = Get-EpPythonExecutable
+    if (-not $pythonExecutable) {
+        Write-Host 'Python 3 with Pillow is needed to render events.' -ForegroundColor Red
+        return 1
+    }
+    $rendererArguments = @('-I', (Join-Path $RepoRoot 'tools\render_event_cards.py'), '--pack', $Pack, '--source-dir', (Join-Path $RepoRoot ('source\' + $Pack)), '--pack-dir', (Join-Path $RepoRoot ('packs\' + $Pack)))
+    if ($GameDir) {
+        $rendererArguments += @('--game-dir', $GameDir)
+    }
+    if ($OutputDir) {
+        $rendererArguments += @('--out', $OutputDir)
+    }
+    & $pythonExecutable @rendererArguments | Out-Host
+    return $LASTEXITCODE
+}
+
 function Invoke-EpValidation {
     param([Parameter(Mandatory = $true)][string]$RepoRoot)
 
