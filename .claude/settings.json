@@ -41,6 +41,8 @@
       "Bash(*push-wiki.ps1*)",
       "PowerShell(powershell -File .\\build.ps1 -PreviewPictures*)",
       "Bash(powershell*build.ps1 -PreviewPictures*)",
+      "PowerShell(powershell -File .\\build.ps1 -RenderEvents*)",
+      "Bash(powershell*build.ps1 -RenderEvents*)",
       "PowerShell(Get-Help .\\build.ps1*)",
       "PowerShell(robocopy . scratch\\rehearsal *)",
       "Bash(robocopy . scratch*rehearsal *)",
