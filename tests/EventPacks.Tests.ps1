@@ -499,7 +499,7 @@ Describe 'Facts are quoted from their page' {
         Set-FixtureFactSheet -Root $fixtureRoot -FactLines @(Get-FixtureFactLine -WithoutQuote)
         Set-FixtureEvents -Root $fixtureRoot -Change { param($eventSource) $eventSource | Add-Member -NotePropertyName 'factQuotesFromId' -NotePropertyValue 2 }
         Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'testland' 6>$null | Out-Null
-        $auditText = (Invoke-EpAudit -RepoRoot $fixtureRoot -Pack 'testland' 6>&1 | Out-String)
+        $auditText = @(Invoke-EpAudit -RepoRoot $fixtureRoot -Pack 'testland' 6>&1 | ForEach-Object { [string]$_ }) -join "`n"
         $auditText | Should -Match '\[WARN\].*the facts of events 1 predate quoted facts \(factQuotesFromId 2\)'
     }
 
