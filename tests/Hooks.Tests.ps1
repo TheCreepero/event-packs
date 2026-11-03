@@ -61,6 +61,9 @@ Describe 'Protect-ProjectFiles hook' {
         @{ Path = 'source\finland\pictures.json' },
         @{ Path = 'wiki\Event-Pack-Finland.md' },
         @{ Path = 'tools\HoiModBuild.ps1' },
+        @{ Path = 'tools\HoiImageSources.ps1' },
+        @{ Path = 'tests\ImageSources.Tests.ps1' },
+        @{ Path = 'tests\fixtures\image-sources\commons\pd.json' },
         @{ Path = '.agents\skills\event-pack-create\SKILL.md' }
     ) {
         param($Path)
@@ -94,6 +97,8 @@ Describe 'Protect-ProjectFiles hook' {
         @{ Command = 'Copy-Item x.md wiki\Event-Pack-Finland.md' },
         @{ Command = 'Set-Content tools\HoiModBuild.ps1 x' },
         @{ Command = 'Remove-Item tests\Run-Tests.ps1' },
+        @{ Command = 'Set-Content tools\HoiImageSources.ps1 x' },
+        @{ Command = 'Remove-Item tests\fixtures\image-sources\commons\pd.json' },
         @{ Command = 'Set-Content .agents\skills\event-pack-create\SKILL.md x' },
         @{ Command = 'python render.py --out-dirs "packs\finland"' },
         @{ Command = 'Copy-Item scratch\thumbnail\finland\thumbnail.png packs\finland\thumbnail.png' },

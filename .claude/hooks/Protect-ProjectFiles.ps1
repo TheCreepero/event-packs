@@ -20,6 +20,9 @@ try {
         [PSCustomObject]@{ Pattern = 'tests/BuildEngine.Tests.ps1'; Reason = $syncedReason },
         [PSCustomObject]@{ Pattern = 'tests/Run-Tests.ps1'; Reason = $syncedReason },
         [PSCustomObject]@{ Pattern = 'tests/Knowledge.Tests.ps1'; Reason = $syncedReason },
+        [PSCustomObject]@{ Pattern = 'tools/HoiImageSources.ps1'; Reason = $syncedReason },
+        [PSCustomObject]@{ Pattern = 'tests/ImageSources.Tests.ps1'; Reason = $syncedReason },
+        [PSCustomObject]@{ Pattern = 'tests/fixtures/image-sources/*'; Reason = $syncedReason },
         [PSCustomObject]@{ Pattern = '.github/workflows/ci.yml'; Reason = $syncedReason },
         [PSCustomObject]@{ Pattern = '.agents/skills/*'; Reason = 'is the Antigravity mirror written by build.ps1 -SyncMirrors. Edit .claude/skills/<skill>/SKILL.md instead; the PostToolUse hook syncs the mirror.' }
     )
@@ -51,7 +54,7 @@ try {
 
     if ($toolName -in @('Bash', 'PowerShell')) {
         $command = [string]$hookInput.tool_input.command
-        $protectedPathPattern = '(^|[\s"''=(\\/])packs[\\/]|pictures\.json|(^|[\s"''=(\\/])Event-Pack-[^\s"''\\/]*\.md|tools[\\/]HoiModBuild\.ps1|tests[\\/](BuildEngine\.Tests|Run-Tests|Knowledge\.Tests)\.ps1|\.github[\\/]workflows[\\/]ci\.yml|\.agents[\\/]skills'
+        $protectedPathPattern = '(^|[\s"''=(\\/])packs[\\/]|pictures\.json|(^|[\s"''=(\\/])Event-Pack-[^\s"''\\/]*\.md|tools[\\/]Hoi(ModBuild|ImageSources)\.ps1|tests[\\/](BuildEngine\.Tests|Run-Tests|Knowledge\.Tests|ImageSources\.Tests)\.ps1|tests[\\/]fixtures[\\/]image-sources|\.github[\\/]workflows[\\/]ci\.yml|\.agents[\\/]skills'
         if (-not $command -or $command -notmatch $protectedPathPattern) { exit 0 }
         $singleBuildCall = '^\s*(&\s*)?((powershell|pwsh)(\.exe)?\s+(-\w+\s+)*-File\s+)?["'']?(\.[\\/])?build\.ps1["'']?(\s+-\w+(\s+("[^"]*"|''[^'']*''|[^\s;&|<>`$]+))?)*\s*$'
         $writePattern = 'Set-Content|Add-Content|Out-File|Clear-Content|WriteAll|\.Write\(|Copy-Item|Move-Item|Remove-Item|Rename-Item|New-Item|Set-Item|Export-|robocopy|xcopy|\bcopy\b|\bdel\b|\bren\b|sed\s+-i|\bcp\s|\bmv\s|\brm\s|\btee\b|\btouch\s|\bdd\s|\bpython|\bpy\s|\bnode\b|\bperl\b|\bruby\b|Invoke-WebRequest|\bcurl\b|\bwget\b|(?<![2&])>(?!\s*\$null)'

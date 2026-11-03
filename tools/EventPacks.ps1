@@ -1,3 +1,5 @@
+. (Join-Path $PSScriptRoot 'HoiImageSources.ps1')
+
 function Get-EpUtf8 {
     param([switch]$Bom)
 
@@ -688,38 +690,14 @@ function Get-EpFactLineStart {
     return $factText.Substring(0, 60) + '...'
 }
 
-function Get-EpOwnWorkCutoffYear {
-    return 1960
+function Get-EpImagePolicy {
+    return New-HoiImagePolicy -AcceptedCategories @('PD', 'CC0', 'CC BY') -AcceptedSources @('commons') -MinWidth 210 -MinHeight 176 -MinSizeText 'the 210x176 event picture [SPR-028]' -BotName 'EventPacksBot' -ContactUrl 'https://github.com/TheCreepero/event-packs' -FetchCommand 'build.ps1 -FetchPicture' -ItemNounPlural 'pictures'
 }
 
 function Get-EpPictureYear {
     param([AllowEmptyCollection()][AllowEmptyString()][string[]]$Texts)
 
-    $years = @(foreach ($text in @($Texts)) {
-            foreach ($yearMatch in [regex]::Matches([string]$text, '(?<!\d)(1[89]\d\d|20\d\d)(?!\d)')) {
-                [int]$yearMatch.Value
-            }
-        })
-    if ($years.Count -eq 0) {
-        return $null
-    }
-    return [int]($years | Measure-Object -Minimum).Minimum
-}
-
-function Test-EpOwnWorkClaim {
-    param(
-        [AllowEmptyCollection()][string[]]$Templates,
-        [AllowEmptyString()][string]$PublicDomainReason,
-        [AllowEmptyString()][string]$AttributionText
-    )
-
-    if (@($Templates) -contains 'Template:PD-self' -or @($Templates) -contains 'Template:Own') {
-        return $true
-    }
-    if (@(([string]$PublicDomainReason) -split ',\s*') -contains 'PD-self') {
-        return $true
-    }
-    return ([string]$AttributionText -match '(?i)\bown work\b')
+    return Get-HoiPictureYear -Texts $Texts
 }
 
 function Test-EpPackSource {
@@ -940,55 +918,15 @@ function Test-EpPackSource {
     }
 
     $usedPictureKeys = Get-EpUsedPictureKeys -Pack $Pack
+    $imagePolicy = Get-EpImagePolicy
     foreach ($picture in $Pack.Pictures) {
         $pictureWhere = 'picture ' + [string]$picture.key
-        $recordedCategory = [string](Get-EpProperty -Object $picture -Name 'licenseCategory' -Default '')
-        $derivedCategory = Get-EpLicenceCategory -LicenseCode ([string](Get-EpProperty -Object $picture -Name 'license' -Default ''))
-        if (@('PD', 'CC0', 'CC BY') -notcontains $recordedCategory -or $derivedCategory -ne $recordedCategory) {
-            $problems.Add((New-EpProblem -Level 'ERROR' -Where $pictureWhere -Message "licence '$($picture.licenseShortName)' (code '$($picture.license)', category '$recordedCategory') is outside the policy (public domain, CC0, CC BY) or does not match its Commons code: fetch it again"))
+        $pictureIsUsed = $usedPictureKeys -contains [string]$picture.key
+        foreach ($imageProblem in @(Test-HoiImageRecord -Record $picture -Policy $imagePolicy -Used $pictureIsUsed -CacheDir $Pack.CacheDir)) {
+            $problems.Add((New-EpProblem -Level $imageProblem.Level -Where $pictureWhere -Message $imageProblem.Message))
         }
-        if ($recordedCategory -eq 'PD' -and [string](Get-EpProperty -Object $picture -Name 'publicDomainReason' -Default '') -notmatch '^PD-[^,]+(, PD-[^,]+)*$') {
-            $problems.Add((New-EpProblem -Level 'ERROR' -Where $pictureWhere -Message 'public domain without the reason Commons gives (a PD- licence template): fetch it again'))
-        }
-        if ($recordedCategory -eq 'CC BY' -and (-not (Test-EpNamedAuthor -Author ([string]$picture.author)) -or [string]$picture.licenseUrl -notmatch '^https?://creativecommons\.org/licenses/by/')) {
-            $problems.Add((New-EpProblem -Level 'ERROR' -Where $pictureWhere -Message 'CC BY needs a named author and the Creative Commons BY licence URL for the credit'))
-        }
-        if ([string]$picture.commonsTitle -notmatch '^File:' -or [string]$picture.pageUrl -notmatch '^https://commons\.wikimedia\.org/wiki/File:') {
-            $problems.Add((New-EpProblem -Level 'ERROR' -Where $pictureWhere -Message 'not a Wikimedia Commons file page: pictures come only through build.ps1 -FetchPicture'))
-        }
-        if (-not (Test-EpCommonsDownloadUrl -Url ([string]$picture.downloadUrl))) {
-            $problems.Add((New-EpProblem -Level 'ERROR' -Where $pictureWhere -Message "download URL '$($picture.downloadUrl)' is not on Wikimedia's upload servers"))
-        }
-        foreach ($requiredField in @('licenseShortName', 'downloadSha256', 'fetched')) {
-            if (-not [string](Get-EpProperty -Object $picture -Name $requiredField -Default '')) {
-                $problems.Add((New-EpProblem -Level 'ERROR' -Where $pictureWhere -Message "no ${requiredField}: pictures come only through build.ps1 -FetchPicture"))
-            }
-        }
-        if ([string]$picture.downloadSha256 -and [string]$picture.downloadSha256 -notmatch '^[0-9a-f]{64}$') {
-            $problems.Add((New-EpProblem -Level 'ERROR' -Where $pictureWhere -Message 'downloadSha256 is not a SHA-256: pictures come only through build.ps1 -FetchPicture'))
-        }
-        $publicDomainReasons = @(([string](Get-EpProperty -Object $picture -Name 'publicDomainReason' -Default '')) -split ',\s*' | Where-Object { $_ })
-        if ($recordedCategory -eq 'PD' -and $publicDomainReasons.Count -gt 0 -and @($publicDomainReasons | Where-Object { $_ -notmatch '^PD-US' }).Count -eq 0) {
-            $problems.Add((New-EpProblem -Level 'WARN' -Where $pictureWhere -Message "public domain in the United States only ($($publicDomainReasons -join ', ')); the owner decides before a release"))
-        }
-        if ($picture.downloadSha256 -and (Test-EpCommonsDownloadUrl -Url ([string]$picture.downloadUrl))) {
-            $cachePath = Get-EpCacheFilePath -Pack $Pack -Picture $picture
-            if ((Test-Path -LiteralPath $cachePath) -and (Get-FileHash -LiteralPath $cachePath -Algorithm SHA256).Hash.ToLowerInvariant() -ne [string]$picture.downloadSha256) {
-                $problems.Add((New-EpProblem -Level 'ERROR' -Where $pictureWhere -Message 'the downloaded file in sources-cache does not match the SHA-256 recorded at fetch time'))
-            }
-        }
-        if ([string](Get-EpProperty -Object $picture -Name 'restrictions' -Default '')) {
-            $problems.Add((New-EpProblem -Level 'WARN' -Where $pictureWhere -Message "Commons lists restrictions: $($picture.restrictions); the owner reviews it before a release"))
-        }
-        if ($usedPictureKeys -notcontains [string]$picture.key) {
+        if (-not $pictureIsUsed) {
             $problems.Add((New-EpProblem -Level 'WARN' -Where $pictureWhere -Message 'no event uses this picture'))
-        } elseif (Test-EpOwnWorkClaim -Templates @() -PublicDomainReason ([string](Get-EpProperty -Object $picture -Name 'publicDomainReason' -Default '')) -AttributionText ([string](Get-EpProperty -Object $picture -Name 'credit' -Default ''))) {
-            $recordedYear = Get-EpPictureYear -Texts @([string](Get-EpProperty -Object $picture -Name 'dateOriginal' -Default ''), [string]$picture.commonsTitle)
-            if ($null -eq $recordedYear) {
-                $problems.Add((New-EpProblem -Level 'WARN' -Where $pictureWhere -Message ('own work without a date in the record: fetch it again, which refuses own work on a picture dated before ' + (Get-EpOwnWorkCutoffYear))))
-            } elseif ($recordedYear -lt (Get-EpOwnWorkCutoffYear)) {
-                $problems.Add((New-EpProblem -Level 'ERROR' -Where $pictureWhere -Message "own work on a picture dated ${recordedYear}: the uploader cannot be its author, so the licence cannot be trusted; replace the picture"))
-            }
         }
     }
     return $problems.ToArray()
@@ -1142,156 +1080,32 @@ function Invoke-EpAudit {
     return $(if ($errorCount -gt 0) { 1 } else { 0 })
 }
 
-function Get-EpCommonsDeletionTemplates {
-    return @('Template:Delete', 'Template:Speedydelete', 'Template:Copyvio', 'Template:No license since', 'Template:No permission since', 'Template:No source since', 'Template:Dw no source since', 'Template:Npd', 'Template:Disputed', 'Template:Disputed copyright')
-}
-
-function Get-EpLicenceCategory {
-    param([AllowEmptyString()][string]$LicenseCode)
-
-    $normalizedCode = ([string]$LicenseCode).ToLowerInvariant()
-    if ($normalizedCode -match '^(pd|public domain)') {
-        return 'PD'
-    }
-    if ($normalizedCode -match '^(cc0|cc-zero)') {
-        return 'CC0'
-    }
-    if ($normalizedCode -match '^cc-by-\d') {
-        return 'CC BY'
-    }
-    return ''
-}
-
-function Test-EpNamedAuthor {
-    param([AllowEmptyString()][string]$Author)
-
-    return ([bool]([string]$Author).Trim() -and $Author -notmatch '^(unknown|anonymous|unknown author|author unknown)$')
-}
-
-function Test-EpCommonsDownloadUrl {
-    param([AllowEmptyString()][string]$Url)
-
-    return ([string]$Url -match '^https://(upload|thumb)\.wikimedia\.org/wikipedia/commons/')
-}
-
 function Get-EpCommonsQueryUrl {
     param([Parameter(Mandatory = $true)][string]$FileTitle)
 
-    $queryParts = @(
-        'action=query', 'format=json', 'formatversion=2',
-        ('titles=' + [uri]::EscapeDataString($FileTitle)),
-        'prop=imageinfo%7Ctemplates',
-        'iiprop=url%7Csize%7Cmime%7Cextmetadata',
-        'iiurlwidth=1600',
-        'tlnamespace=10',
-        'tllimit=max'
-    )
-    return 'https://commons.wikimedia.org/w/api.php?' + ($queryParts -join '&')
+    return Get-HoiCommonsQueryUrl -FileTitle $FileTitle
 }
 
-function ConvertFrom-EpHtml {
-    param([AllowEmptyString()][string]$Html)
+function ConvertTo-EpPicture {
+    param([Parameter(Mandatory = $true)]$Record)
 
-    $visibleHtml = [regex]::Replace([string]$Html, '(?is)<(\w+)[^>]*display:\s*none[^>]*>.*?</\1>', '')
-    $plainText = [regex]::Replace($visibleHtml, '<[^>]+>', '')
-    return ([System.Net.WebUtility]::HtmlDecode($plainText) -replace '\s+', ' ').Trim()
+    $picture = [ordered]@{}
+    foreach ($recordProperty in $Record.PSObject.Properties) {
+        $picture[$recordProperty.Name] = $recordProperty.Value
+        if ($recordProperty.Name -eq 'height') {
+            $picture['crop'] = '50'
+            $picture['tone'] = 'none'
+        }
+    }
+    return [PSCustomObject]$picture
 }
 
 function Get-EpCommonsVerdict {
     param([Parameter(Mandatory = $true)]$Response)
 
-    $page = @(ConvertTo-EpArray (Get-EpProperty -Object (Get-EpProperty -Object $Response -Name 'query') -Name 'pages')) | Select-Object -First 1
-    if ($null -eq $page -or (Get-EpProperty -Object $page -Name 'missing' -Default $false) -or $null -eq (Get-EpProperty -Object $page -Name 'imageinfo')) {
-        return [PSCustomObject]@{ Accepted = $false; Reason = 'no such file on Wikimedia Commons'; Picture = $null }
-    }
-    $imageInfo = @($page.imageinfo)[0]
-    $metadata = $imageInfo.extmetadata
-    $licenseCode = ([string](Get-EpProperty -Object (Get-EpProperty -Object $metadata -Name 'License') -Name 'value' -Default '')).ToLowerInvariant()
-    $licenseShortName = ConvertFrom-EpHtml ([string](Get-EpProperty -Object (Get-EpProperty -Object $metadata -Name 'LicenseShortName') -Name 'value' -Default ''))
-    $licenseCategory = Get-EpLicenceCategory -LicenseCode $licenseCode
-    $picture = [PSCustomObject][ordered]@{
-        key              = ''
-        commonsTitle     = [string]$page.title
-        pageUrl          = [string]$imageInfo.descriptionurl
-        downloadUrl      = [string](Get-EpProperty -Object $imageInfo -Name 'thumburl' -Default $imageInfo.url)
-        downloadSha256   = ''
-        author           = ConvertFrom-EpHtml ([string](Get-EpProperty -Object (Get-EpProperty -Object $metadata -Name 'Artist') -Name 'value' -Default ''))
-        credit           = ConvertFrom-EpHtml ([string](Get-EpProperty -Object (Get-EpProperty -Object $metadata -Name 'Credit') -Name 'value' -Default ''))
-        licenseShortName = $licenseShortName
-        license          = $licenseCode
-        licenseCategory  = $(if ($licenseCategory) { $licenseCategory } else { '' })
-        licenseUrl       = [string](Get-EpProperty -Object (Get-EpProperty -Object $metadata -Name 'LicenseUrl') -Name 'value' -Default '')
-        usageTerms       = ConvertFrom-EpHtml ([string](Get-EpProperty -Object (Get-EpProperty -Object $metadata -Name 'UsageTerms') -Name 'value' -Default ''))
-        restrictions     = [string](Get-EpProperty -Object (Get-EpProperty -Object $metadata -Name 'Restrictions') -Name 'value' -Default '')
-        dateOriginal     = ConvertFrom-EpHtml ([string](Get-EpProperty -Object (Get-EpProperty -Object $metadata -Name 'DateTimeOriginal') -Name 'value' -Default ''))
-        width            = [int]$imageInfo.width
-        height           = [int]$imageInfo.height
-        crop             = '50'
-        tone             = 'none'
-        fetched          = ''
-        publicDomainReason = ''
-    }
-    $pageTemplates = @(ConvertTo-EpArray (Get-EpProperty -Object $page -Name 'templates') | ForEach-Object { [string]$_.title })
-    $deletionTemplates = @($pageTemplates | Where-Object { (Get-EpCommonsDeletionTemplates) -contains $_ })
-    $picture.publicDomainReason = (@($pageTemplates | Where-Object { $_ -match '^Template:PD-[^/]+$' -and $_ -ne 'Template:PD-Layout' } | ForEach-Object { $_.Substring(9) }) -join ', ')
-    if ($deletionTemplates.Count -gt 0) {
-        return [PSCustomObject]@{ Accepted = $false; Reason = ('tagged on Commons: ' + ($deletionTemplates -join ', ')); Picture = $picture }
-    }
-    if ($licenseCategory -eq 'PD' -and -not $picture.publicDomainReason) {
-        return [PSCustomObject]@{ Accepted = $false; Reason = 'public domain without a PD- licence template on Commons that states why'; Picture = $picture }
-    }
-    if (-not $licenseCategory) {
-        return [PSCustomObject]@{ Accepted = $false; Reason = "licence '$licenseShortName' ($licenseCode) is outside the policy: public domain, CC0 or CC BY only"; Picture = $picture }
-    }
-    if (Test-EpOwnWorkClaim -Templates $pageTemplates -PublicDomainReason $picture.publicDomainReason -AttributionText $picture.credit) {
-        $objectName = ConvertFrom-EpHtml ([string](Get-EpProperty -Object (Get-EpProperty -Object $metadata -Name 'ObjectName') -Name 'value' -Default ''))
-        $imageDescription = ConvertFrom-EpHtml ([string](Get-EpProperty -Object (Get-EpProperty -Object $metadata -Name 'ImageDescription') -Name 'value' -Default ''))
-        $pictureYear = Get-EpPictureYear -Texts @($picture.dateOriginal, $objectName, $imageDescription, $picture.commonsTitle)
-        if ($null -ne $pictureYear -and $pictureYear -lt (Get-EpOwnWorkCutoffYear)) {
-            return [PSCustomObject]@{ Accepted = $false; Reason = "own work on a picture dated ${pictureYear}: the uploader cannot be its author, so the licence cannot be trusted; find the picture's original source and its licence"; Picture = $picture }
-        }
-    }
-    if ($licenseCategory -eq 'CC BY' -and -not (Test-EpNamedAuthor -Author $picture.author)) {
-        return [PSCustomObject]@{ Accepted = $false; Reason = 'CC BY without a named author on Commons: the credit cannot be written'; Picture = $picture }
-    }
-    if ([string](Get-EpProperty -Object $imageInfo -Name 'mime' -Default '') -notmatch '^image/(jpeg|png|tiff|gif|webp)$') {
-        return [PSCustomObject]@{ Accepted = $false; Reason = "file type '$($imageInfo.mime)' is not a picture"; Picture = $picture }
-    }
-    if (-not (Test-EpCommonsDownloadUrl -Url $picture.downloadUrl)) {
-        return [PSCustomObject]@{ Accepted = $false; Reason = "download URL '$($picture.downloadUrl)' is not on Wikimedia's upload servers"; Picture = $picture }
-    }
-    if ($picture.width -lt 210 -or $picture.height -lt 176) {
-        return [PSCustomObject]@{ Accepted = $false; Reason = "$($picture.width)x$($picture.height) is smaller than the 210x176 event picture [SPR-028]"; Picture = $picture }
-    }
-    return [PSCustomObject]@{ Accepted = $true; Reason = "$licenseCategory ($licenseShortName)"; Picture = $picture }
-}
-
-function Get-EpWebHeaders {
-    $powerShellVersion = '{0}.{1}' -f $PSVersionTable.PSVersion.Major, $PSVersionTable.PSVersion.Minor
-    return @{ 'User-Agent' = "EventPacksBot/1.0 (https://github.com/TheCreepero/event-packs; Hearts of Iron IV mod build tool, one request at a time) PowerShell/$powerShellVersion" }
-}
-
-function Get-EpWebErrorText {
-    param([Parameter(Mandatory = $true)][System.Management.Automation.ErrorRecord]$ErrorRecord)
-
-    $text = if ($null -ne $ErrorRecord.ErrorDetails -and $ErrorRecord.ErrorDetails.Message) { $ErrorRecord.ErrorDetails.Message } else { $ErrorRecord.Exception.Message }
-    $text = ([regex]::Replace([string]$text, '<[^>]+>', ' ') -replace '\s+', ' ').Trim()
-    if ($text.Length -gt 300) {
-        $text = $text.Substring(0, 300) + '...'
-    }
-    return $text
-}
-
-function Get-EpRetryDelaySeconds {
-    param($Response, [Parameter(Mandatory = $true)][int]$Attempt)
-
-    $backoffSeconds = 5 * [Math]::Pow(2, $Attempt - 1)
-    $retryAfterSeconds = 0
-    $headers = Get-EpProperty -Object $Response -Name 'Headers'
-    if ($null -ne $headers -and -not [int]::TryParse([string]$headers['Retry-After'], [ref]$retryAfterSeconds)) {
-        $retryAfterSeconds = 0
-    }
-    return [int][Math]::Min(120, [Math]::Max($retryAfterSeconds, $backoffSeconds))
+    $verdict = Get-HoiImageVerdict -Candidate (ConvertFrom-HoiCommonsResponse -Response $Response) -Policy (Get-EpImagePolicy)
+    $picture = if ($null -ne $verdict.Record) { ConvertTo-EpPicture -Record $verdict.Record } else { $null }
+    return [PSCustomObject]@{ Accepted = $verdict.Accepted; Reason = $verdict.Reason; Picture = $picture }
 }
 
 function Invoke-EpCommonsRequest {
@@ -1301,39 +1115,13 @@ function Invoke-EpCommonsRequest {
         [int]$MaxAttempts = 5
     )
 
-    for ($attempt = 1; ; $attempt++) {
-        try {
-            if ($OutFile) {
-                Invoke-WebRequest -Uri $Uri -Headers (Get-EpWebHeaders) -OutFile $OutFile -UseBasicParsing
-                return
-            }
-            return (Invoke-RestMethod -Uri $Uri -Headers (Get-EpWebHeaders) -UseBasicParsing)
-        } catch {
-            $response = Get-EpProperty -Object $_.Exception -Name 'Response'
-            $statusCode = if ($null -ne $response) { [int]$response.StatusCode } else { 0 }
-            if ($statusCode -notin @(429, 503)) {
-                throw
-            }
-            Write-Host "  Wikimedia answered $statusCode`: $(Get-EpWebErrorText -ErrorRecord $_)" -ForegroundColor Yellow
-            if ($attempt -ge $MaxAttempts) {
-                Write-Host "  giving up after $MaxAttempts attempts" -ForegroundColor Yellow
-                throw
-            }
-            $delaySeconds = Get-EpRetryDelaySeconds -Response $response -Attempt $attempt
-            Write-Host "  trying again in $delaySeconds s (attempt $($attempt + 1) of $MaxAttempts)" -ForegroundColor Yellow
-            Start-Sleep -Seconds $delaySeconds
-        }
-    }
+    return (Invoke-HoiImageRequest -Uri $Uri -Policy (Get-EpImagePolicy) -OutFile $OutFile -MaxAttempts $MaxAttempts)
 }
 
 function Get-EpCacheFilePath {
     param($Pack, $Picture)
 
-    $extension = [System.IO.Path]::GetExtension(([uri]$Picture.downloadUrl).AbsolutePath)
-    if (-not $extension) {
-        $extension = '.jpg'
-    }
-    return (Join-Path $Pack.CacheDir ($Picture.key + $extension.ToLowerInvariant()))
+    return Get-HoiImageCachePath -CacheDir $Pack.CacheDir -Record $Picture
 }
 
 function Save-EpPictures {
@@ -1493,7 +1281,7 @@ function Invoke-EpConvertPictures {
             return 1
         }
         $cachePath = Get-EpCacheFilePath -Pack $packData -Picture $picture
-        if (-not (Test-EpCommonsDownloadUrl -Url ([string]$picture.downloadUrl))) {
+        if (-not (Test-HoiCommonsDownloadUrl -Url ([string]$picture.downloadUrl))) {
             Write-Host "picture '$pictureKey' has a download URL outside Wikimedia's upload servers: fetch it again with build.ps1 -FetchPicture" -ForegroundColor Red
             return 1
         }

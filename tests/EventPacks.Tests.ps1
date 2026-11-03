@@ -2,7 +2,7 @@ BeforeAll {
     $script:RepoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
     . (Join-Path $script:RepoRoot 'tools\EventPacks.ps1')
     . (Join-Path $script:RepoRoot 'tools\EventPacksTestMod.ps1')
-    $script:CommonsFixtureDir = Join-Path $PSScriptRoot 'fixtures\commons'
+    $script:CommonsFixtureDir = Join-Path $PSScriptRoot 'fixtures\image-sources\commons'
 
     function Get-CommonsFixture {
         param([string]$Name)
@@ -618,6 +618,7 @@ Describe 'Own work on an old picture' {
         Write-EpText -Path $picturesPath -Text (ConvertTo-Json -InputObject $pictureSource -Depth 5)
         ((Get-ErrorMessages -Root $fixtureRoot) -join "`n") | Should -Match 'own work on a picture dated 1937'
         $pictureSource.pictures[0].dateOriginal = ''
+        $pictureSource.pictures[0] | Add-Member -NotePropertyName 'pictureYear' -NotePropertyValue $null -Force
         $pictureSource.pictures[0].commonsTitle = 'File:Reservists.tif'
         Write-EpText -Path $picturesPath -Text (ConvertTo-Json -InputObject $pictureSource -Depth 5)
         @(Test-EpPack -RepoRoot $fixtureRoot -Pack 'testland' | Where-Object { $_.Level -eq 'WARN' -and $_.Message -match 'own work without a date' }).Count | Should -Be 1

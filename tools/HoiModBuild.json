@@ -9,11 +9,12 @@
             "modFolderName": "event_pack_france"
         }
     },
+    "sharedTools": ["image-sources"],
     "testSuites": {
         "Knowledge": ["*.md", "docs/**", "wiki/**"],
         "Documentation": ["build.ps1", ".claude/skills/**", ".agents/skills/**", ".claude/agents/**", "docs/plans/TEMPLATE-pack.md", "docs/style-guide.md", "docs/source-format.md", "AGENTS.md"],
-        "EventPacks": ["tools/EventPacks.ps1", "tools/EventPacksTestMod.ps1", "tools/render_event_cards.py", "tools/HoiModBuild.json", "tests/fixtures/**", "data/**", "source/**", "packs/**", "wiki/Event-Pack-*.md"],
-        "EventText": ["tools/EventPacks.ps1", "data/**"],
+        "EventPacks": ["tools/EventPacks.ps1", "tools/HoiImageSources.ps1", "tools/EventPacksTestMod.ps1", "tools/render_event_cards.py", "tools/HoiModBuild.json", "tests/fixtures/**", "data/**", "source/**", "packs/**", "wiki/Event-Pack-*.md"],
+        "EventText": ["tools/EventPacks.ps1", "tools/HoiImageSources.ps1", "data/**"],
         "Hooks": [".claude/hooks/Protect-ProjectFiles.ps1", ".claude/hooks/Show-PlanState.ps1", "docs/plans/**"],
         "none": ["assets/**", "research/**"]
     }
