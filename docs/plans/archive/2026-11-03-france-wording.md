@@ -1,0 +1,947 @@
+# France pack: one wording fix before the first release
+
+Status: DONE
+Pack: france (FRA, namespace ep_fra)
+Kind: audit fixes
+Created: 2026-11-03
+
+## For the implementer
+
+Carry out "Implementation steps" in order with `.claude/agents/ep-implementer.md`. Everything the steps write is in this file: the `json events` block is the whole `source/france/events.json`. Decide nothing; stop and report when something does not fit.
+
+## Context
+
+During the in-game check of the first France release (`event-pack-release`, 2026-11-03), the owner asked what "ratings" means in event 10. It is the Royal Navy's word for sailors who are not officers, unknown to many players; the event's fact sheet says "enlisted men", as its source does. Written by the release session, outside a full audit.
+
+## Decisions
+
+- 2026-11-03, the owner: replace "66 ratings" with "66 enlisted men" in event 10. Nothing else changes; the full audit of the pack's facts comes later.
+
+## Events
+
+The pack's 20 events, as the `json events` block leaves them. Changed by this plan: the text of 10 only. Titles, options, windows, pictures and effects are unchanged.
+
+| Id | Key | Title | Window | Chance/week | Picture | Effects |
+|---|---|---|---|---|---|---|
+| 10 | phenix_submarine_loss | The Submarine Phénix Is Lost off Cam Ranh | 1939.6.16 to 1939.7.31 | 50 | phenix_submarine_loss | stability +0.02 / war support +0.01 |
+
+## Pictures
+
+No pictures change.
+
+Thumbnail: unchanged
+
+## Fact verification
+
+No fact changes. The new wording is the fact sheet's own: "The toll was 71 dead, 5 officers and 66 enlisted men" (`source/france/fact-sheets.md`, section `phenix_submarine_loss`).
+
+## Editor record
+
+- Round 1, 2026-11-03: `phenix_submarine_loss` KEEP. Every claim is in the fact sheet's first fact; "enlisted men" is the fact sheet's wording; the options differ and match their effects. Totals: 1 KEEP, 0 REWRITE, 0 REJECT.
+
+## Kept on judgment
+
+- `-Check` and `-RenderEvents`: the three `[WARN]` lines of pictures public domain in the United States only (`mermoz_disappearance`, `pcf_dissolution_1939`, `richelieu_launch_1939`); the owner agreed to keep them on 2026-11-03.
+- `-Check`: any `[WARN]` that the facts of events 1 to 20 predate quoted facts (`factQuotesFromId` 21); the owner will audit the pack later.
+
+## Implementation steps
+
+- [x] 1. Write the events: replace `source/france/events.json` with the `json events` block below, whole.
+- [x] 2. No fact sheet changes.
+- [x] 3. No pictures to fetch.
+- [x] 4. Thumbnail unchanged: nothing to run.
+- [x] 5. `powershell -File .\build.ps1 -ConvertPictures -Pack france`: expect `failed=0`.
+- [x] 6. `powershell -File .\build.ps1 -Generate -Pack france`: expect `Generated pack 'france'`.
+- [x] 7. `powershell -File .\build.ps1 -Check -Pack france`: expect `Check OK`, with no warning outside "Kept on judgment".
+- [x] 8. `powershell -File .\build.ps1 -RenderEvents -Pack france`: expect `Rendered 20 events to ...artifacts\workshop-images\france`, with no `[WARN]` outside "Kept on judgment".
+- [x] 9. `powershell -File .\build.ps1 -ValidateOnly` then `powershell -File .\build.ps1 -Test`: expect `Validation succeeded.` and no failed test.
+- [x] 10. Ship (after the user confirms): move this plan to `docs/plans/archive/`, commit with the message `fix(france): "enlisted men" for "ratings" in the Phénix event`, then `powershell -File .\wiki\push-wiki.ps1`.
+
+## Stop conditions
+
+- `-Generate` or `-Check` prints an `[ERROR]`: stop and report it whole.
+
+## Outcome
+
+- Date: 2026-11-03.
+- `-Check`: `Check OK: 1 pack(s), 3 warning(s).` (the three PD-US warnings listed in "Kept on judgment"). `-ValidateOnly`: `Validation succeeded.`; `-Test`: 171 Passed, 0 Failed.
+- Deviation: step 1 was done by an Edit of the one phrase in `source/france/events.json` ("66 ratings" to "66 enlisted men"), not a whole-file Write; the file was then compared with the plan's `json events` block and is identical.
+
+## Events source
+
+```json events
+{
+    "pack": "france",
+    "tag": "FRA",
+    "namespace": "ep_fra",
+    "displayName": "France",
+    "factQuotesFromId": 21,
+    "events": [
+        {
+            "id": 1,
+            "key": "transindochinois_1936",
+            "title": "The Transindochinois Is Joined at Hao Son",
+            "desc": "On 2 September the two construction teams of the Transindochinois met at Hao Son, at kilometre 1221, and the last piece of rail was put in place. A monument there records the joining of the railway from the Chinese border with the railway of Saigon.\n\nOn 1 October the section from Hao Son to Dai Lanh opened to traffic, and Bao Dai presided over the burial of ceremonial parchments at the monument.",
+            "picture": "transindochinois_1936",
+            "factSheet": "transindochinois_1936",
+            "anchors": [
+                "Transindochinois",
+                "Hao Son",
+                "2 September",
+                "Bao Dai"
+            ],
+            "fire": {
+                "after": "1936.10.2",
+                "before": "1936.11.30",
+                "chance": 50,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Run through trains as soon as we can.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "timed_idea": "transindochinois_traffic",
+                            "days": 120
+                        }
+                    ]
+                },
+                {
+                    "name": "Well done to both construction teams.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "key": "syria_lebanon_treaties_1936",
+            "title": "Viénot Signs a Treaty with Syria",
+            "desc": "Pierre Viénot and Hashim al-Atassi signed a Franco-Syrian treaty on 9 September. It provides for Syrian independence and unity: the autonomies of the Druze and the Alawites are to end. France keeps military facilities in Syria for 25 years.\n\nThe treaty goes next to the Syrian parliament and to our own.",
+            "picture": "vanilla:GFX_report_event_generic_sign_treaty1",
+            "factSheet": "syria_lebanon_treaties_1936",
+            "anchors": [
+                "Pierre Viénot",
+                "Hashim al-Atassi",
+                "9 September",
+                "Druze",
+                "Alawites"
+            ],
+            "fire": {
+                "after": "1936.9.9",
+                "before": "1936.11.15",
+                "chance": 25,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Put it before the Chamber without delay.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "The army keeps its bases. The Senate can take its time.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "war_support": 0.01
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "key": "salengro_affair",
+            "title": "Interior Minister Salengro Takes His Own Life",
+            "desc": "Roger Salengro, Minister of the Interior in the Blum government, killed himself in Lille on 17 November. L'Action française and Gringoire, whose director is Henri Béraud, had accused him of deserting in the Great War, and Gringoire kept up the attacks.\n\nSalengro left a letter to Léon Blum and one to his brother. His funeral was held in Lille on 22 November.",
+            "picture": "salengro_affair",
+            "factSheet": "salengro_affair",
+            "anchors": [
+                "Roger Salengro",
+                "Gringoire",
+                "Henri Béraud",
+                "22 November"
+            ],
+            "fire": {
+                "after": "1936.11.23",
+                "before": "1937.1.15",
+                "chance": 50,
+                "trigger": "has_war = no has_completed_focus = FRA_form_the_popular_front"
+            },
+            "options": [
+                {
+                    "name": "Make the law on press libel harder.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "The press stays free, even this press.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "stability": 0.01
+                        },
+                        {
+                            "war_support": 0.01
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "key": "mermoz_disappearance",
+            "title": "Mermoz and the Croix-du-Sud Lost at Sea",
+            "desc": "Jean Mermoz took off from Dakar for Natal on 7 December in the Latécoère 300 flying boat Croix-du-Sud. With him were Alexandre Pichodou, Henri Ezan, Edgar Cruveilher and Jean Lavidalie. Mermoz radioed that he had to cut the power on the aft starboard engine. No further message came.\n\nMermoz, 34, and his crew disappeared at sea 800 km south of Dakar. Neither the aircraft nor the crew has been found.",
+            "picture": "mermoz_disappearance",
+            "factSheet": "mermoz_disappearance",
+            "anchors": [
+                "Jean Mermoz",
+                "Croix-du-Sud",
+                "Dakar",
+                "Natal",
+                "7 December"
+            ],
+            "fire": {
+                "after": "1936.12.14",
+                "before": "1937.1.31",
+                "chance": 50,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Keep flying from Dakar to Natal.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Ground the line until we know the cause.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 5,
+            "key": "expo_1937",
+            "title": "President Lebrun Opens the Paris Exposition",
+            "desc": "President Albert Lebrun opened the Exposition internationale des Arts et Techniques on 24 May, later than the planned date of 1 May. The Palais de Chaillot, the Palais de Tokyo and the Palais de la Découverte were inaugurated right after.\n\nThe Palais de la Découverte is the project of the physicist Jean Perrin, Nobel laureate of 1926. It is installed in the west wing of the Grand Palais, the Palais d'Antin.",
+            "picture": "expo_1937",
+            "factSheet": "expo_1937",
+            "anchors": [
+                "Albert Lebrun",
+                "24 May",
+                "Palais de la Découverte",
+                "Jean Perrin"
+            ],
+            "fire": {
+                "after": "1937.5.31",
+                "before": "1937.8.31",
+                "chance": 25,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Let all Paris come to the fair.",
+                    "ai": 50,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Keep Perrin's halls open after the fair.",
+                    "ai": 50,
+                    "effects": [
+                        {
+                            "timed_idea": "palais_de_la_decouverte",
+                            "days": 180
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 6,
+            "key": "world_cup_1938",
+            "title": "Italy Puts France Out of the World Cup",
+            "desc": "The World Cup in France began on 4 June. On 5 June France beat Belgium 3-1 at Colombes. On 12 June France met Italy in the quarter-final at Colombes, before more than 58,000 spectators.\n\nColaussi put Italy ahead in the 9th minute, and Heisserer equalised in the 10th. Piola scored in the 51st and the 72nd minutes. Italy won 3-1.",
+            "picture": "world_cup_1938",
+            "factSheet": "world_cup_1938",
+            "anchors": [
+                "Colombes",
+                "58,000",
+                "Heisserer",
+                "Piola",
+                "12 June"
+            ],
+            "fire": {
+                "after": "1938.6.13",
+                "before": "1938.7.15",
+                "chance": 50,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "They did the country proud.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Next time we beat the Italians.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 7,
+            "key": "royal_visit_1938",
+            "title": "King George VI and Queen Elizabeth in Paris",
+            "desc": "King George VI and Queen Elizabeth arrived on 19 July for a state visit. They called on the President of the Republic, received the diplomatic corps, dined at the Élysée and saw Sacha Guitry and Ninon Vallin perform.\n\nOn 20 July they were received at the Hôtel de Ville, returned to the Quai d'Orsay by the Seine and attended a gala at the Opéra. On 21 July at Versailles, 50,000 men paraded before the King, with an air display. Lunch followed in the Hall of Mirrors. The King and Queen left from the Gare des Invalides on 22 July.",
+            "picture": "royal_visit_1938",
+            "factSheet": "royal_visit_1938",
+            "anchors": [
+                "George VI",
+                "Queen Elizabeth",
+                "19 July",
+                "Gare des Invalides",
+                "Sacha Guitry"
+            ],
+            "fire": {
+                "after": "1938.7.22",
+                "before": "1938.8.31",
+                "chance": 50,
+                "trigger": "has_war = no ENG = { has_war = no has_government = democratic }"
+            },
+            "options": [
+                {
+                    "name": "London has never been a closer friend.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "A fine visit. Now back to the budget.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 8,
+            "key": "marseille_nouvelles_galeries_fire",
+            "title": "Fire at the Nouvelles Galeries Kills 73 in Marseille",
+            "desc": "Fire broke out in the early afternoon of 28 October at the Nouvelles Galeries department store on the Canebière in Marseille. It killed 73 people.\n\nAt the request of Rear Admiral Muselier, who commands the Navy at Marseille, the marins-pompiers of Toulon were sent as reinforcements. They arrived only from 5 pm, when the store was already lost.",
+            "picture": "marseille_nouvelles_galeries_fire",
+            "factSheet": "marseille_nouvelles_galeries_fire",
+            "anchors": [
+                "Nouvelles Galeries",
+                "Canebière",
+                "28 October",
+                "Muselier"
+            ],
+            "fire": {
+                "after": "1938.10.29",
+                "before": "1938.12.15",
+                "chance": 50,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Give Marseille a fire battalion of naval men.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "The city must answer for its own firemen.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "stability": 0.01
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 9,
+            "key": "richelieu_launch_1939",
+            "title": "The Battleship Richelieu Is Launched at Brest",
+            "desc": "The battleship Richelieu, built by the Brest arsenal, was launched on 17 January. Her keel was laid on 22 October 1935 in the No. 4 dock at Brest, which had recently built the Dunkerque.\n\nThe Dunkerque was launched on 2 October 1935 and commissioned on 31 December 1936. The Dunkerque's sister Strasbourg was launched on 12 December 1936.",
+            "picture": "richelieu_launch_1939",
+            "factSheet": "richelieu_launch_1939",
+            "anchors": [
+                "Richelieu",
+                "17 January",
+                "Dunkerque"
+            ],
+            "fire": {
+                "after": "1939.1.17",
+                "before": "1939.3.31",
+                "chance": 25,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Press on with the fitting-out.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "The yards will take the time they need.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "stability": 0.01
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 10,
+            "key": "phenix_submarine_loss",
+            "title": "The Submarine Phénix Is Lost off Cam Ranh",
+            "desc": "The submarine Phénix went down on 15 June in the South China Sea off Cam Ranh. She was on training manoeuvres with the light cruiser Lamotte-Picquet and aircraft. The exercise included a mock attack on the cruiser. The toll is 71 dead: 5 officers and 66 enlisted men.\n\nThe Phénix had been commissioned on 21 October 1932.",
+            "picture": "phenix_submarine_loss",
+            "factSheet": "phenix_submarine_loss",
+            "anchors": [
+                "Phénix",
+                "Cam Ranh",
+                "15 June",
+                "Lamotte-Picquet"
+            ],
+            "fire": {
+                "after": "1939.6.16",
+                "before": "1939.7.31",
+                "chance": 50,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Open an inquiry into the exercise.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "The manoeuvres go on.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "war_support": 0.01
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 11,
+            "key": "bastille_day_1939",
+            "title": "British Guards March in the 14 July Parade",
+            "desc": "This 14 July marked the 150th anniversary of the taking of the Bastille. More than 30,000 soldiers took part in the parade, and detachments of the British Brigade of Guards and of the Royal Marines marched in it. Senegalese tirailleurs of the 24th regiment marched on the Champs-Élysées.\n\nGamelin went to London to settle military cooperation between the two countries. He met his counterpart, Gort, on 9 June.",
+            "picture": "bastille_day_1939",
+            "factSheet": "bastille_day_1939",
+            "anchors": [
+                "150th anniversary",
+                "30,000",
+                "Brigade of Guards",
+                "Royal Marines"
+            ],
+            "fire": {
+                "after": "1939.7.14",
+                "before": "1939.8.15",
+                "chance": 100,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Let Berlin take note.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Let Paris enjoy its holiday.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 12,
+            "key": "family_code_1939",
+            "title": "A Family Code Rewards the First Child",
+            "desc": "A decree-law of 29 July sets out a Code de la famille. A couple whose first child is born within two years of the wedding will receive a birth bonus. Single people will pay a family compensation tax. The penalties for abortion are made heavier.\n\nA separate decree-law of the same day limits the profits of firms working for national defence. The census of 8 March 1936 counted 41,911,530 inhabitants.",
+            "picture": "vanilla:GFX_report_event_generic_read_write",
+            "factSheet": "family_code_1939",
+            "anchors": [
+                "Code de la famille",
+                "29 July",
+                "41,911,530"
+            ],
+            "fire": {
+                "after": "1939.7.29",
+                "before": "1939.8.31",
+                "chance": 50,
+                "trigger": "has_war = no NOT = { has_government = communism }"
+            },
+            "options": [
+                {
+                    "name": "Pay the bonus promptly in every commune.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "timed_idea": "family_code",
+                            "days": 180
+                        }
+                    ]
+                },
+                {
+                    "name": "The decree can speak for itself.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "stability": 0.01
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 13,
+            "key": "louvre_evacuation_1939",
+            "title": "The Louvre Sends Its Collections to Chambord",
+            "desc": "Jacques Jaujard, director of the national museums, has organised the evacuation of the Louvre. On 25 August the museum was closed for three days, officially for repairs. The Joconde left the Louvre on 28 August.\n\nThe evacuation sends much of the collection to the Château de Chambord: 203 vehicles and 1,862 wooden cases in all.",
+            "picture": "louvre_evacuation_1939",
+            "factSheet": "louvre_evacuation_1939",
+            "anchors": [
+                "Jacques Jaujard",
+                "25 August",
+                "Joconde",
+                "Chambord",
+                "1,862"
+            ],
+            "fire": {
+                "after": "1939.8.31",
+                "before": "1939.9.30",
+                "chance": 100,
+                "trigger": "OR = { has_war_with = GER threat > 0.5 }"
+            },
+            "options": [
+                {
+                    "name": "Empty the galleries. The paintings can wait for peace.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Leave a few masterpieces on show for Parisians.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 14,
+            "key": "cannes_festival_1939",
+            "title": "The First Cannes Film Festival Is Called Off",
+            "desc": "The festival at Cannes was to run from 1 to 20 September, with Louis Lumière as president and the Coupe Lumière as its prize. Jean Zay approved it last December as an answer to the Venice Mostra. MGM chartered a liner to bring Hollywood stars, and The Wizard of Oz and Goodbye Mr. Chips were in the selection.\n\nThe festival has been cancelled after the invasion of Poland.",
+            "picture": "cannes_festival_1939",
+            "factSheet": "cannes_festival_1939",
+            "anchors": [
+                "Louis Lumière",
+                "Coupe Lumière",
+                "Jean Zay"
+            ],
+            "fire": {
+                "after": "1939.9.1",
+                "before": "1939.9.10",
+                "chance": 100,
+                "trigger": "GER = { has_war_with = POL }"
+            },
+            "options": [
+                {
+                    "name": "Postpone it to a quieter year.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "stability": 0.01
+                        }
+                    ]
+                },
+                {
+                    "name": "Hold a few screenings for the town anyway.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        },
+                        {
+                            "war_support": -0.01
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 15,
+            "key": "alsace_evacuation_1939",
+            "title": "Civilians Evacuated from Alsace and Moselle",
+            "desc": "General mobilisation was ordered on 1 September. On 2 and 3 September at least 530,000 Alsatians and Lorrainers, civilians of the Bas-Rhin, the Haut-Rhin and the Moselle, were evacuated to the departments of the south-west.\n\nOn 18 October the Protestant youth movements founded the Cimade, the Comité inter-mouvements auprès des évacués. It sends teams to the south-west.",
+            "picture": "alsace_evacuation_1939",
+            "factSheet": "alsace_evacuation_1939",
+            "anchors": [
+                "Bas-Rhin",
+                "Haut-Rhin",
+                "Moselle",
+                "530,000",
+                "Cimade"
+            ],
+            "fire": {
+                "after": "1939.10.18",
+                "before": "1939.12.31",
+                "chance": 50,
+                "trigger": "has_war_with = GER"
+            },
+            "options": [
+                {
+                    "name": "Lodge them at the state's expense.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "timed_idea": "evacuee_relief",
+                            "days": 120
+                        }
+                    ]
+                },
+                {
+                    "name": "Every village in the south-west will do its share.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "war_support": 0.01
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 16,
+            "key": "saar_offensive_1939",
+            "title": "The Army Is Ordered Back Behind the Maginot Line",
+            "desc": "Our units moved off in the night of 5 to 6 September. On 8 September the 42nd Infantry Division took the Warndt forest, and on 9 September four R35 tanks of the 20th BCC hit mines north of Bliesbrück. By 12 September the army held a strip of ground 25 km long and 5 to 8 km deep.\n\nOn 12 September General Gamelin stopped the offensive so as not to cut the army off from its rear bases. The Siegfried Line was not attacked. On 30 September General Georges decided to pull the units of the 3rd, 4th and 5th Armies back behind the Maginot Line by 4 October.",
+            "picture": "saar_offensive_1939",
+            "factSheet": "saar_offensive_1939",
+            "anchors": [
+                "Warndt",
+                "Bliesbrück",
+                "General Georges",
+                "12 September"
+            ],
+            "fire": {
+                "after": "1939.10.4",
+                "before": "1939.11.30",
+                "chance": 50,
+                "trigger": "has_war_with = GER"
+            },
+            "options": [
+                {
+                    "name": "Behind the Maginot Line we can wait.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "We took the Warndt once. We will again.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 17,
+            "key": "polish_army_in_france_1939",
+            "title": "The Polish Government Settles at Angers",
+            "desc": "The Franco-Polish military agreement of 9 September created the Polish Army in France. The camp at Coëtquidan was placed at its disposal on 12 September, and Parthenay is its other main centre.\n\nWładysław Sikorski, also minister of military affairs, became commander-in-chief on 7 November. The Polish prime minister and his government settled at Angers from 22 November. President Raczkiewicz lives at the Château de Pignerolle, near Angers.",
+            "picture": "polish_army_in_france_1939",
+            "factSheet": "polish_army_in_france_1939",
+            "anchors": [
+                "Coëtquidan",
+                "Władysław Sikorski",
+                "Angers",
+                "9 September",
+                "22 November"
+            ],
+            "fire": {
+                "after": "1939.12.21",
+                "before": "1940.2.28",
+                "chance": 50,
+                "trigger": "has_war_with = GER POL = { has_war_with = GER }"
+            },
+            "options": [
+                {
+                    "name": "Arm them from our own stocks.",
+                    "ai": 50,
+                    "effects": [
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Train them first. Arms come later.",
+                    "ai": 50,
+                    "effects": [
+                        {
+                            "stability": 0.01
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 18,
+            "key": "pcf_dissolution_1939",
+            "title": "The Communist Party Is Banned",
+            "desc": "The French Communist Party was banned on 26 September. L'Humanité had been seized on 26 August, three days after the German-Soviet pact, and censorship followed the next day. Of the party's 72 deputies, 21 resigned from it after the pact.\n\nIn the night of 3 to 4 October the sapper Maurice Thorez left his unit without leave. Between 6 and 8 October, 34 deputies of the Groupe ouvrier et paysan français were arrested.",
+            "picture": "pcf_dissolution_1939",
+            "factSheet": "pcf_dissolution_1939",
+            "anchors": [
+                "L'Humanité",
+                "Maurice Thorez",
+                "26 September",
+                "Groupe ouvrier et paysan français"
+            ],
+            "fire": {
+                "after": "1939.10.9",
+                "before": "1939.12.31",
+                "chance": 50,
+                "trigger": "has_war_with = GER NOT = { has_government = communism } GER = { has_non_aggression_pact_with = SOV }"
+            },
+            "options": [
+                {
+                    "name": "Let the courts deal with the deputies.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Welcome back those who broke with Moscow.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 19,
+            "key": "george_vi_front_visit_dec_1939",
+            "title": "King George VI Visits the Armies in France",
+            "desc": "British troops began landing at Boulogne on 12 September. In December King George VI crossed to Boulogne himself aboard the destroyer HMS Codrington, and Lord Gort met him.\n\nOn 9 December, with General Gamelin and Lord Gort, the King inspected French and British troops in the Saar sector of the front.",
+            "picture": "george_vi_front_visit_dec_1939",
+            "factSheet": "george_vi_front_visit_dec_1939",
+            "anchors": [
+                "Boulogne",
+                "George VI",
+                "Lord Gort",
+                "HMS Codrington"
+            ],
+            "fire": {
+                "after": "1939.12.10",
+                "before": "1940.2.15",
+                "chance": 50,
+                "trigger": "has_war_with = GER ENG = { has_war_with = GER }"
+            },
+            "options": [
+                {
+                    "name": "Our two armies stand together.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Good. Now send the men home on leave.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "stability": 0.01
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 20,
+            "key": "heavy_water_1940",
+            "title": "Norway's Heavy Water Reaches the Collège de France",
+            "desc": "Raoul Dautry entrusted Jacques Allier with secretly buying the available stock of Norsk Hydro's heavy water: 185 kg, from the Vemork plant. At the end of March the stock was flown to France by way of Scotland. Allier came back with 26 canisters of seven litres.\n\nThe heavy water went into the cellars of the Collège de France. Joliot-Curie and Kowarski need it in large quantity as a moderator, to slow the neutrons in their experiment.",
+            "picture": "heavy_water_1940",
+            "factSheet": "heavy_water_1940",
+            "anchors": [
+                "Jacques Allier",
+                "Norsk Hydro",
+                "185 kg",
+                "Collège de France",
+                "Kowarski"
+            ],
+            "fire": {
+                "after": "1940.4.1",
+                "before": "1940.5.9",
+                "chance": 100,
+                "trigger": "has_war_with = GER"
+            },
+            "options": [
+                {
+                    "name": "Give Joliot-Curie's laboratory what it asks for.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "timed_idea": "joliot_curie_laboratory",
+                            "days": 180
+                        }
+                    ]
+                },
+                {
+                    "name": "Keep the canisters under guard and say nothing.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "war_support": 0.01
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "ideas": [
+        {
+            "key": "transindochinois_traffic",
+            "name": "The Transindochinois",
+            "desc": "The railway from the Chinese border is joined to the railway of Saigon.",
+            "picture": "generic_political_support",
+            "modifier": {
+                "production_factory_efficiency_gain_factor": 0.03
+            }
+        },
+        {
+            "key": "palais_de_la_decouverte",
+            "name": "Palais de la Découverte",
+            "desc": "Jean Perrin's science halls in the Grand Palais stay open to the public.",
+            "picture": "generic_research_bonus",
+            "modifier": {
+                "research_speed_factor": 0.02
+            }
+        },
+        {
+            "key": "family_code",
+            "name": "Code de la famille",
+            "desc": "A birth bonus for a first child born within two years of the wedding, and a family compensation tax on single people.",
+            "picture": "generic_political_support",
+            "modifier": {
+                "monthly_population": 0.05,
+                "consumer_goods_factor": 0.02
+            }
+        },
+        {
+            "key": "evacuee_relief",
+            "name": "Evacuees from Alsace and Moselle",
+            "desc": "The departments of the south-west lodge the evacuees at the state's expense.",
+            "picture": "generic_political_support",
+            "modifier": {
+                "stability_factor": 0.03,
+                "consumer_goods_factor": 0.02
+            }
+        },
+        {
+            "key": "joliot_curie_laboratory",
+            "name": "Joliot-Curie's Laboratory",
+            "desc": "The heavy water from Vemork goes to the experiment of Joliot-Curie and Kowarski.",
+            "picture": "generic_research_bonus",
+            "modifier": {
+                "research_speed_factor": 0.03
+            }
+        }
+    ]
+}
+```
