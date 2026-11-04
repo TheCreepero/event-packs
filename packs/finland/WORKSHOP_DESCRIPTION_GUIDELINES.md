@@ -48,7 +48,7 @@ Historical flavor events for Finland, from 1936 to the end of the Winter War in 
 The pictures come from Wikimedia Commons, under licences that allow their use here (public domain and CC BY 4.0). They are cropped, resized and converted for the game; some are toned to grey or sepia. The author, source and licence of each picture are on the [url=https://github.com/TheCreepero/event-packs/wiki/Event-Pack-Finland]wiki page of this pack[/url].
 
 <!-- region:buttons:wiki,github -->
-[url=https://github.com/TheCreepero/event-packs/wiki/Event-Pack-Finland][img]https://i.imgur.com/MdipW9G.png[/img][/url] [url=https://github.com/TheCreepero/event-packs][img]https://i.imgur.com/lYmu7Rz.png[/img][/url]
+[url=https://github.com/TheCreepero/event-packs/wiki/Event-Pack-Finland][img]https://i.imgur.com/9vX3lGv.png[/img][/url] [url=https://github.com/TheCreepero/event-packs][img]https://i.imgur.com/Vx9MN3B.png[/img][/url]
 <!-- /region -->
 
 <!-- cross-links:begin -->
