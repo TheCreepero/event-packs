@@ -182,6 +182,18 @@ Describe 'Generation' {
         Get-ErrorMessages -Root $fixtureRoot | Should -BeNullOrEmpty
     }
 
+    It 'finds the cross-link markers with spaces or a tab around them and writes them again without' {
+        $fixtureRoot = New-EpFixtureRepo
+        Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'testland' 6>$null | Out-Null
+        $descriptionPath = Join-Path $fixtureRoot 'packs\testland\WORKSHOP_DESCRIPTION_GUIDELINES.md'
+        $emptyText = [System.IO.File]::ReadAllText($descriptionPath)
+        $paddedText = $emptyText.Replace("<!-- cross-links:begin -->`r`n<!-- cross-links:end -->", "  <!-- cross-links:begin -->  `r`n[b]More[/b] padded block line`r`n`t<!-- cross-links:end -->`t")
+        $paddedText | Should -Not -Be $emptyText
+        [System.IO.File]::WriteAllText($descriptionPath, $paddedText, [System.Text.UTF8Encoding]::new($false))
+        Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'testland' 6>$null | Out-Null
+        [System.IO.File]::ReadAllText($descriptionPath) | Should -Match '(?m)^<!-- cross-links:begin -->\r\n\[b\]More\[/b\] padded block line\r\n<!-- cross-links:end -->\r\n```'
+    }
+
     It 'reports a generated file edited by hand and a file the source does not generate' {
         $fixtureRoot = New-EpFixtureRepo
         Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'testland' 6>$null | Out-Null
