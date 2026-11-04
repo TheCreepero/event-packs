@@ -68,7 +68,7 @@ The historical researcher's dossiers, one per research run (parallel runs of one
 
 ## `workshop-intro.bbcode`
 
-The opening of the pack's Workshop description in Steam BBCode. `-Generate` adds the event list, a short picture credit that links to the pack's wiki page, and the author's other mods after it. The wiki address and the other mods are in `data/workshop.json`, shared by every pack.
+The opening of the pack's Workshop description in Steam BBCode. `-Generate` adds the event list, a short picture credit that links to the pack's wiki page, and, after it, the cross-link block between the `<!-- cross-links:begin -->` and `<!-- cross-links:end -->` lines. The block is the Manager's, not this repository's: `Scripts/Workshop/Sync-WorkshopCrossLinks.ps1` of the Modding Manager writes it into each pack's description, and `-Generate` carries what is between the markers over unchanged. The wiki address is in `data/workshop.json`, shared by every pack.
 
 ## Generated files
 

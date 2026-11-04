@@ -151,7 +151,8 @@ Describe 'Generation' {
         $workshopText | Should -Match '\[\*\]1937: Work on the Isthmus Line'
         $workshopText | Should -Match 'licences that allow their use here \(CC BY 4\.0\)'
         $workshopText | Should -Match '\[url=https://github\.com/TheCreepero/event-packs/wiki/Event-Pack-Testland-1\]'
-        $workshopText | Should -Match '\[\*\]\[url=https://steamcommunity\.com/sharedfiles/filedetails/\?id=2967389401\]Immersive Namelists Expanded\[/url\]'
+        $workshopText | Should -Match '(?m)^<!-- cross-links:begin -->\r\n<!-- cross-links:end -->\r\n```'
+        $workshopText | Should -Not -Match 'More from the author'
         $wikiText = [System.IO.File]::ReadAllText((Join-Path $fixtureRoot 'wiki\Event-Pack-Testland-1.md'))
         $wikiText | Should -Match '\[CC BY 4\.0\]\(https://creativecommons\.org/licenses/by/4\.0\), Hugo Sundstr.m'
     }
@@ -162,6 +163,22 @@ Describe 'Generation' {
         $delta = Get-EpGenerationDelta -Pack (Get-EpPack -RepoRoot $fixtureRoot -Pack 'testland')
         $delta.Changed.Count | Should -Be 0
         $delta.Stale.Count | Should -Be 0
+        Get-ErrorMessages -Root $fixtureRoot | Should -BeNullOrEmpty
+    }
+
+    It 'carries the cross-link block between the markers over when it generates again' {
+        $fixtureRoot = New-EpFixtureRepo
+        Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'testland' 6>$null | Out-Null
+        $descriptionPath = Join-Path $fixtureRoot 'packs\testland\WORKSHOP_DESCRIPTION_GUIDELINES.md'
+        $emptyText = [System.IO.File]::ReadAllText($descriptionPath)
+        $filledText = $emptyText.Replace("<!-- cross-links:begin -->`r`n<!-- cross-links:end -->", "<!-- cross-links:begin -->`r`n[b]More[/b] block line one`r`nblock line two`r`n<!-- cross-links:end -->")
+        $filledText | Should -Not -Be $emptyText
+        [System.IO.File]::WriteAllText($descriptionPath, $filledText, [System.Text.UTF8Encoding]::new($false))
+        $delta = Get-EpGenerationDelta -Pack (Get-EpPack -RepoRoot $fixtureRoot -Pack 'testland')
+        $delta.Changed.Count | Should -Be 0
+        $delta.Stale.Count | Should -Be 0
+        Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'testland' 6>$null | Out-Null
+        [System.IO.File]::ReadAllText($descriptionPath) | Should -Be $filledText
         Get-ErrorMessages -Root $fixtureRoot | Should -BeNullOrEmpty
     }
 
