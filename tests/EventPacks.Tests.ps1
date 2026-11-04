@@ -182,6 +182,17 @@ Describe 'Generation' {
         Get-ErrorMessages -Root $fixtureRoot | Should -BeNullOrEmpty
     }
 
+    It 'orders the events of the Workshop list by the date their window opens, then by id' {
+        $vickers = [PSCustomObject]@{ id = 4; fire = [PSCustomObject]@{ after = '1938.7.1' } }
+        $maternity = [PSCustomObject]@{ id = 5; fire = [PSCustomObject]@{ after = '1937.12.1' } }
+        $sameDay = [PSCustomObject]@{ id = 3; fire = [PSCustomObject]@{ after = '1938.7.1' } }
+        $undated = [PSCustomObject]@{ id = 1 }
+        Get-EpEventSortKey -PackEvent $maternity | Should -Be 19371201
+        Get-EpEventSortKey -PackEvent $undated | Should -Be ([int]::MaxValue)
+        $ordered = @(@($vickers, $maternity, $undated, $sameDay) | Sort-Object { Get-EpEventSortKey -PackEvent $_ }, { [int]$_.id } | ForEach-Object { $_.id })
+        $ordered | Should -Be @(5, 3, 4, 1)
+    }
+
     It 'writes the strip and button regions and carries what a region holds over when it generates again' {
         $fixtureRoot = New-EpFixtureRepo
         Write-FixtureFile -Root $fixtureRoot -RelativePath 'source\testland\workshop-intro.bbcode' -Text "<!-- region:image:hero -->`r`n<!-- /region -->`r`nFixture intro.`r`n`r`n[h1]Info:[/h1]`r`n<!-- region:info:game-version -->`r`n<!-- /region -->`r`n"

@@ -395,6 +395,16 @@ function Get-EpEventYear {
     return '-'
 }
 
+function Get-EpEventSortKey {
+    param($PackEvent)
+
+    $afterDate = [string](Get-EpProperty -Object (Get-EpProperty -Object $PackEvent -Name 'fire') -Name 'after' -Default '')
+    if ($afterDate -match '^(\d{4})\.(\d{1,2})\.(\d{1,2})') {
+        return ([int]$Matches[1] * 10000) + ([int]$Matches[2] * 100) + [int]$Matches[3]
+    }
+    return [int]::MaxValue
+}
+
 function Get-EpPictureByKey {
     param($Pack, [string]$PictureKey)
 
@@ -490,7 +500,7 @@ function New-EpWorkshopText {
     Add-EpRegion -Lines $bbcodeLines -Header '<!-- region:image:strip-events -->'
     $bbcodeLines.Add('[h1]Events[/h1]')
     $bbcodeLines.Add('[list]')
-    foreach ($packEvent in @($Pack.Events | Sort-Object { [int]$_.id })) {
+    foreach ($packEvent in @($Pack.Events | Sort-Object { Get-EpEventSortKey -PackEvent $_ }, { [int]$_.id })) {
         $bbcodeLines.Add('[*]' + (Get-EpEventYear -PackEvent $packEvent) + ': ' + $packEvent.title)
     }
     $bbcodeLines.Add('[/list]')
