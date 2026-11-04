@@ -182,6 +182,26 @@ Describe 'Generation' {
         Get-ErrorMessages -Root $fixtureRoot | Should -BeNullOrEmpty
     }
 
+    It 'writes the strip and button regions and carries what a region holds over when it generates again' {
+        $fixtureRoot = New-EpFixtureRepo
+        Write-FixtureFile -Root $fixtureRoot -RelativePath 'source\testland\workshop-intro.bbcode' -Text "<!-- region:image:hero -->`r`n<!-- /region -->`r`nFixture intro.`r`n`r`n[h1]Info:[/h1]`r`n<!-- region:info:game-version -->`r`n<!-- /region -->`r`n"
+        Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'testland' 6>$null | Out-Null
+        $descriptionPath = Join-Path $fixtureRoot 'packs\testland\WORKSHOP_DESCRIPTION_GUIDELINES.md'
+        $emptyText = [System.IO.File]::ReadAllText($descriptionPath)
+        $emptyText | Should -Match '(?m)^<!-- region:image:hero -->\r\n<!-- /region -->\r\nFixture intro\.'
+        $emptyText | Should -Match '(?m)^<!-- region:image:strip-events -->\r\n<!-- /region -->\r\n\[h1\]Events\[/h1\]'
+        $emptyText | Should -Match '(?m)^<!-- region:image:strip-picture-credits -->\r\n<!-- /region -->\r\n\[h1\]Picture credits\[/h1\]'
+        $emptyText | Should -Match '(?m)^<!-- region:buttons:wiki,github -->\r\n<!-- /region -->\r\n\r\n<!-- cross-links:begin -->'
+        $filledText = $emptyText.Replace("<!-- region:info:game-version -->`r`n<!-- /region -->", "<!-- region:info:game-version -->`r`n- Built for game version 1.19.`r`n<!-- /region -->").Replace("<!-- region:buttons:wiki,github -->`r`n<!-- /region -->", "<!-- region:buttons:wiki,github -->`r`n[url=https://example.test/wiki]Wiki[/url]`r`n<!-- /region -->")
+        $filledText | Should -Not -Be $emptyText
+        [System.IO.File]::WriteAllText($descriptionPath, $filledText, [System.Text.UTF8Encoding]::new($false))
+        Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'testland' 6>$null | Out-Null
+        [System.IO.File]::ReadAllText($descriptionPath) | Should -Be $filledText
+        $delta = Get-EpGenerationDelta -Pack (Get-EpPack -RepoRoot $fixtureRoot -Pack 'testland')
+        $delta.Changed.Count | Should -Be 0
+        Get-ErrorMessages -Root $fixtureRoot | Should -BeNullOrEmpty
+    }
+
     It 'finds the cross-link markers with spaces or a tab around them and writes them again without' {
         $fixtureRoot = New-EpFixtureRepo
         Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'testland' 6>$null | Out-Null
