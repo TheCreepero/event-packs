@@ -38,6 +38,7 @@ Historical flavor events for France, from 1936 to the Phoney War in spring 1940.
 The pictures come from Wikimedia Commons, under licences that allow their use here (public domain and CC0). They are cropped, resized and converted for the game; some are toned to grey or sepia. The author, source and licence of each picture are on the [url=https://github.com/TheCreepero/event-packs/wiki/Event-Pack-France]wiki page of this pack[/url].
 
 <!-- cross-links:begin -->
+[url=https://steamcommunity.com/sharedfiles/filedetails/?id=3833590274][img]https://i.imgur.com/5y3d06x.png[/img][/url]
 [b]More from the author[/b], all in the collection [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3833590274]The Immersive Series[/url]
 [list]
 [*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=2967389401]Immersive Namelists Expanded[/url]
