@@ -20,10 +20,11 @@ The caller gives the paths: the draft (a plan file under `docs/plans/` or a file
    - A fact whose quote does not say what its own line says supports nothing: mark the fact line too.
    - A claim that joins two facts ("ten numbered drums, 185 kg in all" from one fact on the drums and one on the weight) is unsupported unless one quote states the joined claim.
    - A title or role must hold on the event's date and on every day of its fire window: a man called "president" before his election is a problem.
+   - A text about a war, or about preparing for one, must not name a historical date for the war's start or the preparations, nor call anything "yesterday" or "today" that holds only on that date: assume, as the owner does, that the war can start on any day in the game. Check the event's `fire.trigger` (in the plan) for the game state it gates on, and say so in a note if a war event has none.
 2. **Voice.** Judge against the style guide: concrete before abstract, short declarative sentences, no hindsight, no moral at the end, no inflation, no symptom from its table. Read it aloud in your head: a sentence that is there only for rhythm or mood goes.
 3. **Options.** Two to four, each a different attitude, each matching its effects as the draft lists them, each at most 12 words and in the voice of someone deciding.
 4. **Anchors.** The description must still use at least two of the event's anchors word for word after your edits.
-5. **Mechanics you may not change**: the event key, the effects, the picture, the fire window. If one of them looks wrong, say so in a note; do not change it.
+5. **Mechanics you may not change**: the event key, the effects, the picture, the fire window, the trigger. If one of them looks wrong, say so in a note; do not change it. A note on mechanics is a lead, never a script: name the mechanism in words ("the state is Polish", "the country still exists") and leave the trigger to the planner and the `trigger-checker`, which resolve it against the game files. You do not know what a trigger does in the game.
 
 ## Verdicts
 

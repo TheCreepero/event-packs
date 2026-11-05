@@ -15,6 +15,8 @@ Shared rules for every mod in this tree (file encodings, build commands, engine 
 - Effects stay within `data/effect-caps.json`: flavor first, small numbers [SCR-088] [SCR-090].
 - Every claim in an event text is in its fact-sheet section with a source and the quote of its page, checked by `ep-audit-researcher` before the text is written; the `ep-editor` agent passes every text before a plan is READY. Voice: `docs/style-guide.md`.
 - Events are `is_triggered_only` and fire from a weekly anchor with a guard flag, a date window and a weekly chance [SCR-080] [SCR-089] [SCR-091].
+- The owner's rule: do not assume the war starts on its historical date; the aggressor may attack on a different date in each game. An event about a war, or about preparing for one, is gated on the game state (`fire.trigger`: the country at war with the enemy, or the situation that shows the war is near), never on a date window alone. Its text names no historical date for the war's start or for the preparations and stays true on whatever day it fires. A peacetime event keeps its date window and is blocked once its country is at war. The trigger is checked with `Find-HoiDoc` and `Find-HoiUsage` before it is written.
+- A check a plan promises for later is done before the plan is READY: the `trigger-checker` agent resolves every `fire.trigger` against the game files, and an event it leaves `OPEN` waits for its probe result or the owner's decision.
 - Nothing sits in a pack folder that the source does not account for: `-Check` fails on any other file.
 - Work goes plan first: a skill writes a READY plan in `docs/plans/`, `event-pack-implement` carries it out, the commit waits for the user.
 
