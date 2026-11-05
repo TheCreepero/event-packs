@@ -6,3 +6,4 @@ tags={
 name="Event Pack: Poland"
 picture="thumbnail.png"
 supported_version="1.19.*"
+remote_file_id="3834124691"
