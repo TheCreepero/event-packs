@@ -1,0 +1,867 @@
+{
+    "pack": "poland",
+    "tag": "POL",
+    "namespace": "ep_pol",
+    "displayName": "Poland",
+    "events": [
+        {
+            "id": 1,
+            "key": "kasprowy_cable_car",
+            "title": "Cable Car Opens on Kasprowy Wierch",
+            "desc": "On 15 March the cable car from Kuźnice to Kasprowy Wierch opened in the Tatra mountains. Work began on 1 August 1935 and lasted over seven months. The line is nearly 4300 metres long.\n\nIt is the first investment of its kind in Poland and the 60th in the world. It was built on the initiative of the president of the Polish Ski Association.",
+            "picture": "kasprowy_cable_car",
+            "factSheet": "kasprowy_cable_car",
+            "anchors": [
+                "Kuźnice",
+                "Kasprowy Wierch",
+                "15 March",
+                "4300 metres",
+                "Polish Ski Association"
+            ],
+            "fire": {
+                "after": "1936.3.16",
+                "before": "1936.4.30",
+                "chance": 50,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Keep the fares low enough for ordinary skiers.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Our ski patrols will use it too.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "war_support": 0.01
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "key": "batory_maiden_voyage",
+            "title": "MS Batory Begins Her Maiden Voyage",
+            "desc": "The liner Batory began her maiden voyage on 18 May. That day she left the Gdynia maritime station with 600 passengers aboard.\n\nShe belongs to the Gdynia-America Line and is the sister ship of MS Piłsudski. She was launched on 3 July 1935 and measures 14,287 GRT. This month she begins regular service on the Gdynia to New York run.",
+            "picture": "batory_maiden_voyage",
+            "factSheet": "batory_maiden_voyage",
+            "anchors": [
+                "Batory",
+                "Gdynia",
+                "18 May",
+                "14,287 GRT",
+                "Gdynia-America Line"
+            ],
+            "fire": {
+                "after": "1936.5.19",
+                "before": "1936.5.31",
+                "chance": 100,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Let her sail as the nation's showpiece.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "She must pay her way on the Atlantic.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "political_power": 10
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "key": "berlin_olympics_team",
+            "title": "Poland Brings Six Medals Home from the Olympics",
+            "desc": "The Olympic Games ran from 1 to 16 August. Poland sent 144 competitors, 127 men and 17 women, to 55 events in 15 sports. Stanisława Walasiewicz won silver in the women's 100 metres and Jadwiga Wajs silver in the women's discus throw.\n\nIn all the team won no gold medal, three silver and three bronze, and ranked 22nd.",
+            "picture": "berlin_olympics_team",
+            "factSheet": "berlin_olympics_team",
+            "anchors": [
+                "Stanisława Walasiewicz",
+                "Jadwiga Wajs",
+                "144 competitors",
+                "22nd"
+            ],
+            "fire": {
+                "after": "1936.8.17",
+                "before": "1936.9.30",
+                "chance": 50,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Honour every medallist and every competitor.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Gold will come. Fund the clubs for the next Games.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "political_power": -15
+                        },
+                        {
+                            "war_support": 0.01
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "key": "spitsbergen_crossing",
+            "title": "Three Men Complete the First Traverse of Spitsbergen",
+            "desc": "Stanisław Siedlecki, Stefan Bernadzikiewicz and Konstanty Narkiewicz-Jodko made the first traverse of Spitsbergen, from 7 July to 1 September. They crossed about 850 km. The expedition relied on its own resources, without any communication or support.\n\nShould the government receive the three men with honours, or leave that to others?",
+            "picture": "spitsbergen_crossing",
+            "factSheet": "spitsbergen_crossing",
+            "anchors": [
+                "Spitsbergen",
+                "Bernadzikiewicz",
+                "Siedlecki",
+                "7 July",
+                "850 km"
+            ],
+            "fire": {
+                "after": "1936.9.2",
+                "before": "1936.10.31",
+                "chance": 50,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Receive them in Warsaw with honours.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "war_support": 0.01
+                        }
+                    ]
+                },
+                {
+                    "name": "Let the mountaineering clubs celebrate their own.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "political_power": 10
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 5,
+            "key": "rambouillet_loan",
+            "title": "France Promises Poland a Loan of Two Billion Francs",
+            "desc": "On 5 September Delbos gave a lunch for Rydz-Śmigły at the Quai d'Orsay.\n\nThe Rambouillet agreement commits France to a loan of two billion francs to Poland for its armament. Should the army spend it at once, or should we take care not to depend on Paris?",
+            "picture": "rambouillet_loan",
+            "factSheet": "rambouillet_loan",
+            "anchors": [
+                "Delbos",
+                "Rydz-Śmigły",
+                "Quai d'Orsay",
+                "Rambouillet",
+                "two billion francs"
+            ],
+            "fire": {
+                "after": "1936.9.7",
+                "before": "1936.10.31",
+                "chance": 50,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Order the guns and aircraft the army lacks.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Take care to stay independent of Paris.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "stability": 0.01
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 6,
+            "key": "pzl37_los_first_flight",
+            "title": "The PZL.37 Łoś Bomber Flies for the First Time",
+            "desc": "The order was for a modern, fast bomber to replace the outdated Fokker F.VII machines. Engineer Jerzy Dąbrowski prepared the plans, assisted by Piotr Kubicki and Franciszek Misztal.\n\nThe prototype of the PZL.37 Łoś made its first flight on 13 December. The pilot, Jerzy Widawski, reported several shortcomings. Should the bomber go into production at once?",
+            "picture": "pzl37_los_first_flight",
+            "factSheet": "pzl37_los_first_flight",
+            "anchors": [
+                "PZL.37 Łoś",
+                "Jerzy Widawski",
+                "Jerzy Dąbrowski",
+                "Fokker F.VII",
+                "13 December"
+            ],
+            "fire": {
+                "after": "1936.12.14",
+                "before": "1937.1.31",
+                "chance": 50,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Fix the shortcomings before it reaches the squadrons.",
+                    "ai": 50,
+                    "effects": [
+                        {
+                            "air_experience": 5
+                        }
+                    ]
+                },
+                {
+                    "name": "Put it into production now.",
+                    "ai": 50,
+                    "effects": [
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 7,
+            "key": "gdynia_boom_1936",
+            "title": "Gdynia Grows to 102,000 Inhabitants",
+            "desc": "In May 1936 the city of Gdynia counted 83,000 inhabitants. In December it counted 102,000. The growth comes from workers who arrived from almost the whole country.\n\nAbout 30 percent of the people live in some 2,500 primitive huts and shacks. How should the city be built?",
+            "picture": "gdynia_boom_1936",
+            "factSheet": "gdynia_boom_1936",
+            "anchors": [
+                "Gdynia",
+                "83,000",
+                "102,000",
+                "2,500 primitive huts and shacks"
+            ],
+            "fire": {
+                "after": "1937.1.1",
+                "before": "1937.3.31",
+                "chance": 50,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Build streets and houses for the new workers.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "timed_idea": "gdynia_housing",
+                            "days": 150
+                        }
+                    ]
+                },
+                {
+                    "name": "Housing can wait. The quays cannot.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "political_power": 15
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 8,
+            "key": "chopin_competition_1937",
+            "title": "Yakov Zak Wins the Third Chopin Competition",
+            "desc": "The third Chopin Competition ran in Warsaw from 21 February to 13 March. Eighty pianists from 22 countries took part. Adam Wieniawski chaired the jury. The Soviet pianist Yakov Zak was awarded the first prize.\n\nChieko Hara of Japan, acclaimed by critics and the public, reached the final but was awarded only an honourable mention, and a commotion broke out. Fearing that the crowd would damage the Philharmonic, the industrialist Stanisław Meyer sponsored a special audience award for her.",
+            "picture": "chopin_competition_1937",
+            "factSheet": "chopin_competition_1937",
+            "anchors": [
+                "Yakov Zak",
+                "Chieko Hara",
+                "Stanisław Meyer",
+                "Adam Wieniawski",
+                "22 countries"
+            ],
+            "fire": {
+                "after": "1937.3.14",
+                "before": "1937.4.15",
+                "chance": 50,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "The jury has spoken. Congratulate the winner.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Found a prize for Polish music beside the competition.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "political_power": -10
+                        },
+                        {
+                            "stability": 0.01
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 9,
+            "key": "szymanowski_funeral",
+            "title": "Karol Szymanowski Is Buried at Skałka",
+            "desc": "Karol Szymanowski died on 29 March in a sanatorium at Lausanne. His body travelled by train, and the train stopped for commemorative ceremonies in Berlin, at the German-Polish border and in Poznań.\n\nThe Warsaw funeral took place on the morning of Tuesday 6 April in the Church of the Holy Cross. On Wednesday 7 April the coffin arrived in Kraków and was carried past Wawel to the church on Skałka. He is buried in the Crypt of the Distinguished there.",
+            "picture": "szymanowski_funeral",
+            "factSheet": "szymanowski_funeral",
+            "anchors": [
+                "Lausanne",
+                "Church of the Holy Cross",
+                "Wawel",
+                "Skałka",
+                "29 March"
+            ],
+            "fire": {
+                "after": "1937.4.10",
+                "before": "1937.5.10",
+                "chance": 50,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Keep the Crypt of the Distinguished for such men.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Print his scores at the state's expense.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "political_power": -10
+                        },
+                        {
+                            "stability": 0.01
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 10,
+            "key": "wawel_coffin_1937",
+            "title": "Archbishop Sapieha Moves Piłsudski's Coffin",
+            "desc": "Archbishop Adam Sapieha ordered, against the state authorities, that Marshal Piłsudski's coffin be moved to the prepared crypt under the Silver Bells Tower on 22 June.\n\nThe Marshal's memorial committee and President Mościcki opposed the archbishop's decision. Because of the Wawel conflict, Prime Minister Składkowski demonstratively handed in the resignation of his government. The President did not accept it.",
+            "picture": "wawel_coffin_1937",
+            "factSheet": "wawel_coffin_1937",
+            "anchors": [
+                "Adam Sapieha",
+                "Silver Bells Tower",
+                "Mościcki",
+                "Składkowski",
+                "22 June"
+            ],
+            "fire": {
+                "after": "1937.7.1",
+                "before": "1937.8.15",
+                "chance": 50,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Stand with the committee and the President.",
+                    "ai": 50,
+                    "effects": [
+                        {
+                            "political_power": 15
+                        },
+                        {
+                            "stability": -0.01
+                        }
+                    ]
+                },
+                {
+                    "name": "Settle it quietly with the archbishop.",
+                    "ai": 50,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 11,
+            "key": "independence_day_1937",
+            "title": "11 November Is Celebrated as a State Holiday",
+            "desc": "The law of 23 April gave Independence Day on 11 November the rank of a state holiday. It is meant to link the regaining of state sovereignty with the end of the First World War and to commemorate Józef Piłsudski.\n\nUntil this year the celebrations in Warsaw were military ceremonies, usually held on the first Sunday after 11 November. This year they included the unveiling of a monument to General Józef Sowiński.",
+            "picture": "vanilla:GFX_report_event_soldiers_parade",
+            "factSheet": "independence_day_1937",
+            "anchors": [
+                "23 April",
+                "11 November",
+                "Józef Piłsudski",
+                "General Józef Sowiński"
+            ],
+            "fire": {
+                "after": "1937.11.11",
+                "before": "1937.12.15",
+                "chance": 100,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "A parade of the army through Warsaw.",
+                    "ai": 50,
+                    "effects": [
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "A holiday for every town and village.",
+                    "ai": 50,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 12,
+            "key": "destroyers_grom_blyskawica",
+            "title": "ORP Błyskawica Enters Service in the Polish Navy",
+            "desc": "ORP Błyskawica entered service in the Polish Navy on 25 November. Her first commander is Tadeusz Podjazd-Morgenstern. She carries seven 120 mm guns and has a maximum speed of 39.6 knots.\n\nGrom was ordered from the British J. Samuel White shipyard in Cowes and was commissioned in 1937. The Grom class was designed both for shore defence and for convoy escort.",
+            "picture": "destroyers_grom_blyskawica",
+            "factSheet": "destroyers_grom_blyskawica",
+            "anchors": [
+                "Błyskawica",
+                "Cowes",
+                "Podjazd-Morgenstern",
+                "39.6 knots",
+                "25 November"
+            ],
+            "fire": {
+                "after": "1937.11.26",
+                "before": "1938.1.31",
+                "chance": 50,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Base both at Gdynia to guard the coast.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Train the crews at sea before anything else.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "navy_experience": 5
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 13,
+            "key": "wilimowski_brazil_1938",
+            "title": "Poland Loses 6-5 to Brazil at the World Cup",
+            "desc": "On 5 June, at the Stade de la Meinau in Strasbourg, Brazil beat Poland 6-5. It was Poland's first ever World Cup match. The attendance was 13,452.\n\nWilimowski scored four times, in the 53rd, 59th, 89th and 118th minutes. No player before him has scored four goals in a single World Cup match.",
+            "picture": "wilimowski_brazil_1938",
+            "factSheet": "wilimowski_brazil_1938",
+            "anchors": [
+                "Strasbourg",
+                "Wilimowski",
+                "6-5",
+                "118th minute",
+                "5 June"
+            ],
+            "fire": {
+                "after": "1938.6.6",
+                "before": "1938.6.30",
+                "chance": 50,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "They gave the Brazilians a fight. Well played.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Five goals and still beaten. The defence must improve.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "war_support": 0.01
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 14,
+            "key": "gordon_bennett_1938",
+            "title": "Janusz and Janik Win the Gordon Bennett Cup",
+            "desc": "Antoni Janusz and Franciszek Janik have won the Gordon Bennett Cup for 1938 in the balloon SP-BCU LOPP. The race started at Liège on 11 September, and they covered 1,692 km in 37 hours and 47 minutes.\n\nJanusz is an officer of the Polish Air Force. The cup was held in Warsaw in 1934, 1935 and 1936.",
+            "picture": "gordon_bennett_1938",
+            "factSheet": "gordon_bennett_1938",
+            "anchors": [
+                "Antoni Janusz",
+                "Franciszek Janik",
+                "Liège",
+                "1,692 km",
+                "SP-BCU LOPP"
+            ],
+            "fire": {
+                "after": "1938.9.15",
+                "before": "1938.10.15",
+                "chance": 50,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Praise the airmen who flew it.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "war_support": 0.01
+                        }
+                    ]
+                },
+                {
+                    "name": "Fund the balloon crews for next year's race.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "air_experience": 5
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 15,
+            "key": "zbaszyn_refugees_1938",
+            "title": "Polish Jews Expelled from Germany Are Sent to Zbąszyń",
+            "desc": "In October about 17,000 Polish Jews living in Germany were arrested and expelled. Polish citizenship can be revoked if the citizen has lived abroad for more than five years. Polish citizens living outside Poland had to obtain an endorsement stamp on their passports before 30 October.\n\nOf the expelled, 8,000 were sent to the town of Zbąszyń, where they sleep in poorly constructed barracks with very few provisions. The Polish Government quickly closed the border and denied any further access.",
+            "picture": "vanilla:GFX_report_event_german_polish_border",
+            "factSheet": "zbaszyn_refugees_1938",
+            "anchors": [
+                "Zbąszyń",
+                "17,000",
+                "30 October",
+                "8,000"
+            ],
+            "fire": {
+                "after": "1938.11.1",
+                "before": "1938.12.31",
+                "chance": 50,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Admit them and organise relief at Zbąszyń.",
+                    "ai": 50,
+                    "effects": [
+                        {
+                            "political_power": -20
+                        },
+                        {
+                            "stability": 0.01
+                        }
+                    ]
+                },
+                {
+                    "name": "Keep the border shut until Berlin negotiates.",
+                    "ai": 50,
+                    "effects": [
+                        {
+                            "political_power": 10
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 16,
+            "key": "hungary_border_1939",
+            "title": "Polish and Hungarian Soldiers Meet at the Border",
+            "desc": "Hungarian patrols have reached the Werecka Pass, also called the Tucholska Pass, on what was the border of Poland with Czecho-Slovakia. There, in the Carpathians, Polish troops welcomed the Hungarians coming from the south. An official delegation led by General Mieczysław Boruta-Spiechowicz awaited them.\n\nRegent Horthy telegraphed his greetings to President Mościcki 'at the historic moment when a Hungarian soldier shakes the right hand of a Polish soldier on the Polish-Hungarian border'. A demonstration was held outside the Hungarian legation in Koszykowa street. The new border is only 180 km long.",
+            "picture": "vanilla:GFX_report_event_generic_handshake",
+            "factSheet": "hungary_border_1939",
+            "anchors": [
+                "Werecka Pass",
+                "Boruta-Spiechowicz",
+                "Horthy",
+                "Mościcki",
+                "180 km",
+                "Koszykowa"
+            ],
+            "fire": {
+                "after": "1939.3.17",
+                "before": "1947.12.31",
+                "chance": 50,
+                "trigger": "has_war = no NOT = { has_war_with = HUN } HUN = { owns_state = 73 has_country_leader = { character = HUN_miklos_horthy } } owns_state = 89 has_country_leader = { character = POL_ignacy_moscicki }"
+            },
+            "options": [
+                {
+                    "name": "A common border with Hungary is a gain.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Keep the celebrations quiet. Berlin is watching.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 17,
+            "key": "nanda_devi_east",
+            "title": "Nanda Devi East Climbed, Two Climbers Lost",
+            "desc": "The Polish Himalayan expedition was led by Adam Karpiński. Its members were Jakub Bujak, Stefan Bernadzikiewicz, Janusz Klarner and Major J. R. Foy. On 2 July Bujak and Klarner reached the 7434 m summit of Nanda Devi East.\n\nOn 18 July an avalanche came down on Camp III and buried Bernadzikiewicz and Karpiński. The party started early on 19 July and reached the edge of the hanging glacier by noon. They saw only a huge avalanche covering the site.",
+            "picture": "nanda_devi_east",
+            "factSheet": "nanda_devi_east",
+            "anchors": [
+                "Adam Karpiński",
+                "Jakub Bujak",
+                "Janusz Klarner",
+                "2 July",
+                "18 July"
+            ],
+            "fire": {
+                "after": "1939.7.20",
+                "before": "1939.9.30",
+                "chance": 50,
+                "trigger": "has_war = no"
+            },
+            "options": [
+                {
+                    "name": "Honour the two who died and the two who stood on top.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Fund the next Polish expedition to the Himalaya.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "political_power": -10
+                        },
+                        {
+                            "war_support": 0.01
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 18,
+            "key": "fon_1936",
+            "title": "The National Defence Fund Gathers Gifts",
+            "desc": "The National Defence Fund was created by a decree of the President. Its purpose is to obtain extra money for the rearmament of the army and for a military investment programme. The Ministry of National Defence manages it.\n\nSchoolchildren give their pocket money, and people give jewellery, precious coins and gold earrings. Janusz Kusociński gave a gold signet ring of 9.5 grams and Janina Kurkowska-Spychajowa eight silver cups.",
+            "picture": "fon_1936",
+            "factSheet": "fon_1936",
+            "anchors": [
+                "National Defence Fund",
+                "Janusz Kusociński",
+                "Kurkowska-Spychajowa",
+                "9.5 grams"
+            ],
+            "fire": {
+                "after": "1938.1.1",
+                "before": "1947.12.31",
+                "chance": 100,
+                "trigger": "OR = { GER = { focus_progress = { focus = GER_danzig_or_war progress > 0.01 } } GER = { has_wargoal_against = POL } has_war_with = GER } has_capitulated = no"
+            },
+            "options": [
+                {
+                    "name": "Put collection boxes in every shop and school.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Ask the firms and the councils to give first.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "political_power": -10
+                        },
+                        {
+                            "stability": 0.01
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 19,
+            "key": "pyry_enigma",
+            "title": "French and British Representatives Come to Pyry",
+            "desc": "French and British intelligence representatives have arrived in Warsaw. At seven in the morning they get into cars provided by the Polish staff. At Pyry, south of Warsaw, the Polish methods are revealed to them.\n\nMajor Maksymilian Ciężki gives a three-hour lecture on the history of the Polish struggle with the Enigma. Then the device is presented. Asked where they got it, Colonel Gwido Langer, head of the cipher bureau, answers: 'We made it ourselves.' Two copies are intended for the visitors, one for Paris and one for London.",
+            "picture": "pyry_enigma",
+            "factSheet": "pyry_enigma",
+            "anchors": [
+                "Pyry",
+                "Maksymilian Ciężki",
+                "Gwido Langer",
+                "Enigma",
+                "one for Paris and one for London"
+            ],
+            "fire": {
+                "after": "1939.1.1",
+                "before": "1947.12.31",
+                "chance": 100,
+                "trigger": "has_war = no OR = { GER = { focus_progress = { focus = GER_danzig_or_war progress > 0.01 } } GER = { has_wargoal_against = POL } } FRA = { exists = yes has_capitulated = no NOT = { is_in_faction_with = GER } } ENG = { exists = yes NOT = { is_in_faction_with = GER } } owns_state = 10"
+            },
+            "options": [
+                {
+                    "name": "Share everything with Paris and London.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "timed_idea": "pyry_cooperation",
+                            "days": 120
+                        }
+                    ]
+                },
+                {
+                    "name": "Show them only what they need to see.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "command_power": 5
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 20,
+            "key": "westerplatte",
+            "title": "Schleswig-Holstein Opens Fire on Westerplatte",
+            "desc": "In the early morning Schleswig-Holstein fired a broadside at the Polish garrison at Westerplatte. Major Henryk Sucharski commands the garrison, and Captain Franciszek Dąbrowski is his second-in-command.\n\nStaff Sergeant Wojciech Najsarek was killed by machine-gun fire. What orders do we give the garrison?",
+            "picture": "westerplatte",
+            "factSheet": "westerplatte",
+            "anchors": [
+                "Schleswig-Holstein",
+                "Henryk Sucharski",
+                "Franciszek Dąbrowski",
+                "Wojciech Najsarek",
+                "Westerplatte"
+            ],
+            "fire": {
+                "after": "1939.1.1",
+                "before": "1947.12.31",
+                "chance": 100,
+                "trigger": "has_war_with = GER owns_state = 85 controls_state = 85 NOT = { war_length_with = { tag = GER months > 1 } }"
+            },
+            "options": [
+                {
+                    "name": "Hold to the last man.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Save the men if the position cannot be held.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "stability": 0.01
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "ideas": [
+        {
+            "key": "gdynia_housing",
+            "name": "Housing for Gdynia",
+            "desc": "Streets and houses are built for the workers who came to Gdynia.",
+            "picture": "generic_political_support",
+            "modifier": {
+                "production_speed_buildings_factor": 0.03
+            }
+        },
+        {
+            "key": "pyry_cooperation",
+            "name": "Cipher Cooperation",
+            "desc": "French and British experts work on the Polish methods.",
+            "picture": "generic_research_bonus",
+            "modifier": {
+                "research_speed_factor": 0.02
+            }
+        }
+    ]
+}

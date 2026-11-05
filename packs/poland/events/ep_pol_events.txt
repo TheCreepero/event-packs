@@ -1,0 +1,408 @@
+add_namespace = ep_pol
+
+country_event = {
+	id = ep_pol.1
+	title = ep_pol.1.t
+	desc = ep_pol.1.desc
+	picture = GFX_ep_pol_kasprowy_cable_car
+	is_triggered_only = yes
+
+	option = {
+		name = ep_pol.1.a
+		ai_chance = { factor = 60 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_pol.1.b
+		ai_chance = { factor = 40 }
+		add_war_support = 0.01
+	}
+}
+
+country_event = {
+	id = ep_pol.2
+	title = ep_pol.2.t
+	desc = ep_pol.2.desc
+	picture = GFX_ep_pol_batory_maiden_voyage
+	is_triggered_only = yes
+
+	option = {
+		name = ep_pol.2.a
+		ai_chance = { factor = 60 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_pol.2.b
+		ai_chance = { factor = 40 }
+		add_political_power = 10
+	}
+}
+
+country_event = {
+	id = ep_pol.3
+	title = ep_pol.3.t
+	desc = ep_pol.3.desc
+	picture = GFX_ep_pol_berlin_olympics_team
+	is_triggered_only = yes
+
+	option = {
+		name = ep_pol.3.a
+		ai_chance = { factor = 60 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_pol.3.b
+		ai_chance = { factor = 40 }
+		add_political_power = -15
+		add_war_support = 0.01
+	}
+}
+
+country_event = {
+	id = ep_pol.4
+	title = ep_pol.4.t
+	desc = ep_pol.4.desc
+	picture = GFX_ep_pol_spitsbergen_crossing
+	is_triggered_only = yes
+
+	option = {
+		name = ep_pol.4.a
+		ai_chance = { factor = 60 }
+		add_war_support = 0.01
+	}
+
+	option = {
+		name = ep_pol.4.b
+		ai_chance = { factor = 40 }
+		add_political_power = 10
+	}
+}
+
+country_event = {
+	id = ep_pol.5
+	title = ep_pol.5.t
+	desc = ep_pol.5.desc
+	picture = GFX_ep_pol_rambouillet_loan
+	is_triggered_only = yes
+
+	option = {
+		name = ep_pol.5.a
+		ai_chance = { factor = 60 }
+		add_war_support = 0.02
+	}
+
+	option = {
+		name = ep_pol.5.b
+		ai_chance = { factor = 40 }
+		add_stability = 0.01
+	}
+}
+
+country_event = {
+	id = ep_pol.6
+	title = ep_pol.6.t
+	desc = ep_pol.6.desc
+	picture = GFX_ep_pol_pzl37_los_first_flight
+	is_triggered_only = yes
+
+	option = {
+		name = ep_pol.6.a
+		ai_chance = { factor = 50 }
+		air_experience = 5
+	}
+
+	option = {
+		name = ep_pol.6.b
+		ai_chance = { factor = 50 }
+		add_war_support = 0.02
+	}
+}
+
+country_event = {
+	id = ep_pol.7
+	title = ep_pol.7.t
+	desc = ep_pol.7.desc
+	picture = GFX_ep_pol_gdynia_boom_1936
+	is_triggered_only = yes
+
+	option = {
+		name = ep_pol.7.a
+		ai_chance = { factor = 60 }
+		add_timed_idea = { idea = ep_pol_gdynia_housing days = 150 }
+	}
+
+	option = {
+		name = ep_pol.7.b
+		ai_chance = { factor = 40 }
+		add_political_power = 15
+	}
+}
+
+country_event = {
+	id = ep_pol.8
+	title = ep_pol.8.t
+	desc = ep_pol.8.desc
+	picture = GFX_ep_pol_chopin_competition_1937
+	is_triggered_only = yes
+
+	option = {
+		name = ep_pol.8.a
+		ai_chance = { factor = 60 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_pol.8.b
+		ai_chance = { factor = 40 }
+		add_political_power = -10
+		add_stability = 0.01
+	}
+}
+
+country_event = {
+	id = ep_pol.9
+	title = ep_pol.9.t
+	desc = ep_pol.9.desc
+	picture = GFX_ep_pol_szymanowski_funeral
+	is_triggered_only = yes
+
+	option = {
+		name = ep_pol.9.a
+		ai_chance = { factor = 60 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_pol.9.b
+		ai_chance = { factor = 40 }
+		add_political_power = -10
+		add_stability = 0.01
+	}
+}
+
+country_event = {
+	id = ep_pol.10
+	title = ep_pol.10.t
+	desc = ep_pol.10.desc
+	picture = GFX_ep_pol_wawel_coffin_1937
+	is_triggered_only = yes
+
+	option = {
+		name = ep_pol.10.a
+		ai_chance = { factor = 50 }
+		add_political_power = 15
+		add_stability = -0.01
+	}
+
+	option = {
+		name = ep_pol.10.b
+		ai_chance = { factor = 50 }
+		add_stability = 0.02
+	}
+}
+
+country_event = {
+	id = ep_pol.11
+	title = ep_pol.11.t
+	desc = ep_pol.11.desc
+	picture = GFX_report_event_soldiers_parade
+	is_triggered_only = yes
+
+	option = {
+		name = ep_pol.11.a
+		ai_chance = { factor = 50 }
+		add_war_support = 0.02
+	}
+
+	option = {
+		name = ep_pol.11.b
+		ai_chance = { factor = 50 }
+		add_stability = 0.02
+	}
+}
+
+country_event = {
+	id = ep_pol.12
+	title = ep_pol.12.t
+	desc = ep_pol.12.desc
+	picture = GFX_ep_pol_destroyers_grom_blyskawica
+	is_triggered_only = yes
+
+	option = {
+		name = ep_pol.12.a
+		ai_chance = { factor = 60 }
+		add_war_support = 0.02
+	}
+
+	option = {
+		name = ep_pol.12.b
+		ai_chance = { factor = 40 }
+		navy_experience = 5
+	}
+}
+
+country_event = {
+	id = ep_pol.13
+	title = ep_pol.13.t
+	desc = ep_pol.13.desc
+	picture = GFX_ep_pol_wilimowski_brazil_1938
+	is_triggered_only = yes
+
+	option = {
+		name = ep_pol.13.a
+		ai_chance = { factor = 60 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_pol.13.b
+		ai_chance = { factor = 40 }
+		add_war_support = 0.01
+	}
+}
+
+country_event = {
+	id = ep_pol.14
+	title = ep_pol.14.t
+	desc = ep_pol.14.desc
+	picture = GFX_ep_pol_gordon_bennett_1938
+	is_triggered_only = yes
+
+	option = {
+		name = ep_pol.14.a
+		ai_chance = { factor = 60 }
+		add_war_support = 0.01
+	}
+
+	option = {
+		name = ep_pol.14.b
+		ai_chance = { factor = 40 }
+		air_experience = 5
+	}
+}
+
+country_event = {
+	id = ep_pol.15
+	title = ep_pol.15.t
+	desc = ep_pol.15.desc
+	picture = GFX_report_event_german_polish_border
+	is_triggered_only = yes
+
+	option = {
+		name = ep_pol.15.a
+		ai_chance = { factor = 50 }
+		add_political_power = -20
+		add_stability = 0.01
+	}
+
+	option = {
+		name = ep_pol.15.b
+		ai_chance = { factor = 50 }
+		add_political_power = 10
+	}
+}
+
+country_event = {
+	id = ep_pol.16
+	title = ep_pol.16.t
+	desc = ep_pol.16.desc
+	picture = GFX_report_event_generic_handshake
+	is_triggered_only = yes
+
+	option = {
+		name = ep_pol.16.a
+		ai_chance = { factor = 60 }
+		add_war_support = 0.02
+	}
+
+	option = {
+		name = ep_pol.16.b
+		ai_chance = { factor = 40 }
+		add_stability = 0.02
+	}
+}
+
+country_event = {
+	id = ep_pol.17
+	title = ep_pol.17.t
+	desc = ep_pol.17.desc
+	picture = GFX_ep_pol_nanda_devi_east
+	is_triggered_only = yes
+
+	option = {
+		name = ep_pol.17.a
+		ai_chance = { factor = 60 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_pol.17.b
+		ai_chance = { factor = 40 }
+		add_political_power = -10
+		add_war_support = 0.01
+	}
+}
+
+country_event = {
+	id = ep_pol.18
+	title = ep_pol.18.t
+	desc = ep_pol.18.desc
+	picture = GFX_ep_pol_fon_1936
+	is_triggered_only = yes
+
+	option = {
+		name = ep_pol.18.a
+		ai_chance = { factor = 60 }
+		add_war_support = 0.02
+	}
+
+	option = {
+		name = ep_pol.18.b
+		ai_chance = { factor = 40 }
+		add_political_power = -10
+		add_stability = 0.01
+	}
+}
+
+country_event = {
+	id = ep_pol.19
+	title = ep_pol.19.t
+	desc = ep_pol.19.desc
+	picture = GFX_ep_pol_pyry_enigma
+	is_triggered_only = yes
+
+	option = {
+		name = ep_pol.19.a
+		ai_chance = { factor = 60 }
+		add_timed_idea = { idea = ep_pol_pyry_cooperation days = 120 }
+	}
+
+	option = {
+		name = ep_pol.19.b
+		ai_chance = { factor = 40 }
+		add_command_power = 5
+	}
+}
+
+country_event = {
+	id = ep_pol.20
+	title = ep_pol.20.t
+	desc = ep_pol.20.desc
+	picture = GFX_ep_pol_westerplatte
+	is_triggered_only = yes
+
+	option = {
+		name = ep_pol.20.a
+		ai_chance = { factor = 60 }
+		add_war_support = 0.02
+	}
+
+	option = {
+		name = ep_pol.20.b
+		ai_chance = { factor = 40 }
+		add_stability = 0.01
+	}
+}

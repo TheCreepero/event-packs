@@ -10,6 +10,12 @@
             "background": {
                 "path": "sources-cache/france/bastille_day_1939.*"
             }
+        },
+        "poland": {
+            "background": {
+                "path": "sources-cache/poland/chopin_competition_1937.*",
+                "crop": "center"
+            }
         }
     }
 }

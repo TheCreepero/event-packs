@@ -7,6 +7,10 @@
         "france": {
             "root": "packs/france",
             "modFolderName": "event_pack_france"
+        },
+        "poland": {
+            "root": "packs/poland",
+            "modFolderName": "event_pack_poland"
         }
     },
     "sharedTools": ["image-sources"],

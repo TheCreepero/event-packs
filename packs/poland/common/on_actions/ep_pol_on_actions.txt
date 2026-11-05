@@ -1,0 +1,266 @@
+on_actions = {
+	on_weekly_POL = {
+		effect = {
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_pol_fired_1 }
+					date > 1936.3.16
+					date < 1936.4.30
+					has_war = no
+				}
+				random = {
+					chance = 50
+					set_country_flag = ep_pol_fired_1
+					country_event = { id = ep_pol.1 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_pol_fired_2 }
+					date > 1936.5.19
+					date < 1936.5.31
+					has_war = no
+				}
+				random = {
+					chance = 100
+					set_country_flag = ep_pol_fired_2
+					country_event = { id = ep_pol.2 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_pol_fired_3 }
+					date > 1936.8.17
+					date < 1936.9.30
+					has_war = no
+				}
+				random = {
+					chance = 50
+					set_country_flag = ep_pol_fired_3
+					country_event = { id = ep_pol.3 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_pol_fired_4 }
+					date > 1936.9.2
+					date < 1936.10.31
+					has_war = no
+				}
+				random = {
+					chance = 50
+					set_country_flag = ep_pol_fired_4
+					country_event = { id = ep_pol.4 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_pol_fired_5 }
+					date > 1936.9.7
+					date < 1936.10.31
+					has_war = no
+				}
+				random = {
+					chance = 50
+					set_country_flag = ep_pol_fired_5
+					country_event = { id = ep_pol.5 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_pol_fired_6 }
+					date > 1936.12.14
+					date < 1937.1.31
+					has_war = no
+				}
+				random = {
+					chance = 50
+					set_country_flag = ep_pol_fired_6
+					country_event = { id = ep_pol.6 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_pol_fired_7 }
+					date > 1937.1.1
+					date < 1937.3.31
+					has_war = no
+				}
+				random = {
+					chance = 50
+					set_country_flag = ep_pol_fired_7
+					country_event = { id = ep_pol.7 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_pol_fired_8 }
+					date > 1937.3.14
+					date < 1937.4.15
+					has_war = no
+				}
+				random = {
+					chance = 50
+					set_country_flag = ep_pol_fired_8
+					country_event = { id = ep_pol.8 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_pol_fired_9 }
+					date > 1937.4.10
+					date < 1937.5.10
+					has_war = no
+				}
+				random = {
+					chance = 50
+					set_country_flag = ep_pol_fired_9
+					country_event = { id = ep_pol.9 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_pol_fired_10 }
+					date > 1937.7.1
+					date < 1937.8.15
+					has_war = no
+				}
+				random = {
+					chance = 50
+					set_country_flag = ep_pol_fired_10
+					country_event = { id = ep_pol.10 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_pol_fired_11 }
+					date > 1937.11.11
+					date < 1937.12.15
+					has_war = no
+				}
+				random = {
+					chance = 100
+					set_country_flag = ep_pol_fired_11
+					country_event = { id = ep_pol.11 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_pol_fired_12 }
+					date > 1937.11.26
+					date < 1938.1.31
+					has_war = no
+				}
+				random = {
+					chance = 50
+					set_country_flag = ep_pol_fired_12
+					country_event = { id = ep_pol.12 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_pol_fired_13 }
+					date > 1938.6.6
+					date < 1938.6.30
+					has_war = no
+				}
+				random = {
+					chance = 50
+					set_country_flag = ep_pol_fired_13
+					country_event = { id = ep_pol.13 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_pol_fired_14 }
+					date > 1938.9.15
+					date < 1938.10.15
+					has_war = no
+				}
+				random = {
+					chance = 50
+					set_country_flag = ep_pol_fired_14
+					country_event = { id = ep_pol.14 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_pol_fired_15 }
+					date > 1938.11.1
+					date < 1938.12.31
+					has_war = no
+				}
+				random = {
+					chance = 50
+					set_country_flag = ep_pol_fired_15
+					country_event = { id = ep_pol.15 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_pol_fired_16 }
+					date > 1939.3.17
+					date < 1947.12.31
+					has_war = no NOT = { has_war_with = HUN } HUN = { owns_state = 73 has_country_leader = { character = HUN_miklos_horthy } } owns_state = 89 has_country_leader = { character = POL_ignacy_moscicki }
+				}
+				random = {
+					chance = 50
+					set_country_flag = ep_pol_fired_16
+					country_event = { id = ep_pol.16 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_pol_fired_17 }
+					date > 1939.7.20
+					date < 1939.9.30
+					has_war = no
+				}
+				random = {
+					chance = 50
+					set_country_flag = ep_pol_fired_17
+					country_event = { id = ep_pol.17 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_pol_fired_18 }
+					date > 1938.1.1
+					date < 1947.12.31
+					OR = { GER = { focus_progress = { focus = GER_danzig_or_war progress > 0.01 } } GER = { has_wargoal_against = POL } has_war_with = GER } has_capitulated = no
+				}
+				random = {
+					chance = 100
+					set_country_flag = ep_pol_fired_18
+					country_event = { id = ep_pol.18 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_pol_fired_19 }
+					date > 1939.1.1
+					date < 1947.12.31
+					has_war = no OR = { GER = { focus_progress = { focus = GER_danzig_or_war progress > 0.01 } } GER = { has_wargoal_against = POL } } FRA = { exists = yes has_capitulated = no NOT = { is_in_faction_with = GER } } ENG = { exists = yes NOT = { is_in_faction_with = GER } } owns_state = 10
+				}
+				random = {
+					chance = 100
+					set_country_flag = ep_pol_fired_19
+					country_event = { id = ep_pol.19 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_pol_fired_20 }
+					date > 1939.1.1
+					date < 1947.12.31
+					has_war_with = GER owns_state = 85 controls_state = 85 NOT = { war_length_with = { tag = GER months > 1 } }
+				}
+				random = {
+					chance = 100
+					set_country_flag = ep_pol_fired_20
+					country_event = { id = ep_pol.20 }
+				}
+			}
+		}
+	}
+}
