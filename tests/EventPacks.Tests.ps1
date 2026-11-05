@@ -150,7 +150,7 @@ Describe 'Generation' {
         $workshopText | Should -Match '```bbcode'
         $workshopText | Should -Match '\[\*\]1937: Work on the Isthmus Line'
         $workshopText | Should -Match 'licences that allow their use here \(CC BY 4\.0\)'
-        $workshopText | Should -Match '\[url=https://github\.com/TheCreepero/event-packs/wiki/Event-Pack-Testland-1\]'
+        $workshopText | Should -Not -Match 'github\.com'
         $workshopText | Should -Match '(?m)^<!-- cross-links:begin -->\r\n<!-- cross-links:end -->\r\n```'
         $workshopText | Should -Not -Match 'More from the author'
         $wikiText = [System.IO.File]::ReadAllText((Join-Path $fixtureRoot 'wiki\Event-Pack-Testland-1.md'))
@@ -193,7 +193,7 @@ Describe 'Generation' {
         $ordered | Should -Be @(5, 3, 4, 1)
     }
 
-    It 'writes the strip and button regions and carries what a region holds over when it generates again' {
+    It 'writes the strip regions, no buttons region, and carries what a region holds over when it generates again' {
         $fixtureRoot = New-EpFixtureRepo
         Write-FixtureFile -Root $fixtureRoot -RelativePath 'source\testland\workshop-intro.bbcode' -Text "<!-- region:image:hero -->`r`n<!-- /region -->`r`nFixture intro.`r`n`r`n[h1]Info:[/h1]`r`n<!-- region:info:game-version -->`r`n<!-- /region -->`r`n"
         Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'testland' 6>$null | Out-Null
@@ -202,8 +202,9 @@ Describe 'Generation' {
         $emptyText | Should -Match '(?m)^<!-- region:image:hero -->\r\n<!-- /region -->\r\nFixture intro\.'
         $emptyText | Should -Match '(?m)^<!-- region:image:strip-events -->\r\n<!-- /region -->\r\n\[h1\]Events\[/h1\]'
         $emptyText | Should -Match '(?m)^<!-- region:image:strip-picture-credits -->\r\n<!-- /region -->\r\n\[h1\]Picture credits\[/h1\]'
-        $emptyText | Should -Match '(?m)^<!-- region:buttons:wiki,github -->\r\n<!-- /region -->\r\n\r\n<!-- cross-links:begin -->'
-        $filledText = $emptyText.Replace("<!-- region:info:game-version -->`r`n<!-- /region -->", "<!-- region:info:game-version -->`r`n- Built for game version 1.19.`r`n<!-- /region -->").Replace("<!-- region:buttons:wiki,github -->`r`n<!-- /region -->", "<!-- region:buttons:wiki,github -->`r`n[url=https://example.test/wiki]Wiki[/url]`r`n<!-- /region -->")
+        $emptyText | Should -Not -Match 'region:buttons'
+        $emptyText | Should -Match '(?m)\r\n\r\n<!-- cross-links:begin -->'
+        $filledText = $emptyText.Replace("<!-- region:info:game-version -->`r`n<!-- /region -->", "<!-- region:info:game-version -->`r`n- Built for game version 1.19.`r`n<!-- /region -->")
         $filledText | Should -Not -Be $emptyText
         [System.IO.File]::WriteAllText($descriptionPath, $filledText, [System.Text.UTF8Encoding]::new($false))
         Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'testland' 6>$null | Out-Null

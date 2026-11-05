@@ -505,21 +505,17 @@ function New-EpWorkshopText {
         $bbcodeLines.Add('[*]' + (Get-EpEventYear -PackEvent $packEvent) + ': ' + $packEvent.title)
     }
     $bbcodeLines.Add('[/list]')
-    # The credits themselves are on the wiki page; CC BY 4.0 allows attribution through a link to them.
     $usedPictures = @(Get-EpUsedPictureKeys -Pack $Pack | ForEach-Object { Get-EpPictureByKey -Pack $Pack -PictureKey $_ } | Where-Object { $null -ne $_ })
     if ($usedPictures.Count -gt 0) {
         $licenceNames = @($usedPictures | ForEach-Object { ([string]$_.licenseShortName) -replace '^Public domain$', 'public domain' } | Sort-Object -Unique -Descending)
         if ($licenceNames.Count -gt 1) {
             $licenceNames = @((($licenceNames[0..($licenceNames.Count - 2)]) -join ', ') + ' and ' + $licenceNames[-1])
         }
-        $wikiPageUrl = ([string]$Pack.Workshop.wikiUrl).TrimEnd('/') + '/' + (Get-EpWikiPageName -Pack $Pack)
         $bbcodeLines.Add('')
         Add-EpRegion -Lines $bbcodeLines -Header '<!-- region:image:strip-picture-credits -->'
         $bbcodeLines.Add('[h1]Picture credits[/h1]')
-        $bbcodeLines.Add('The pictures come from Wikimedia Commons, under licences that allow their use here (' + ($licenceNames -join ', ') + '). They are cropped, resized and converted for the game; some are toned to grey or sepia. The author, source and licence of each picture are on the [url=' + $wikiPageUrl + ']wiki page of this pack[/url].')
+        $bbcodeLines.Add('The pictures come from Wikimedia Commons, under licences that allow their use here (' + ($licenceNames -join ', ') + '). They are cropped, resized and converted for the game; some are toned to grey or sepia.')
     }
-    $bbcodeLines.Add('')
-    Add-EpRegion -Lines $bbcodeLines -Header '<!-- region:buttons:wiki,github -->'
     $bbcodeLines.Add('')
     $bbcodeLines.Add('<!-- cross-links:begin -->')
     foreach ($crossLinkLine in @(Get-EpCarriedCrossLinkLines -Pack $Pack)) {

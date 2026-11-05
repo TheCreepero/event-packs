@@ -68,7 +68,7 @@ The historical researcher's dossiers, one per research run (parallel runs of one
 
 ## `workshop-intro.bbcode`
 
-The opening of the pack's Workshop description in Steam BBCode. `-Generate` adds the event list, a short picture credit that links to the pack's wiki page, and, after it, the cross-link block between the `<!-- cross-links:begin -->` and `<!-- cross-links:end -->` lines. The block is the Manager's, not this repository's: `Scripts/Workshop/Sync-WorkshopCrossLinks.ps1` of the Modding Manager writes it into each pack's description, and `-Generate` carries what is between the markers over unchanged. The wiki address is in `data/workshop.json`, shared by every pack.
+The opening of the pack's Workshop description in Steam BBCode. `-Generate` adds the event list, a short picture credit with the licences (no link to the wiki: the Workshop page carries no Wiki or GitHub links), and, after it, the cross-link block between the `<!-- cross-links:begin -->` and `<!-- cross-links:end -->` lines. The block is the Manager's, not this repository's: `Scripts/Workshop/Sync-WorkshopCrossLinks.ps1` of the Modding Manager writes it into each pack's description, and `-Generate` carries what is between the markers over unchanged. The wiki address is in `data/workshop.json`, shared by every pack.
 
 ## Generated files
 
@@ -80,7 +80,7 @@ The opening of the pack's Workshop description in Steam BBCode. `-Generate` adds
 | `packs/<pack>/interface/ep_<tag>_event_pictures.gfx` | one sprite per picture used |
 | `packs/<pack>/gfx/event_pictures/ep_<tag>/*.dds` | `build.ps1 -ConvertPictures`: 210x176 uncompressed DDS |
 | `packs/<pack>/localisation/<language>/ep_<tag>_l_<language>.yml` | the English text in all ten languages [LOC-017], UTF-8 with BOM [LOC-001] |
-| `packs/<pack>/WORKSHOP_DESCRIPTION_GUIDELINES.md` | intro, event list, the licences in one sentence with a link to the wiki page, other mods |
+| `packs/<pack>/WORKSHOP_DESCRIPTION_GUIDELINES.md` | intro, event list, the licences in one sentence, other mods |
 | `wiki/Event-Pack-<Country>.md` | event table with each picture's source, licence (CC BY linked) and author: the full credits the Workshop description links to |
 
 Nothing else may sit in `packs/<pack>/`: `-Check` fails on any file there that is not `descriptor.mod`, `thumbnail.png`, a generated file or the picture of a used manifest row, so nothing ships unchecked. `build.ps1 -PreviewPictures -Pack <pack>` writes PNG copies of the pictures to `scratch/preview/<pack>/` for a look at the crops. `build.ps1 -RenderEvents -Pack <pack>` draws each event as the game's event window, and `00-overview` with several on a pile, into `artifacts/workshop-images/<pack>/`, outside the pack, for the Workshop page.

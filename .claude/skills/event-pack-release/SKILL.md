@@ -24,7 +24,7 @@ Each pack is its own Workshop item. Follow the shared `hoi4-mod-release` skill, 
 
 ## 3. Change note and credits
 1. The change note names the events added or changed, by title.
-2. The picture credits are on the pack's wiki page (`wiki/Event-Pack-<Country>.md`, generated), which the Workshop description links to: run `powershell -File .\wiki\push-wiki.ps1` before the upload, so the page is live and complete. A first upload, or a `WORKSHOP_DESCRIPTION_GUIDELINES.md` changed since the pack's last tag (`git diff workshop-<key>-<date>..HEAD --stat -- packs/<key>/WORKSHOP_DESCRIPTION_GUIDELINES.md`), takes `-UpdateDescription`, so the description on Steam is the generated one.
+2. The picture credits are on the pack's wiki page (`wiki/Event-Pack-<Country>.md`, generated), which the Workshop description does not link to (it carries no Wiki or GitHub links): run `powershell -File .\wiki\push-wiki.ps1` before the upload, so the page is live and complete. A first upload, or a `WORKSHOP_DESCRIPTION_GUIDELINES.md` changed since the pack's last tag (`git diff workshop-<key>-<date>..HEAD --stat -- packs/<key>/WORKSHOP_DESCRIPTION_GUIDELINES.md`), takes `-UpdateDescription`, so the description on Steam is the generated one.
 
 ## 4. Upload and tag
 1. `Publish-Mod.ps1 "Event Packs" -Pack <key> -DryRun -ChangeNote "<note>"`: show the owner the VDF (title `Event Pack: <Country>`) and the file list (only that pack's content, descriptor and thumbnail).
