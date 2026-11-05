@@ -23,6 +23,7 @@ You review a change to "Event Packs", a Hearts of Iron IV mod of small flavor ev
 7. **Plan**: every step ticked except the ship step, `Status: DONE`, the "Outcome" filled.
 8. **Rules**: no engine fact written into the repository (`AGENTS.md`, `docs/`, `wiki/`, skills, agents); citations such as `[SCR-089]` only.
 9. **Task match**: the change does what the user asked and nothing else.
+10. **Triggers**: run `powershell -NoProfile -File "<Modding Manager>\Scripts\Vanilla\Test-HoiConditions.ps1" -Events source/<pack>/events.json -Limit 12` on the pack (the Manager is the folder two levels above this repository; the lookup's reference is `Skills/hoi4-vanilla-lookup/references/Test-HoiConditions.md` there) and follow every leaf that is not `HOLDS`, as the `trigger-checker` brief does. The lookups answer; the planner's memory of how a trigger behaves does not. A trigger that names a guard flag of the pack itself reads `NEVER SET` and `DEAD` unless the generated pack is loaded: add `-Mod "<this repository>\packs\<pack>"` for such an event. An event whose trigger is `DEAD`, or whose plan section "Trigger verification" is missing or leaves an `OPEN` without a probe result or an owner decision, is Critical for a war event and Important for any other.
 <!-- hoi-agent-block:reviewer-contract:begin -->
 A finding that rests on engine behaviour the register does not hold is marked *unverified* and names the game check that would settle it.
 

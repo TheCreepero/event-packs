@@ -35,6 +35,10 @@ Thumbnail: <picture key, the background of step 4>, crop <crop> | unchanged
 
 <Phase 3a of event-pack-create, or Phase 1 of an audit: the ep-audit-researcher agents and the events each checked; per checked event, replaced ones included, the KEEP, FIX and DROP counts, each fixed fact with its correction and each dropped fact; the events sent back for a replacement. The dossiers' `Checked:` lines take their counts from here.>
 
+## Trigger verification
+
+<Phase 4 of event-pack-create, or Phase 1 of an audit: the `trigger-checker` verdict per event (OK, FIX with the trigger that replaced the old one, OPEN with the probe and its result or the owner's decision) and the round it came in. No plan is READY with an OPEN that has neither.>
+
 ## Editor record
 
 <The ep-editor verdicts per event and round (KEEP, REWRITE, REJECT), and what the planner did with each.>
