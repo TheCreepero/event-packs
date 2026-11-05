@@ -499,6 +499,7 @@ function New-EpWorkshopText {
     }
     Add-EpRegion -Lines $bbcodeLines -Header '<!-- region:image:strip-events -->'
     $bbcodeLines.Add('[h1]Events[/h1]')
+    Add-EpRegion -Lines $bbcodeLines -Header '<!-- region:image:overview -->'
     $bbcodeLines.Add('[list]')
     foreach ($packEvent in @($Pack.Events | Sort-Object { Get-EpEventSortKey -PackEvent $_ }, { [int]$_.id })) {
         $bbcodeLines.Add('[*]' + (Get-EpEventYear -PackEvent $packEvent) + ': ' + $packEvent.title)

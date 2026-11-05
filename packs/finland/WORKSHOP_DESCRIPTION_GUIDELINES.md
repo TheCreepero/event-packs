@@ -23,6 +23,9 @@ Historical flavor events for Finland, from 1936 to the end of the Winter War in 
 [img]https://i.imgur.com/asAwlJn.png[/img]
 <!-- /region -->
 [h1]Events[/h1]
+<!-- region:image:overview -->
+[img]https://i.imgur.com/1xrm1Du.png[/img]
+<!-- /region -->
 [list]
 [*]1936: Three Finns Take the 10,000 Metres in Berlin
 [*]1937: Cajander Forms a Red-Earth Government

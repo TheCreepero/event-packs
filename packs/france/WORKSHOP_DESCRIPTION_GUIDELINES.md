@@ -23,6 +23,9 @@ Historical flavor events for France, from 1936 to the end of the Phoney War in s
 [img]https://i.imgur.com/asAwlJn.png[/img]
 <!-- /region -->
 [h1]Events[/h1]
+<!-- region:image:overview -->
+[img]https://i.imgur.com/MrGOE9b.png[/img]
+<!-- /region -->
 [list]
 [*]1936: Viénot Signs a Treaty with Syria
 [*]1936: The Transindochinois Is Joined at Hao Son
