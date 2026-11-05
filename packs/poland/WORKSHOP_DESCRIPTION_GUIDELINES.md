@@ -60,5 +60,16 @@ The pictures come from Wikimedia Commons, under licences that allow their use he
 <!-- /region -->
 
 <!-- cross-links:begin -->
+[url=https://steamcommunity.com/sharedfiles/filedetails/?id=3833590274][img]https://i.imgur.com/qJpjDyO.png[/img][/url]
+[b]More from the author[/b], all in the collection [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3833590274]The Immersive Series[/url]
+[list]
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=2967389401]Immersive Namelists Expanded[/url]
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3807415216]Immersive Ship Names Expanded[/url]
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3830946508]Event Pack: Finland[/url]
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3832953557]Event Pack: France[/url]
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3834124691]Event Pack: Poland[/url]
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3831847770]Commanders Pack: Finland[/url]
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3832957297]Commanders Pack: France[/url]
+[/list]
 <!-- cross-links:end -->
 ```
