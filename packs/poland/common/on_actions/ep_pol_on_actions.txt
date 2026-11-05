@@ -123,7 +123,7 @@ on_actions = {
 					NOT = { has_country_flag = ep_pol_fired_10 }
 					date > 1937.7.1
 					date < 1937.8.15
-					has_war = no
+					has_war = no has_country_leader = { character = POL_ignacy_moscicki }
 				}
 				random = {
 					chance = 50
@@ -165,7 +165,7 @@ on_actions = {
 					has_war = no
 				}
 				random = {
-					chance = 50
+					chance = 100
 					set_country_flag = ep_pol_fired_13
 					country_event = { id = ep_pol.13 }
 				}
@@ -188,7 +188,7 @@ on_actions = {
 					NOT = { has_country_flag = ep_pol_fired_15 }
 					date > 1938.11.1
 					date < 1938.12.31
-					has_war = no
+					has_war = no GER = { has_government = fascism }
 				}
 				random = {
 					chance = 50
@@ -200,7 +200,7 @@ on_actions = {
 				limit = {
 					NOT = { has_country_flag = ep_pol_fired_16 }
 					date > 1939.3.17
-					date < 1947.12.31
+					date < 1939.12.31
 					has_war = no NOT = { has_war_with = HUN } HUN = { owns_state = 73 has_country_leader = { character = HUN_miklos_horthy } } owns_state = 89 has_country_leader = { character = POL_ignacy_moscicki }
 				}
 				random = {

@@ -160,7 +160,7 @@
                     ]
                 },
                 {
-                    "name": "Let the mountaineering clubs celebrate their own.",
+                    "name": "No state reception. Others can honour them.",
                     "ai": 40,
                     "effects": [
                         {
@@ -174,7 +174,7 @@
             "id": 5,
             "key": "rambouillet_loan",
             "title": "France Promises Poland a Loan of Two Billion Francs",
-            "desc": "On 5 September Delbos gave a lunch for Rydz-Śmigły at the Quai d'Orsay.\n\nThe Rambouillet agreement commits France to a loan of two billion francs to Poland for its armament. Should the army spend it at once, or should we take care not to depend on Paris?",
+            "desc": "On 5 September Delbos gave a lunch for Rydz-Śmigły at the Quai d'Orsay.\n\nFrance has committed itself, in the agreement signed at Rambouillet, to a loan of two billion francs to Poland for its armament. Should the army spend it at once, or should we take care not to depend on Paris?",
             "picture": "rambouillet_loan",
             "factSheet": "rambouillet_loan",
             "anchors": [
@@ -192,7 +192,7 @@
             },
             "options": [
                 {
-                    "name": "Order the guns and aircraft the army lacks.",
+                    "name": "Spend it on arms for the army at once.",
                     "ai": 60,
                     "effects": [
                         {
@@ -215,7 +215,7 @@
             "id": 6,
             "key": "pzl37_los_first_flight",
             "title": "The PZL.37 Łoś Bomber Flies for the First Time",
-            "desc": "The order was for a modern, fast bomber to replace the outdated Fokker F.VII machines. Engineer Jerzy Dąbrowski prepared the plans, assisted by Piotr Kubicki and Franciszek Misztal.\n\nThe prototype of the PZL.37 Łoś made its first flight on 13 December. The pilot, Jerzy Widawski, reported several shortcomings. Should the bomber go into production at once?",
+            "desc": "The prototype of the PZL.37 Łoś made its first flight on 13 December. The pilot, Jerzy Widawski, reported several shortcomings.\n\nThe order was for a modern, fast bomber to replace the outdated Fokker F.VII machines. Engineer Jerzy Dąbrowski prepared the plans, assisted by Piotr Kubicki and Franciszek Misztal. Should the bomber go into production at once?",
             "picture": "pzl37_los_first_flight",
             "factSheet": "pzl37_los_first_flight",
             "anchors": [
@@ -283,7 +283,7 @@
                     ]
                 },
                 {
-                    "name": "Housing can wait. The quays cannot.",
+                    "name": "Housing is for the city to pay, not the state.",
                     "ai": 40,
                     "effects": [
                         {
@@ -368,7 +368,7 @@
                     ]
                 },
                 {
-                    "name": "Print his scores at the state's expense.",
+                    "name": "Raise a memorial at Skałka at the state's expense.",
                     "ai": 40,
                     "effects": [
                         {
@@ -385,7 +385,7 @@
             "id": 10,
             "key": "wawel_coffin_1937",
             "title": "Archbishop Sapieha Moves Piłsudski's Coffin",
-            "desc": "Archbishop Adam Sapieha ordered, against the state authorities, that Marshal Piłsudski's coffin be moved to the prepared crypt under the Silver Bells Tower on 22 June.\n\nThe Marshal's memorial committee and President Mościcki opposed the archbishop's decision. Because of the Wawel conflict, Prime Minister Składkowski demonstratively handed in the resignation of his government. The President did not accept it.",
+            "desc": "Archbishop Adam Sapieha decided to move Marshal Piłsudski's coffin to the crypt under the Silver Bells Tower. Against the state authorities, he ordered that the coffin be moved on 22 June. It was moved in the night of 23 to 24 June.\n\nThe Marshal's memorial committee and President Mościcki opposed the archbishop's decision. Because of the Wawel conflict, Prime Minister Składkowski handed in his government's resignation in protest. The President did not accept it.",
             "picture": "wawel_coffin_1937",
             "factSheet": "wawel_coffin_1937",
             "anchors": [
@@ -399,7 +399,7 @@
                 "after": "1937.7.1",
                 "before": "1937.8.15",
                 "chance": 50,
-                "trigger": "has_war = no"
+                "trigger": "has_war = no has_country_leader = { character = POL_ignacy_moscicki }"
             },
             "options": [
                 {
@@ -428,8 +428,8 @@
         {
             "id": 11,
             "key": "independence_day_1937",
-            "title": "11 November Is Celebrated as a State Holiday",
-            "desc": "The law of 23 April gave Independence Day on 11 November the rank of a state holiday. It is meant to link the regaining of state sovereignty with the end of the First World War and to commemorate Józef Piłsudski.\n\nUntil this year the celebrations in Warsaw were military ceremonies, usually held on the first Sunday after 11 November. This year they included the unveiling of a monument to General Józef Sowiński.",
+            "title": "Independence Day Is Celebrated as a State Holiday",
+            "desc": "The law of 23 April gave Independence Day the rank of a state holiday. It is meant to link the regaining of state sovereignty with the end of the First World War and to commemorate Józef Piłsudski.\n\nUntil this year the celebrations in Warsaw were military ceremonies, usually held on the first Sunday after 11 November. This year they included the unveiling of a monument to General Józef Sowiński.",
             "picture": "vanilla:GFX_report_event_soldiers_parade",
             "factSheet": "independence_day_1937",
             "anchors": [
@@ -469,7 +469,7 @@
             "id": 12,
             "key": "destroyers_grom_blyskawica",
             "title": "ORP Błyskawica Enters Service in the Polish Navy",
-            "desc": "ORP Błyskawica entered service in the Polish Navy on 25 November. Her first commander is Tadeusz Podjazd-Morgenstern. She carries seven 120 mm guns and has a maximum speed of 39.6 knots.\n\nGrom was ordered from the British J. Samuel White shipyard in Cowes and was commissioned in 1937. The Grom class was designed both for shore defence and for convoy escort.",
+            "desc": "ORP Błyskawica entered service in the Polish Navy on 25 November. Her first commander is Tadeusz Podjazd-Morgenstern. She carries seven 120 mm guns and has a maximum speed of 39.6 knots.\n\nThe destroyer Grom was ordered from the British J. Samuel White shipyard in Cowes and was commissioned in 1937. The Grom class was designed both for shore defence and for convoy escort.",
             "picture": "destroyers_grom_blyskawica",
             "factSheet": "destroyers_grom_blyskawica",
             "anchors": [
@@ -510,7 +510,7 @@
             "id": 13,
             "key": "wilimowski_brazil_1938",
             "title": "Poland Loses 6-5 to Brazil at the World Cup",
-            "desc": "On 5 June, at the Stade de la Meinau in Strasbourg, Brazil beat Poland 6-5. It was Poland's first ever World Cup match. The attendance was 13,452.\n\nWilimowski scored four times, in the 53rd, 59th, 89th and 118th minutes. No player before him has scored four goals in a single World Cup match.",
+            "desc": "On 5 June, at the Stade de la Meinau in Strasbourg, Brazil beat Poland 6-5.\n\nErnest Wilimowski scored four times, in the 53rd, 59th, 89th and 118th minutes. No player before him has scored four goals in a single World Cup match.",
             "picture": "wilimowski_brazil_1938",
             "factSheet": "wilimowski_brazil_1938",
             "anchors": [
@@ -523,7 +523,7 @@
             "fire": {
                 "after": "1938.6.6",
                 "before": "1938.6.30",
-                "chance": 50,
+                "chance": 100,
                 "trigger": "has_war = no"
             },
             "options": [
@@ -537,7 +537,7 @@
                     ]
                 },
                 {
-                    "name": "Five goals and still beaten. The defence must improve.",
+                    "name": "Five goals and still beaten. Next time we win.",
                     "ai": 40,
                     "effects": [
                         {
@@ -592,7 +592,7 @@
             "id": 15,
             "key": "zbaszyn_refugees_1938",
             "title": "Polish Jews Expelled from Germany Are Sent to Zbąszyń",
-            "desc": "In October about 17,000 Polish Jews living in Germany were arrested and expelled. Polish citizenship can be revoked if the citizen has lived abroad for more than five years. Polish citizens living outside Poland had to obtain an endorsement stamp on their passports before 30 October.\n\nOf the expelled, 8,000 were sent to the town of Zbąszyń, where they sleep in poorly constructed barracks with very few provisions. The Polish Government quickly closed the border and denied any further access.",
+            "desc": "In October about 17,000 Polish Jews living in Germany were arrested and expelled. Since March 1938 Polish citizenship can be revoked if the citizen has lived abroad for more than five years. Polish citizens living outside Poland had to obtain an endorsement stamp on their passports before 30 October.\n\nOf the expelled, 8,000 were sent to the town of Zbąszyń, where they sleep in poorly constructed barracks with very few provisions. The Polish Government quickly closed the border and denied any further access.",
             "picture": "vanilla:GFX_report_event_german_polish_border",
             "factSheet": "zbaszyn_refugees_1938",
             "anchors": [
@@ -605,7 +605,7 @@
                 "after": "1938.11.1",
                 "before": "1938.12.31",
                 "chance": 50,
-                "trigger": "has_war = no"
+                "trigger": "has_war = no GER = { has_government = fascism }"
             },
             "options": [
                 {
@@ -635,7 +635,7 @@
             "id": 16,
             "key": "hungary_border_1939",
             "title": "Polish and Hungarian Soldiers Meet at the Border",
-            "desc": "Hungarian patrols have reached the Werecka Pass, also called the Tucholska Pass, on what was the border of Poland with Czecho-Slovakia. There, in the Carpathians, Polish troops welcomed the Hungarians coming from the south. An official delegation led by General Mieczysław Boruta-Spiechowicz awaited them.\n\nRegent Horthy telegraphed his greetings to President Mościcki 'at the historic moment when a Hungarian soldier shakes the right hand of a Polish soldier on the Polish-Hungarian border'. A demonstration was held outside the Hungarian legation in Koszykowa street. The new border is only 180 km long.",
+            "desc": "Hungarian patrols reached the Werecka Pass, also called the Tucholska Pass, on what had been the border of Poland with Czecho-Slovakia. There, in the Carpathians, Polish troops welcomed the Hungarians coming from the south. An official delegation led by General Mieczysław Boruta-Spiechowicz awaited them.\n\nRegent Horthy telegraphed his greetings to President Mościcki 'at the historic moment when a Hungarian soldier shakes the right hand of a Polish soldier on the Polish-Hungarian border'. A demonstration was held outside the Hungarian legation in Koszykowa street.",
             "picture": "vanilla:GFX_report_event_generic_handshake",
             "factSheet": "hungary_border_1939",
             "anchors": [
@@ -643,12 +643,11 @@
                 "Boruta-Spiechowicz",
                 "Horthy",
                 "Mościcki",
-                "180 km",
                 "Koszykowa"
             ],
             "fire": {
                 "after": "1939.3.17",
-                "before": "1947.12.31",
+                "before": "1939.12.31",
                 "chance": 50,
                 "trigger": "has_war = no NOT = { has_war_with = HUN } HUN = { owns_state = 73 has_country_leader = { character = HUN_miklos_horthy } } owns_state = 89 has_country_leader = { character = POL_ignacy_moscicki }"
             },
