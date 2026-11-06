@@ -26,9 +26,9 @@ Dispatch `ep-implementer` with the prompt `Carry out docs/plans/<file>.md` and n
 
 ## 3. Verify
 The report is a claim. Check:
-1. `powershell -File .\build.ps1 -Check -Pack <key>` ends `Check OK`, and every `[WARN]` is in the plan's "Kept on judgment".
+1. `powershell -File .\build.ps1 -Check -Pack <key>` ends `Check OK` (it also checks the bundle that holds the pack: `Bundle 'all': ... 0 error(s)`), and every `[WARN]` is in the plan's "Kept on judgment".
 2. `powershell -File .\build.ps1 -ValidateOnly` ends `Validation succeeded.`; `powershell -File .\build.ps1 -Test` has no failed test.
-3. `git status --short` lists only `source/<key>/`, `packs/<key>/`, `research/<key>/` (the plan's dossier, and the `Used:` and `Checked:` lines the plan added), `wiki/Event-Pack-<Country>.md`, `assets/thumbnail.json` when the plan made a thumbnail, and the plan.
+3. `git status --short` lists only `source/<key>/`, `packs/<key>/`, `research/<key>/` (the plan's dossier, and the `Used:` and `Checked:` lines the plan added), `wiki/Event-Pack-<Country>.md`, `assets/thumbnail.json` when the plan made a thumbnail, and the plan; and, for a pack that changes the bundle, `tools/HoiModBuild.json` (the new member), `source/all/workshop-intro.bbcode` and the regenerated `packs/all/WORKSHOP_DESCRIPTION_GUIDELINES.md`.
 4. The plan says `Status: DONE`, every box but the ship step is ticked.
 5. Look at each new picture: `powershell -File .\build.ps1 -PreviewPictures -Pack <key>` writes PNG copies of the pack's DDS pictures to `scratch/preview/<key>/`; open each with the Read tool, and `packs/<key>/thumbnail.png` when the plan made one. A crop that cuts the subject goes back to the planner, and so does a thumbnail whose title plate or flag covers the picture's subject.
 6. Look at the event renders the plan's render step wrote to `artifacts/workshop-images/<key>/`, one per event, drawn as the game's event window: open each new or changed event's image with the Read tool, and `00-overview`. A title or option running into the text below, a text that reads wrong in the window, or a picture that sits badly goes back to the planner. These images are what the owner uploads to the Workshop page (`event-pack-release`).
@@ -39,7 +39,7 @@ Then dispatch `ep-reviewer` with the task as the owner asked it, the plan path a
 The implementer reported `STOPPED`, a check failed, or the reviewer found a problem. Leave the files, report to the owner (the step, the exact output, what the plan would need), and stop. Once the plan is corrected, dispatch again: the implementer resumes at the first unticked step.
 
 ## 5. Report and ship
-Report: the `-Check` line, the files changed, the reviewer's verdict, and that the plan is ready to ship. Offer an in-game look: `powershell -File .\build.ps1 -DevLink -Pack <key>`, then in the game console `event ep_<tag>.<id>` for each new event; or enable "Event Packs Test (dev only)" (written by `build.ps1 -TestMod -Pack <key>`) and run `ep_<tag>_all` to fire every event of the pack. Then stop.
+Report: the `-Check` line, the files changed, the reviewer's verdict, and that the plan is ready to ship. Offer an in-game look: `powershell -File .\build.ps1 -DevLink -Pack <key>`, then in the game console `event ep_<tag>.<id>` for each new event; or enable "Event Packs Test (dev only)" (written by `build.ps1 -TestMod -Pack <key>`) and run `ep_<tag>_all` to fire every event of the pack. To see the pack inside the bundle item, `powershell -File .\build.ps1 -DevLink -Pack all` loads every member from the git-ignored `.devlink/` folder (`-DevLink -CheckLinks -Pack all` first, after a `git checkout` or `pull`); the bundle and the single pack of the same release load together without a duplicate [LOAD-022]. Then stop.
 
 On the owner's word:
 1. Tick the ship box.

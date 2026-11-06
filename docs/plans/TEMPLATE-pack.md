@@ -31,6 +31,8 @@ Every row passed `build.ps1 -FetchPicture ... -DryRun` while planning; the licen
 
 Thumbnail: <picture key, the background of step 4>, crop <crop> | unchanged
 
+Bundle intro: <the new first sentence of `source/all/workshop-intro.bbcode`, which names this pack's country> | unchanged (a new pack names its country there; events added to an existing pack leave it unchanged)
+
 ## Fact verification
 
 <Phase 3a of event-pack-create, or Phase 1 of an audit: the ep-audit-researcher agents and the events each checked; per checked event, replaced ones included, the KEEP, FIX and DROP counts, each fixed fact with its correction and each dropped fact; the events sent back for a replacement. The dossiers' `Checked:` lines take their counts from here.>
@@ -58,11 +60,11 @@ Thumbnail: <picture key, the background of step 4>, crop <crop> | unchanged
   - `powershell -File "<Manager root>\Scripts\Showcase\New-HoiThumbnail.ps1" -Path . -Pack <pack>`: expect the pack's line with `new` or `changed` and no `Warning:` line; open the preview it names with the Read tool.
   - `powershell -File "<Manager root>\Scripts\Showcase\New-HoiThumbnail.ps1" -Path . -Pack <pack> -Apply`: expect the pack's line with `new` or `changed`.
 - [ ] 5. `powershell -File .\build.ps1 -ConvertPictures -Pack <pack>`: expect `failed=0`.
-- [ ] 6. `powershell -File .\build.ps1 -Generate -Pack <pack>`: expect `Generated pack '<pack>'`.
-- [ ] 7. `powershell -File .\build.ps1 -Check -Pack <pack>`: expect `Check OK`, with no warning outside "Kept on judgment".
+- [ ] 6. When "Bundle intro" gives a sentence, replace the intro text of `source/all/workshop-intro.bbcode` with it (the lines around it stay). Then `powershell -File .\build.ps1 -Generate -Pack <pack>`: expect `Generated pack '<pack>'`; it also writes the bundle page `packs/all/WORKSHOP_DESCRIPTION_GUIDELINES.md` with this pack's event count.
+- [ ] 7. `powershell -File .\build.ps1 -Check -Pack <pack>`: expect `Check OK` and `Bundle 'all': <n> member(s), 0 error(s)`, with no warning outside "Kept on judgment". A new pack is already in the bundle's `members` (`-NewPack` added it).
 - [ ] 8. `powershell -File .\build.ps1 -RenderEvents -Pack <pack>`: expect `Rendered <n> events to ...artifacts\workshop-images\<pack>`, with no `[WARN]` outside "Kept on judgment".
 - [ ] 9. `powershell -File .\build.ps1 -ValidateOnly` then `powershell -File .\build.ps1 -Test`: expect `Validation succeeded.` and no failed test.
-- [ ] 10. Ship (after the user confirms): move this plan to `docs/plans/archive/`, commit with the message `feat(<pack>): <summary>`, then `powershell -File .\wiki\push-wiki.ps1`.
+- [ ] 10. Ship (after the user confirms): move this plan to `docs/plans/archive/`, commit with the message `feat(<pack>): <summary>`, then `powershell -File .\wiki\push-wiki.ps1`. The commit holds the bundle's files too (`tools/HoiModBuild.json`, `source/all/`, `packs/all/`). The Workshop upload is `event-pack-release`: one `Publish-Mod.ps1 -Pack <pack>` run uploads the pack and then the bundle, and a new country is released with its Commanders Pack in the same session.
 
 ## Stop conditions
 

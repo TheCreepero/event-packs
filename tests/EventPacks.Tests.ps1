@@ -900,12 +900,153 @@ for flags, alpha_mask in ((0x41, 0xFF000000), (0x40, 0)):
     }
 }
 
+Describe 'Bundle' {
+    BeforeAll {
+        function New-EpBundleFixtureRepo {
+            $fixtureRoot = New-EpFixtureRepo -Packs @('testland', 'otherland')
+            $packageSettings = [ordered]@{
+                all       = [PSCustomObject]@{ root = 'packs/all'; modFolderName = 'immersive_events_expanded'; members = @('testland', 'otherland') }
+                testland  = [PSCustomObject]@{ root = 'packs/testland'; modFolderName = 'event_pack_testland' }
+                otherland = [PSCustomObject]@{ root = 'packs/otherland'; modFolderName = 'event_pack_otherland' }
+            }
+            Write-FixtureFile -Root $fixtureRoot -RelativePath 'tools\HoiModBuild.json' -Text (ConvertTo-Json -InputObject ([PSCustomObject]@{ packages = [PSCustomObject]$packageSettings }) -Depth 5)
+            foreach ($packName in @('testland', 'otherland', 'all')) {
+                $packTitle = if ($packName -eq 'all') { 'Immersive Events Expanded' } else { 'Event Pack: ' + $packName }
+                Write-FixtureFile -Root $fixtureRoot -RelativePath "packs\$packName\descriptor.mod" -Text ("version=`"1.0`"`r`nname=`"$packTitle`"`r`npicture=`"thumbnail.png`"`r`nsupported_version=`"1.19.*`"`r`n")
+            }
+            Write-FixtureFile -Root $fixtureRoot -RelativePath 'packs\all\thumbnail.png' -Text 'png'
+            Write-FixtureFile -Root $fixtureRoot -RelativePath 'source\all\workshop-intro.bbcode' -Text "<!-- region:image:hero -->`r`n<!-- /region -->`r`nHistorical flavor events for Testland 1 and Testland 2 in one item.`r`n"
+            return $fixtureRoot
+        }
+
+        function Get-BundleErrors {
+            param([string]$Root)
+
+            return @(Test-EpBundle -RepoRoot $Root -Bundle 'all' | Where-Object { $_.Level -eq 'ERROR' } | ForEach-Object { "$($_.Where): $($_.Message)" })
+        }
+    }
+
+    It 'keeps the bundle out of the pack names, and finds the bundle that holds a member' {
+        $fixtureRoot = New-EpBundleFixtureRepo
+        @(Get-EpPackNames -RepoRoot $fixtureRoot) | Should -Be @('testland', 'otherland')
+        @(Get-EpBundleNames -RepoRoot $fixtureRoot) | Should -Be @('all')
+        @(Get-EpBundleNames -RepoRoot $fixtureRoot -Member 'otherland') | Should -Be @('all')
+        @(Get-EpBundleNames -RepoRoot $fixtureRoot -Member 'elsewhere').Count | Should -Be 0
+    }
+
+    It 'writes the bundle page: the intro, a country list with the event counts, and the link markers' {
+        $fixtureRoot = New-EpBundleFixtureRepo
+        Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'all' 6>$null | Select-Object -Last 1 | Should -Be 0
+        $pageText = [System.IO.File]::ReadAllText((Join-Path $fixtureRoot 'packs\all\WORKSHOP_DESCRIPTION_GUIDELINES.md'), [System.Text.Encoding]::UTF8)
+        $pageText | Should -Match '(?m)^# Immersive Events Expanded - Workshop description'
+        $pageText | Should -Match 'Historical flavor events for Testland 1 and Testland 2 in one item\.'
+        $pageText | Should -Match '\[\*\]Testland 1: 1 event\r?\n\[\*\]Testland 2: 1 event'
+        $pageText | Should -Match '<!-- region:image:strip-countries -->'
+        $pageText | Should -Match '<!-- cross-links:begin -->\r?\n<!-- cross-links:end -->'
+        $pageText | Should -Not -Match ('[' + [char]0x2014 + [char]0x2013 + [char]0x2026 + ']')
+        Get-BundleErrors -Root $fixtureRoot | Should -BeNullOrEmpty
+    }
+
+    It 'writes the bundle page again when a member pack is generated, and keeps what the Manager wrote in it' {
+        $fixtureRoot = New-EpBundleFixtureRepo
+        Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'all' 6>$null | Out-Null
+        $pagePath = Join-Path $fixtureRoot 'packs\all\WORKSHOP_DESCRIPTION_GUIDELINES.md'
+        $carriedText = ([System.IO.File]::ReadAllText($pagePath, [System.Text.Encoding]::UTF8)).Replace("<!-- cross-links:begin -->`r`n<!-- cross-links:end -->", "<!-- cross-links:begin -->`r`n[b]More from the author[/b]`r`n<!-- cross-links:end -->")
+        Write-EpText -Path $pagePath -Text $carriedText
+        Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'testland' 6>$null | Select-Object -Last 1 | Should -Be 0
+        [System.IO.File]::ReadAllText($pagePath, [System.Text.Encoding]::UTF8) | Should -Match '\[b\]More from the author\[/b\]'
+        Remove-Item -LiteralPath $pagePath
+        Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'otherland' 6>$null | Select-Object -Last 1 | Should -Be 0
+        Test-Path -LiteralPath $pagePath | Should -BeTrue
+    }
+
+    It 'passes the check of a bundle that is in step, and checks it with the packs it holds' {
+        $fixtureRoot = New-EpBundleFixtureRepo
+        Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'all' 6>$null | Out-Null
+        Get-BundleErrors -Root $fixtureRoot | Should -BeNullOrEmpty
+        $checkOutput = @(Invoke-EpCheck -RepoRoot $fixtureRoot -Pack 'testland' 6>&1 | ForEach-Object { [string]$_ })
+        ($checkOutput -join "`n") | Should -Match "Bundle 'all': 2 member"
+    }
+
+    It 'returns a failing exit code from the check for a bundle error, and 0 without one' {
+        $fixtureRoot = New-EpBundleFixtureRepo
+        Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'all' 6>$null | Out-Null
+        Invoke-EpCheck -RepoRoot $fixtureRoot -Pack 'all' 6>$null | Select-Object -Last 1 | Should -Be 0
+        $settings = Read-EpJson -Path (Join-Path $fixtureRoot 'tools\HoiModBuild.json')
+        $settings.packages.all.members = @('testland')
+        Write-EpText -Path (Join-Path $fixtureRoot 'tools\HoiModBuild.json') -Text (ConvertTo-Json -InputObject $settings -Depth 6)
+        Invoke-EpCheck -RepoRoot $fixtureRoot -Pack 'all' 6>$null | Select-Object -Last 1 | Should -Be 1
+    }
+
+    It 'fails the check when a pack is not a member of the bundle' {
+        $fixtureRoot = New-EpBundleFixtureRepo
+        Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'all' 6>$null | Out-Null
+        $settings = Read-EpJson -Path (Join-Path $fixtureRoot 'tools\HoiModBuild.json')
+        $settings.packages.all.members = @('testland')
+        Write-EpText -Path (Join-Path $fixtureRoot 'tools\HoiModBuild.json') -Text (ConvertTo-Json -InputObject $settings -Depth 6)
+        Get-BundleErrors -Root $fixtureRoot | Should -Contain "tools/HoiModBuild.json: pack 'otherland' is not a member of bundle 'all': add it to the members list, or its release would leave it out of the bundle"
+    }
+
+    It 'lists a member that is not a pack as a problem instead of stopping' {
+        $fixtureRoot = New-EpBundleFixtureRepo
+        $settings = Read-EpJson -Path (Join-Path $fixtureRoot 'tools\HoiModBuild.json')
+        $settings.packages.all.members = @('testland', 'otherland', 'ghostland')
+        Write-EpText -Path (Join-Path $fixtureRoot 'tools\HoiModBuild.json') -Text (ConvertTo-Json -InputObject $settings -Depth 6)
+        @(Get-BundleErrors -Root $fixtureRoot | Where-Object { $_ -like "*member 'ghostland' of bundle 'all' is not an event pack*" }).Count | Should -Be 1
+    }
+
+    It 'fails the check for an intro that does not name a member' {
+        $fixtureRoot = New-EpBundleFixtureRepo
+        Write-FixtureFile -Root $fixtureRoot -RelativePath 'source\all\workshop-intro.bbcode' -Text "<!-- region:image:hero -->`r`n<!-- /region -->`r`nHistorical flavor events for Testland 1 in one item.`r`n"
+        Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'all' 6>$null | Out-Null
+        @(Get-BundleErrors -Root $fixtureRoot | Where-Object { $_ -like "*does not name 'Testland 2'*" }).Count | Should -Be 1
+    }
+
+    It 'fails the check for a page edited by hand, a file in the bundle root and a different supported version' {
+        $fixtureRoot = New-EpBundleFixtureRepo
+        Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'all' 6>$null | Out-Null
+        $pagePath = Join-Path $fixtureRoot 'packs\all\WORKSHOP_DESCRIPTION_GUIDELINES.md'
+        Write-EpText -Path $pagePath -Text (([System.IO.File]::ReadAllText($pagePath, [System.Text.Encoding]::UTF8)) + 'by hand')
+        Write-FixtureFile -Root $fixtureRoot -RelativePath 'packs\all\events\extra_events.txt' -Text 'x'
+        Write-FixtureFile -Root $fixtureRoot -RelativePath 'packs\all\descriptor.mod' -Text ("version=`"1.0`"`r`nname=`"Immersive Events Expanded`"`r`nsupported_version=`"1.18.*`"`r`n")
+        $bundleErrors = Get-BundleErrors -Root $fixtureRoot
+        @($bundleErrors | Where-Object { $_ -like '*differs from what the source generates*' }).Count | Should -Be 1
+        @($bundleErrors | Where-Object { $_ -like '*a bundle holds only its descriptor*' }).Count | Should -Be 1
+        @($bundleErrors | Where-Object { $_ -like "*supported_version '1.18.*' differs from '1.19.*'*" }).Count | Should -Be 2
+    }
+
+    It 'adds a new pack to the members of the bundle' {
+        $fixtureRoot = New-EpBundleFixtureRepo
+        Invoke-EpNewPack -RepoRoot $fixtureRoot -Pack 'newland' -Tag 'NWL' -DisplayName 'Newland' 6>$null | Out-Null
+        $settings = Read-EpJson -Path (Join-Path $fixtureRoot 'tools\HoiModBuild.json')
+        @($settings.packages.all.members) | Should -Be @('testland', 'otherland', 'newland')
+        $settings.packages.newland.root | Should -BeExactly 'packs/newland'
+        @(Get-EpPackNames -RepoRoot $fixtureRoot) | Should -Be @('testland', 'otherland', 'newland')
+    }
+
+    It 'leaves a bundle without members out of the new-pack step and refuses a members list it cannot find' {
+        { Add-EpBundleMemberText -Text '{ "packages": { "all": { "root": "packs/all" } } }' -Bundle 'all' -Pack 'newland' } | Should -Throw '*members list of bundle*'
+        Add-EpBundleMemberText -Text '{ "packages": { "all": { "root": "packs/all", "members": [] } } }' -Bundle 'all' -Pack 'newland' | Should -Match '"members": \["newland"\]'
+    }
+}
+
 Describe 'This repository' {
     It 'every pack passes the check' {
         $packNames = @(Get-EpPackNames -RepoRoot $script:RepoRoot)
         $packNames.Count | Should -BeGreaterThan 0
         foreach ($packName in $packNames) {
             @(Test-EpPack -RepoRoot $script:RepoRoot -Pack $packName | Where-Object { $_.Level -eq 'ERROR' } | ForEach-Object { "$($_.Where): $($_.Message)" }) | Should -BeNullOrEmpty -Because "pack '$packName' must pass build.ps1 -Check"
+        }
+    }
+
+    It 'every bundle passes the check and holds every pack as a member' {
+        $bundleNames = @(Get-EpBundleNames -RepoRoot $script:RepoRoot)
+        $bundleNames.Count | Should -BeGreaterThan 0
+        foreach ($bundleName in $bundleNames) {
+            @(Test-EpBundle -RepoRoot $script:RepoRoot -Bundle $bundleName | Where-Object { $_.Level -eq 'ERROR' } | ForEach-Object { "$($_.Where): $($_.Message)" }) | Should -BeNullOrEmpty -Because "bundle '$bundleName' must pass build.ps1 -Check"
+        }
+        foreach ($packName in @(Get-EpPackNames -RepoRoot $script:RepoRoot)) {
+            @(Get-EpBundleNames -RepoRoot $script:RepoRoot -Member $packName).Count | Should -BeGreaterThan 0 -Because "pack '$packName' must be a member of a bundle"
         }
     }
 

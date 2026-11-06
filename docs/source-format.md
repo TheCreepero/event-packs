@@ -70,6 +70,10 @@ The historical researcher's dossiers, one per research run (parallel runs of one
 
 The opening of the pack's Workshop description in Steam BBCode. `-Generate` adds the event list, a short picture credit with the licences (no link to the wiki: the Workshop page carries no Wiki or GitHub links), and, after it, the cross-link block between the `<!-- cross-links:begin -->` and `<!-- cross-links:end -->` lines. The block is the Manager's, not this repository's: `Scripts/Workshop/Sync-WorkshopCrossLinks.ps1` of the Modding Manager writes it into each pack's description, and `-Generate` carries what is between the markers over unchanged. The wiki address is in `data/workshop.json`, shared by every pack.
 
+## The bundle: `source/all/workshop-intro.bbcode`
+
+The bundle "Immersive Events Expanded" is the package `all` in `tools/HoiModBuild.json`, with a `members` list of every pack (`-NewPack` adds a new pack to it). `packs/all/` holds only `descriptor.mod` (hand-written: name, the tags of its packs, `version="1.0"`, the `supported_version` of its members), `thumbnail.png` and the generated description; the events, ideas, pictures and localisation come from the members when the item is built, so nothing is committed twice. `source/all/workshop-intro.bbcode` is its one hand-written source: the hero region, a first sentence that names every member's country (`-Check` fails for one it leaves out) and the period, and the Info section with `<!-- region:info:checksum-event-pack,bundle-choice,small-effects,game-version -->`. `-Generate` (also when a pack is generated) appends a `[h1]Countries[/h1]` list with each member's display name and event count, and the cross-link block, to the bundle's `WORKSHOP_DESCRIPTION_GUIDELINES.md`. `build.ps1 -Check` also fails for a pack that is not a member, a `supported_version` that differs from a member's, a bundle page that differs from what the source generates, and a file in `packs/all/` other than the three.
+
 ## Generated files
 
 | File | From |
@@ -81,6 +85,7 @@ The opening of the pack's Workshop description in Steam BBCode. `-Generate` adds
 | `packs/<pack>/gfx/event_pictures/ep_<tag>/*.dds` | `build.ps1 -ConvertPictures`: 210x176 uncompressed DDS |
 | `packs/<pack>/localisation/<language>/ep_<tag>_l_<language>.yml` | the English text in all ten languages [LOC-017], UTF-8 with BOM [LOC-001] |
 | `packs/<pack>/WORKSHOP_DESCRIPTION_GUIDELINES.md` | intro, event list, the licences in one sentence, other mods |
+| `packs/all/WORKSHOP_DESCRIPTION_GUIDELINES.md` | the bundle's intro, the country list with event counts, other mods |
 | `wiki/Event-Pack-<Country>.md` | event table with each picture's source, licence (CC BY linked) and author: the full credits the Workshop description links to |
 
 Nothing else may sit in `packs/<pack>/`: `-Check` fails on any file there that is not `descriptor.mod`, `thumbnail.png`, a generated file or the picture of a used manifest row, so nothing ships unchecked. `build.ps1 -PreviewPictures -Pack <pack>` writes PNG copies of the pictures to `scratch/preview/<pack>/` for a look at the crops. `build.ps1 -RenderEvents -Pack <pack>` draws each event as the game's event window, and `00-overview` with several on a pile, into `artifacts/workshop-images/<pack>/`, outside the pack, for the Workshop page.

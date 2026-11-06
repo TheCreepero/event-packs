@@ -17,7 +17,7 @@ Finds what an existing pack needs: broken checks, facts that no longer hold, pic
 
 ## Phase 0: mechanical
 1. `powershell -File .\build.ps1 -Audit -Pack <key>`: the scorecard (words, anchors, options, effects, licence per event) and every `[ERROR]` and `[WARN]`.
-2. `powershell -File .\build.ps1 -Check -Pack <key>` must pass on a pack that shipped; a failure is Critical.
+2. `powershell -File .\build.ps1 -Check -Pack <key>` must pass on a pack that shipped; a failure is Critical. The check includes the bundle that holds the pack: the pack must be a member of `all` in `tools/HoiModBuild.json`, the bundle's intro (`source/all/workshop-intro.bbcode`) must name its country, and the generated bundle page (`packs/all/WORKSHOP_DESCRIPTION_GUIDELINES.md`) must list it with its event count; an error there is Critical, and its fix is a plan step on the bundle's source, never on the generated page.
 3. `powershell -File ..\..\Scripts\Workshop\Test-WorkshopText.ps1 -Mod "Event Packs" -Pack <key>`: the Workshop page as a whole (wording, page order, shared lines, images, regions). A line it reports for a published pack is Important.
 4. Note the events and pictures the scorecard flags.
 

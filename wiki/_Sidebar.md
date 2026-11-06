@@ -1,5 +1,7 @@
 - **[Event Packs](Home)**
 - **Packs**
   - [Finland](Event-Pack-Finland)
+  - [France](Event-Pack-France)
+  - [Poland](Event-Pack-Poland)
 - **Developer Guide**
   - [Contributing](Contributing)

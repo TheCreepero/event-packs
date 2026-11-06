@@ -1,12 +1,15 @@
 # Event Packs
 
-Small packs of historical flavor events for Hearts of Iron IV, one pack per country, each published on the Steam Workshop as its own item: **Event Pack: <Country>**. Every pack works alone and beside any other pack. The events use real period photographs under free licences, and their texts are built from sourced fact sheets.
+Small packs of historical flavor events for Hearts of Iron IV, one pack per country, each published on the Steam Workshop as an item of its own, **Event Pack: <Country>**, and all of them together as one bundle item, **Immersive Events Expanded**. Every pack works alone. The events use real period photographs under free licences, and their texts are built from sourced fact sheets.
 
 ## Packs
 
 | Pack | Tag | Events | Workshop |
 |---|---|---|---|
-| [Finland](wiki/Event-Pack-Finland.md) | FIN | in planning | not yet published |
+| [Finland](wiki/Event-Pack-Finland.md) | FIN | 15 | published |
+| [France](wiki/Event-Pack-France.md) | FRA | 20 | published |
+| [Poland](wiki/Event-Pack-Poland.md) | POL | 20 | published |
+| Immersive Events Expanded (the bundle, `packs/all`) | | every pack's events | not yet published |
 
 ## How the repository works
 
@@ -14,7 +17,9 @@ Small packs of historical flavor events for Hearts of Iron IV, one pack per coun
 event-packs/
 |-- build.ps1                 # lifecycle and pack commands (Get-Help .\build.ps1)
 |-- source/<pack>/            # hand-written: events.json, fact-sheets.md, workshop-intro.bbcode; pictures.json from -FetchPicture and -RemovePicture
+|-- source/all/               # the bundle's hand-written workshop-intro.bbcode
 |-- packs/<pack>/             # one Workshop item: descriptor.mod, thumbnail.png and everything -Generate writes
+|-- packs/all/                # the bundle item: only descriptor.mod, thumbnail.png and the generated description; its content is every member's, added at build time
 |-- research/<pack>/          # the researcher's dossiers, kept: every candidate event with its sourced facts, used or not
 |-- data/                     # effect caps and banned phrases the checks use
 |-- docs/                     # style guide, source format, plans
@@ -37,10 +42,14 @@ Work goes through the agent skills in `.claude/skills` (mirrored in `.agents/ski
 .\build.ps1 -ValidateOnly
 .\build.ps1 -Test
 .\build.ps1 -DevLink -Pack finland                                 # the launcher loads packs/finland
-.\build.ps1 -Package                                               # one zip per pack in artifacts/
+.\build.ps1 -DevLink -Pack all                                     # the launcher loads the bundle from .devlink/ (hard links to every member's files)
+.\build.ps1 -DevLink -CheckLinks -Pack all                         # which links a git checkout or pull broke; changes nothing
+.\build.ps1 -Package                                               # one zip per pack in artifacts/ (-Package -Pack all builds the bundle's)
 ```
 
-Publishing goes through the Modding Manager: `Scripts\Publish-Mod.ps1 "Event Packs" -Pack <pack>`. So do the thumbnails: `Scripts\Showcase\New-HoiThumbnail.ps1 "Event Packs" -Pack <pack>` previews a pack's `thumbnail.png` from `assets/thumbnail.json`, and `-Apply` writes it.
+The bundle and a single pack of the same release can be enabled together (the shared files load once, [LOAD-022]); the Workshop page still asks players to subscribe to one or the other.
+
+Publishing goes through the Modding Manager: `Scripts\Publish-Mod.ps1 "Event Packs" -Pack <pack>` uploads the pack and then the bundle, once the bundle is published (`-Pack all` uploads the bundle alone). So do the thumbnails: `Scripts\Showcase\New-HoiThumbnail.ps1 "Event Packs" -Pack <pack>` previews a pack's `thumbnail.png` from `assets/thumbnail.json`, and `-Apply` writes it.
 
 ## Picture credits
 

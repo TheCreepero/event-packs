@@ -58,6 +58,9 @@ Describe 'Protect-ProjectFiles hook' {
         @{ Path = 'packs\finland\history\x.txt' },
         @{ Path = 'packs\finland\WORKSHOP_DESCRIPTION_GUIDELINES.md' },
         @{ Path = 'packs\finland\thumbnail.png' },
+        @{ Path = 'packs\all\WORKSHOP_DESCRIPTION_GUIDELINES.md' },
+        @{ Path = 'packs\all\thumbnail.png' },
+        @{ Path = 'packs\all\events\ep_fin_events.txt' },
         @{ Path = 'source\finland\pictures.json' },
         @{ Path = 'wiki\Event-Pack-Finland.md' },
         @{ Path = 'tools\HoiModBuild.ps1' },
@@ -72,6 +75,8 @@ Describe 'Protect-ProjectFiles hook' {
 
     It 'allows an edit of <Path>' -TestCases @(
         @{ Path = 'packs\finland\descriptor.mod' },
+        @{ Path = 'packs\all\descriptor.mod' },
+        @{ Path = 'source\all\workshop-intro.bbcode' },
         @{ Path = 'source\finland\events.json' },
         @{ Path = 'source\finland\fact-sheets.md' },
         @{ Path = 'docs\plans\2026-11-01-finland-pack.md' },

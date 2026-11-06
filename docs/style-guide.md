@@ -49,6 +49,10 @@ Option names follow vanilla's habit of a spoken reaction: "We will hold.", "Send
 | Hedged significance | "This may well mark a turning point" | Drop it; the player decides what matters |
 | Dashes for drama | "The line held, for now" with a dash | A full stop |
 
+## The bundle page
+
+The Workshop page of the bundle "Immersive Events Expanded" (`source/all/workshop-intro.bbcode`) is written in the same plain voice as a pack's intro and says only what the files show. Its first sentence names the item's kind ("Historical flavor events"), every member's country in one list and the period, with each end taken from the packs' own intros; it states no count (the generated country list carries the counts). The Info section reuses the standard lines (checksum, `bundle-choice`, small effects, game version) through the region marker and restates none of them in free text. It says nothing about how the events or pictures were made beyond what a pack's intro says, and nothing about AI. `workshop-editor` judges it as it judges a pack intro.
+
 ## Exemplars
 
 Read these before writing; they set the register. Vanilla texts come from the game's `localisation/english/events_l_english.yml` (line numbers from game 1.19.4.1), with the scripted names (`[195.GetName]`, `[FROM.GetNameDef]`) filled in as the game shows them.
