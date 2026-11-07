@@ -105,24 +105,6 @@ function Get-SelectedPackNames {
     return @(Get-EpPackNames -RepoRoot $PSScriptRoot)
 }
 
-function Sync-SkillMirrors {
-    $sourceRoot = Join-Path $PSScriptRoot '.claude\skills'
-    $mirrorRoot = Join-Path $PSScriptRoot '.agents\skills'
-    if (-not (Test-Path -LiteralPath $sourceRoot)) {
-        Write-Host 'No skills under .claude\skills.' -ForegroundColor Yellow
-        return 0
-    }
-    if (Test-Path -LiteralPath $mirrorRoot) {
-        Remove-Item -LiteralPath $mirrorRoot -Recurse -Force
-    }
-    New-Item -ItemType Directory -Path $mirrorRoot -Force | Out-Null
-    foreach ($skillFolder in @(Get-ChildItem -LiteralPath $sourceRoot -Directory)) {
-        Copy-Item -LiteralPath $skillFolder.FullName -Destination (Join-Path $mirrorRoot $skillFolder.Name) -Recurse -Force
-    }
-    Write-Host "Mirrored $(@(Get-ChildItem -LiteralPath $sourceRoot -Directory).Count) skill(s) to .agents\skills." -ForegroundColor Green
-    return 0
-}
-
 switch ($PSCmdlet.ParameterSetName) {
     'NewPack' {
         if (-not $Pack) {
@@ -188,7 +170,7 @@ switch ($PSCmdlet.ParameterSetName) {
         exit ([int](@(Invoke-EpAudit -RepoRoot $PSScriptRoot -Pack $Pack)[-1]))
     }
     'SyncMirrors' {
-        exit (Sync-SkillMirrors)
+        exit (Sync-ModSkillMirrors -RepoPath $PSScriptRoot)
     }
     'TestMod' {
         $launcherModDir = $(if ($ModDir) { $ModDir } else { Get-ModDefaultModDir })

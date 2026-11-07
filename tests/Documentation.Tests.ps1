@@ -1,7 +1,6 @@
 BeforeAll {
     $script:RepoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
     $script:SkillRoot = Join-Path $script:RepoRoot '.claude\skills'
-    $script:MirrorRoot = Join-Path $script:RepoRoot '.agents\skills'
     $script:AgentRoot = Join-Path $script:RepoRoot '.claude\agents'
     $script:BuildParameters = @((Get-Command (Join-Path $script:RepoRoot 'build.ps1')).Parameters.Keys)
 
@@ -32,11 +31,9 @@ Describe 'Skills' {
     }
 
     It 'keeps the Antigravity mirror identical to the Claude Code skills' {
-        foreach ($skillFile in @(Get-ChildItem -LiteralPath $script:SkillRoot -Recurse -File)) {
-            $mirrorPath = Join-Path $script:MirrorRoot $skillFile.FullName.Substring($script:SkillRoot.Length + 1)
-            Test-Path -LiteralPath $mirrorPath | Should -BeTrue -Because "$mirrorPath mirrors $($skillFile.Name); run build.ps1 -SyncMirrors"
-            (Get-FileHash -LiteralPath $mirrorPath).Hash | Should -Be (Get-FileHash -LiteralPath $skillFile.FullName).Hash -Because 'build.ps1 -SyncMirrors writes the mirror'
-        }
+        . (Join-Path $script:RepoRoot 'tools\HoiModBuild.ps1')
+        $staleMirrors = @(Get-ModSkillMirrorStates -RepoPath $script:RepoRoot -ExcludeSkillName @() | Where-Object { $_.State -ne 'Current' } | ForEach-Object { "$($_.Target) $($_.State): $(@($_.Problems) + @($_.DifferingFiles) -join ', ')" })
+        $staleMirrors | Should -BeNullOrEmpty -Because 'build.ps1 -SyncMirrors writes the mirror'
     }
 
     It 'names only build.ps1 switches that exist and agents that exist' {
