@@ -84,7 +84,7 @@ Describe 'Agents' {
 Describe 'Plan template and guides' {
     It 'the plan template has every section the skills and the implementer use' {
         $templateText = [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'docs\plans\TEMPLATE-pack.md'))
-        foreach ($heading in @('## For the implementer', '## Context', '## Decisions', '## Events', '## Pictures', '## Editor record', '## Kept on judgment', '## Implementation steps', '## Stop conditions', '## Outcome', '## Fact sheets', '## Events source')) {
+        foreach ($heading in @('## For the implementer', '## Context', '## Decisions', '## Events', '## Pictures', '## Fact verification', '## Trigger verification', '## Editor record', '## Kept on judgment', '## Implementation steps', '## Stop conditions', '## Outcome', '## Fact sheets', '## Events source')) {
             $templateText | Should -Match ('(?m)^' + [regex]::Escape($heading) + '\s*$')
         }
         $templateText | Should -Match '(?m)^Status: PLANNING'

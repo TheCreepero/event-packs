@@ -24,7 +24,7 @@ A new country ships its Event Pack and its Commanders Pack in the same session, 
 
 ## 2. In-game check
 1. `powershell -File .\build.ps1 -DevLink -Pack <key>`, and `powershell -File .\build.ps1 -TestMod -Pack <key>` for the console commands. The test mod is the dev-only tool for the console commands; the real bundle item is `powershell -File .\build.ps1 -DevLink -Pack all` (the bundle and a single pack of the same release load together without a duplicate [LOAD-022]; a pack of another release beside the bundle has not been checked).
-2. Ask the owner to start a game as the pack's country with only this pack and "Event Packs Test (dev only)" enabled (plus their usual playset if they want), and to run `event ep_<tag>.<id>` in the console for each new or changed event, or `ep_<tag>_all` for every event: picture, title, text and options as planned, effects as the tooltip shows them. The test mod is never part of the upload. Until [AUTO-043] is `confirmed`, report whether `ep_<tag>_all` worked as a command so the register can be updated.
+2. Ask the owner to start a game as the pack's country with only this pack and "Event Packs Test (dev only)" enabled (plus their usual playset if they want), and to run `event ep_<tag>.<id>` in the console for each new or changed event, or `ep_<tag>_all` for every event: picture, title, text and options as planned, effects as the tooltip shows them. The test mod is never part of the upload.
 3. Read `Documents\Paradox Interactive\Hearts of Iron IV\logs\error.log` for lines naming `ep_<tag>` or the pack's files. Done when the owner reports what they saw and the log has no such line.
 
 ## 3. Change note and credits

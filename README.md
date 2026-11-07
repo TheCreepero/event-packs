@@ -9,7 +9,7 @@ Small packs of historical flavor events for Hearts of Iron IV, one pack per coun
 | [Finland](wiki/Event-Pack-Finland.md) | FIN | 15 | published |
 | [France](wiki/Event-Pack-France.md) | FRA | 20 | published |
 | [Poland](wiki/Event-Pack-Poland.md) | POL | 20 | published |
-| Immersive Events Expanded (the bundle, `packs/all`) | | every pack's events | not yet published |
+| Immersive Events Expanded (the bundle, `packs/all`) | | every pack's events | published |
 
 ## How the repository works
 
@@ -53,7 +53,7 @@ Publishing goes through the Modding Manager: `Scripts\Publish-Mod.ps1 "Event Pac
 
 ## Picture credits
 
-Each pack's wiki page lists the source, author and licence of every picture it uses; its Workshop description names the licences and links to that page.
+Each pack's wiki page lists the source, author and licence of every picture it uses; its Workshop description names the licences and carries no link to that page.
 
 ## Author
 
