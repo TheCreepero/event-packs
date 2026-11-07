@@ -898,6 +898,101 @@ for flags, alpha_mask in ((0x41, 0xFF000000), (0x40, 0)):
         $result.ExitCode | Should -Be 1
         $result.Text | Should -Match '\[ERROR\] ep_fin\.1: picture GFX_ep_fin_\w+ not found'
     }
+
+    It "draws the country's flag in the game's flag frame at the top right of the cards and the overview" {
+        if (-not $script:PythonExecutable) { Set-ItResult -Skipped -Because 'Python 3 with Pillow is not installed'; return }
+        $outputDir = Join-Path $TestDrive 'flag-renders'
+        $result = Invoke-EventRenderer -SourceDir (Join-Path $script:RepoRoot 'source\finland') -PackDir (Join-Path $script:RepoRoot 'packs\finland') -OutputDir $outputDir
+        if ($result.Text -match 'no Hearts of Iron IV install found') { Set-ItResult -Skipped -Because 'the game is not installed here'; return }
+        $result.ExitCode | Should -Be 0 -Because $result.Text
+        $result.Text | Should -Not -Match '\[WARN\] flag'
+        $probe = @'
+import glob, os, sys
+sys.path.insert(0, sys.argv[1])
+import render_event_cards as cards
+from PIL import Image, ImageChops, ImageStat
+game_dir = cards.find_game_dir()
+flag = Image.open(os.path.join(game_dir, "gfx", "flags", "FIN_neutrality.tga")).convert("RGB")
+for path in sorted(glob.glob(os.path.join(sys.argv[2], "*.*"))):
+    image = Image.open(path).convert("RGB")
+    frame_left = image.width - 24 - 92
+    left = frame_left + 5
+    top = 24 + 2
+    region = image.crop((left + 6, top + 6, left + flag.width - 6, top + flag.height - 6))
+    inner = flag.crop((6, 6, flag.width - 6, flag.height - 6))
+    drift = max(ImageStat.Stat(ImageChops.difference(region, inner)).mean)
+    border = image.crop((frame_left + 10, 24 + 2, frame_left + 80, 24 + 3))
+    border_drift = max(ImageStat.Stat(ImageChops.difference(border, flag.crop((5, 0, 75, 1)))).mean)
+    drawn = drift <= (6 if path.lower().endswith(".jpg") else 0) and border_drift > 20
+    print("%s %s" % (os.path.basename(path), "flag" if drawn else "no-flag"))
+'@
+        $probePath = Join-Path $TestDrive 'flag_probe.py'
+        [System.IO.File]::WriteAllText($probePath, $probe, [System.Text.UTF8Encoding]::new($false))
+        $probeOutput = @(& $script:PythonExecutable -I -B $probePath (Join-Path $script:RepoRoot 'tools') $outputDir 2>&1 | ForEach-Object { "$_" })
+        $probeOutput.Count | Should -BeGreaterThan 1 -Because ($probeOutput -join "`n")
+        @($probeOutput | Where-Object { $_ -notmatch ' flag$' }) | Should -Be @() -Because ($probeOutput -join "`n")
+        @($probeOutput | Where-Object { $_ -match '^00-overview\.' }).Count | Should -Be 1
+    }
+
+    It 'picks the flag of the ruling party in the undated set_politics, else the plain tag flag' {
+        if (-not $script:PythonExecutable) { Set-ItResult -Skipped -Because 'Python 3 with Pillow is not installed'; return }
+        $fixtureGame = Join-Path $TestDrive 'flag-game'
+        $historyText = @'
+1939.1.1 = {
+	set_politics = {
+		ruling_party = fascism
+	}
+}
+# ruling_party = communism
+set_politics = {
+	ruling_party = democratic # x
+	last_election = "1931.3.2"
+}
+'@
+        Write-EpText -Path (Join-Path $fixtureGame 'history\countries\AAA - Aland.txt') -Text $historyText
+        Write-EpText -Path (Join-Path $fixtureGame 'history\countries\BBB - Bland.txt') -Text 'capital = 1'
+        Write-EpText -Path (Join-Path $fixtureGame 'history\countries\CCC - Cland.txt') -Text "set_politics = {`n`truling_party = neutrality`n}"
+        New-Item -ItemType Directory -Path (Join-Path $fixtureGame 'gfx\flags') -Force | Out-Null
+        $probe = @'
+import os, sys
+sys.path.insert(0, sys.argv[1])
+import render_event_cards as cards
+from PIL import Image
+flags = os.path.join(sys.argv[2], "gfx", "flags")
+for name in ("AAA_democratic", "AAA_fascism", "BBB", "CCC"):
+    Image.new("RGBA", (82, 52), (255, 0, 0, 255)).save(os.path.join(flags, name + ".tga"))
+for tag in ("AAA", "BBB", "CCC", "DDD"):
+    found = cards.find_flag(sys.argv[2], tag)
+    print("%s %s %s" % (tag, cards.ruling_party(sys.argv[2], tag), os.path.basename(found) if found else None))
+'@
+        $probePath = Join-Path $TestDrive 'party_probe.py'
+        [System.IO.File]::WriteAllText($probePath, $probe, [System.Text.UTF8Encoding]::new($false))
+        $probeOutput = @(& $script:PythonExecutable -I -B $probePath (Join-Path $script:RepoRoot 'tools') $fixtureGame 2>&1 | ForEach-Object { "$_" })
+        $probeOutput | Should -Be @('AAA democratic AAA_democratic.tga', 'BBB None BBB.tga', 'CCC neutrality CCC.tga', 'DDD None None') -Because ($probeOutput -join "`n")
+    }
+
+    It 'warns of a pack without a tag or with a tag that has no flag file, and still renders' {
+        if (-not $script:PythonExecutable) { Set-ItResult -Skipped -Because 'Python 3 with Pillow is not installed'; return }
+        $packDir = Join-Path $TestDrive 'flagless\packs\finland'
+        Copy-Item -LiteralPath (Join-Path $script:RepoRoot 'packs\finland') -Destination $packDir -Recurse
+        $eventSource = [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'source\finland\events.json'), [System.Text.Encoding]::UTF8) | ConvertFrom-Json
+        $eventSource.events = @($eventSource.events[0])
+        $untaggedDir = Join-Path $TestDrive 'flagless\untagged'
+        $eventSource.PSObject.Properties.Remove('tag')
+        Write-EpText -Path (Join-Path $untaggedDir 'events.json') -Text (ConvertTo-Json -InputObject $eventSource -Depth 8)
+        $result = Invoke-EventRenderer -SourceDir $untaggedDir -PackDir $packDir -OutputDir (Join-Path $TestDrive 'flagless\untagged-out')
+        if ($result.Text -match 'no Hearts of Iron IV install found') { Set-ItResult -Skipped -Because 'the game is not installed here'; return }
+        $result.ExitCode | Should -Be 0 -Because $result.Text
+        $result.Text | Should -Match '\[WARN\] flag: events\.json has no tag'
+        @(Get-ChildItem -LiteralPath (Join-Path $TestDrive 'flagless\untagged-out') -File).Count | Should -Be 2
+        $unknownDir = Join-Path $TestDrive 'flagless\unknown'
+        $eventSource | Add-Member -NotePropertyName 'tag' -NotePropertyValue 'QQQ'
+        Write-EpText -Path (Join-Path $unknownDir 'events.json') -Text (ConvertTo-Json -InputObject $eventSource -Depth 8)
+        $result = Invoke-EventRenderer -SourceDir $unknownDir -PackDir $packDir -OutputDir (Join-Path $TestDrive 'flagless\unknown-out')
+        $result.ExitCode | Should -Be 0 -Because $result.Text
+        $result.Text | Should -Match '\[WARN\] flag: no flag file for QQQ'
+        @(Get-ChildItem -LiteralPath (Join-Path $TestDrive 'flagless\unknown-out') -File).Count | Should -Be 2
+    }
 }
 
 Describe 'Bundle' {

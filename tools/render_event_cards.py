@@ -18,6 +18,11 @@ emptied first. 00-overview.png throws up to PILE_CARDS of the windows, spread ov
 over the first background: the first event on top, the rest turned a little and overlapping, laid out
 the same way on every run of the pack.
 
+Every image carries the country's flag in the game's GFX_large_flag_frame at the top right: the tag is
+the "tag" of events.json, the file gfx/flags/<TAG>_<ideology>.tga of the party ruling in the vanilla
+history/countries file, else gfx/flags/<TAG>.tga; "[WARN] flag:" when there is none and the images go
+without.
+
 Prints [WARN] for a title or option text that overflows its box, [ERROR] for a picture that cannot be found,
 and ends with "Rendered <n> events to <folder>". Exit code 1 on any [ERROR].
 Fonts and sprite reading follow mods/hoi4-1440p-ui-mod/tools/guiparse.py.
@@ -47,6 +52,12 @@ SHADOW_BLUR = 10
 PILE_CARDS = 7
 PILE_SIZE = (1600, 900)
 PILE_TURN = 12
+FLAG_MARGIN = 24
+FLAG_INSET = (5, 2)
+FLAG_FRAME_SPRITE = "GFX_large_flag_frame"
+COMMENT_RE = re.compile(r"#[^\r\n]*")
+POLITICS_TOKEN_RE = re.compile(r"set_politics\s*=\s*\{|[{}]")
+RULING_PARTY_RE = re.compile(r"ruling_party\s*=\s*(\w+)")
 
 
 def find_game_dir(explicit=None):
@@ -460,6 +471,62 @@ def compose(window, background):
     return canvas.convert("RGB")
 
 
+def ruling_party(game_dir, tag):
+    """The ideology of the party that rules the country at the start of its vanilla history file, or None."""
+    folder = os.path.join(game_dir, "history", "countries")
+    names = [n for n in os.listdir(folder) if n.upper().startswith(tag.upper() + " - ")] if os.path.isdir(folder) else []
+    for name in sorted(names):
+        text = COMMENT_RE.sub("", read_text(os.path.join(folder, name)))
+        depth = 0
+        for token in POLITICS_TOKEN_RE.finditer(text):
+            if token.group(0) == "}":
+                depth -= 1
+                continue
+            if token.group(0) != "{" and depth == 0:
+                match = RULING_PARTY_RE.search(text, token.end(), text.find("}", token.end()))
+                if match:
+                    return match.group(1)
+            depth += 1
+    return None
+
+
+def find_flag(game_dir, tag):
+    """The flag file for a tag: the variant of the 1936 ruling party, else <TAG>.tga, else None."""
+    folder = os.path.join(game_dir, "gfx", "flags")
+    party = ruling_party(game_dir, tag)
+    for stem in ([tag + "_" + party] if party else []) + [tag]:
+        path = os.path.join(folder, stem + ".tga")
+        if os.path.isfile(path):
+            return path
+    return None
+
+
+def flag_badge(game_dir, tag, sprites):
+    """The country flag under the game's large flag frame as one RGBA image, and the warning when it cannot be drawn."""
+    if not tag:
+        return None, "events.json has no tag; no flag is drawn"
+    flag_path = find_flag(game_dir, tag)
+    if not flag_path:
+        return None, "no flag file for %s in gfx/flags; no flag is drawn" % tag
+    frame_entry = sprites.get(FLAG_FRAME_SPRITE)
+    if not frame_entry or not os.path.isfile(frame_entry[0]):
+        return None, "the game has no sprite %s; no flag is drawn" % FLAG_FRAME_SPRITE
+    frame = open_image(frame_entry[0]).convert("RGBA")
+    badge = Image.new("RGBA", frame.size, (0, 0, 0, 0))
+    badge.alpha_composite(Image.open(flag_path).convert("RGBA"), FLAG_INSET)
+    badge.alpha_composite(frame)
+    return badge, None
+
+
+def stamp_flag(image, badge):
+    """The badge at the top right corner, FLAG_MARGIN from the edges."""
+    if badge is None:
+        return image
+    canvas = image.convert("RGBA")
+    canvas.alpha_composite(badge, (canvas.width - FLAG_MARGIN - badge.width, FLAG_MARGIN))
+    return canvas.convert("RGB")
+
+
 def spread(items, count):
     """Up to count items, evenly spaced from the first to the last."""
     if len(items) <= count:
@@ -558,6 +625,10 @@ def main():
             print("[ERROR] --background %s is not a loading screen in gfx/loadingscreens" % args.background)
             return 1
 
+    badge, flag_warning = flag_badge(game_dir, source.get("tag"), window.sprites)
+    if flag_warning:
+        print("[WARN] flag: %s" % flag_warning)
+
     errors = 0
     rendered = []
     events = sorted(source["events"], key=lambda e: e["id"])
@@ -581,10 +652,10 @@ def main():
     size = (max([round(height * 16 / 9)] + [image.width + 2 * MARGIN for _event, image in rendered]), height)
     for index, (event, image) in enumerate(rendered):
         screen = screens[index % len(screens)] if screens else None
-        save(compose(image, backdrop(screen, size)), out, "%02d-%s" % (event["id"], event["key"]))
+        save(stamp_flag(compose(image, backdrop(screen, size)), badge), out, "%02d-%s" % (event["id"], event["key"]))
     if rendered:
         chosen = spread([image for _event, image in rendered], PILE_CARDS)
-        save(pile(chosen, backdrop(screens[0] if screens else None, PILE_SIZE), zlib.crc32(args.pack.encode("utf-8"))), out, "00-overview")
+        save(stamp_flag(pile(chosen, backdrop(screens[0] if screens else None, PILE_SIZE), zlib.crc32(args.pack.encode("utf-8"))), badge), out, "00-overview")
         print("  00-overview: %d events on a pile" % len(chosen))
     print("Rendered %d events to %s" % (len(events), out))
     return 1 if errors else 0
