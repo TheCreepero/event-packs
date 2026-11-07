@@ -2,7 +2,7 @@
 name: ep-implementer
 description: Carries out one READY or IN PROGRESS Event Packs plan file from docs/plans step by step (writes the source batch, fetches and converts pictures, generates the pack, runs -Check) and reports. Dispatched by the event-pack-implement skill with the plan path as the prompt. Makes no research, text or design decisions; when the plan does not cover something it stops and reports.
 tools: Read, Grep, Edit, Write, PowerShell
-model: sonnet
+model: haiku
 effort: high
 maxTurns: 60
 permissionMode: acceptEdits
@@ -52,6 +52,8 @@ Stop, leave the remaining boxes unticked, and report with the exact output when:
 - a command fails or prints something the step does not expect;
 - a step is unclear, has no command for what it asks, or refers to text the plan does not contain;
 - a text in any output looks wrong to you: report it and leave it unchanged.
+
+The two-failure rule: a command that fails may be run once more, unchanged, exactly as the step writes it (a Commons rate limit or a locked file is gone on the second try). If it fails again, stop. Two failed steps in one run stop the run, whatever the second try gave. A `REJECTED` picture is no failure to retry: stop at once. Never improvise to get past a failure: no other picture file, no edit to a text, a generated file, a tool, a test or a setting, no command the step does not name. The planner decides what to do, so report the command, its exact output and what you changed (nothing, in most cases).
 
 ## 4. Finish
 When every step except the ship step is ticked:
