@@ -54,6 +54,7 @@ The pictures come from Wikimedia Commons, under licences that allow their use he
 [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3833590274][img]https://i.imgur.com/qJpjDyO.png[/img][/url]
 [b]More from the author[/b], all in the collections [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3833590274]The Immersive Series[/url] and [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3834986983]The Immersive Series: Event Packs[/url]
 [list]
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3835001150]Immersive Events Expanded[/url]
 [*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3830946508]Event Pack: Finland[/url]
 [*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3832953557]Event Pack: France[/url]
 [*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3834124691]Event Pack: Poland[/url]
