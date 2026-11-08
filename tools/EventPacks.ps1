@@ -2097,6 +2097,57 @@ function Save-EpPictures {
     Write-EpText -Path $picturesPath -Text ($jsonText + "`r`n")
 }
 
+$script:EpCacheReuseDays = 14
+
+function Get-EpCacheSourcePath {
+    # In a subfolder, so that the thumbnail spec's sources-cache/<pack>/<key>.* still matches the picture alone.
+    param([Parameter(Mandatory = $true)][string]$CachePath)
+
+    return Join-Path (Join-Path (Split-Path -Parent $CachePath) '.sources') ((Split-Path -Leaf $CachePath) + '.json')
+}
+
+function Save-EpCacheSource {
+    # Written only after a download has finished, with the hash of what arrived and the day it arrived.
+    param(
+        [Parameter(Mandatory = $true)][string]$CachePath,
+        [Parameter(Mandatory = $true)][string]$DownloadUrl,
+        [Parameter(Mandatory = $true)][string]$Sha256
+    )
+
+    $sourcePath = Get-EpCacheSourcePath -CachePath $CachePath
+    $sourceFolder = Split-Path -Parent $sourcePath
+    if (-not (Test-Path -LiteralPath $sourceFolder)) {
+        New-Item -ItemType Directory -Path $sourceFolder -Force | Out-Null
+    }
+    $sourceText = [PSCustomObject]@{ downloadUrl = $DownloadUrl; downloadSha256 = $Sha256; downloaded = (Get-Date).ToString('yyyy-MM-dd') } | ConvertTo-Json
+    [System.IO.File]::WriteAllText($sourcePath, $sourceText, [System.Text.UTF8Encoding]::new($false))
+}
+
+function Test-EpCachedDownload {
+    # True when the cached file is a recent finished download of this URL: its sidecar names the URL, is at most
+    # $EpCacheReuseDays old (a Commons re-upload keeps its URL, so an old download may be an old version), and the file still has its hash.
+    param(
+        [Parameter(Mandatory = $true)][string]$CachePath,
+        [Parameter(Mandatory = $true)][string]$DownloadUrl
+    )
+
+    $sourcePath = Get-EpCacheSourcePath -CachePath $CachePath
+    if (-not (Test-Path -LiteralPath $CachePath) -or -not (Test-Path -LiteralPath $sourcePath)) {
+        return $false
+    }
+    try {
+        $cacheSource = [System.IO.File]::ReadAllText($sourcePath) | ConvertFrom-Json
+        $downloadedDate = [datetime]::ParseExact([string]$cacheSource.downloaded, 'yyyy-MM-dd', [System.Globalization.CultureInfo]::InvariantCulture)
+    } catch {
+        return $false
+    }
+    if ([string]$cacheSource.downloadUrl -cne $DownloadUrl -or ((Get-Date).Date - $downloadedDate).TotalDays -gt $script:EpCacheReuseDays) {
+        return $false
+    }
+    $cachedHash = (Get-FileHash -LiteralPath $CachePath -Algorithm SHA256).Hash.ToLowerInvariant()
+    return ($cachedHash -eq ([string]$cacheSource.downloadSha256).ToLowerInvariant())
+}
+
 function Invoke-EpFetchPicture {
     param(
         [Parameter(Mandatory = $true)][string]$RepoRoot,
@@ -2152,8 +2203,19 @@ function Invoke-EpFetchPicture {
     if (-not (Test-Path -LiteralPath $packData.CacheDir)) {
         New-Item -ItemType Directory -Path $packData.CacheDir -Force | Out-Null
     }
-    Invoke-EpCommonsRequest -Uri $picture.downloadUrl -OutFile $cachePath
+    $reusedDownload = Test-EpCachedDownload -CachePath $cachePath -DownloadUrl ([string]$picture.downloadUrl)
+    if (-not $reusedDownload) {
+        # Into a side file first: a download that fails leaves the cached file and its sidecar as they were.
+        $partialPath = [System.IO.Path]::ChangeExtension((Get-EpCacheSourcePath -CachePath $cachePath), '.download')
+        New-Item -ItemType Directory -Path (Split-Path -Parent $partialPath) -Force | Out-Null
+        Invoke-EpCommonsRequest -Uri $picture.downloadUrl -OutFile $partialPath
+        Move-Item -LiteralPath $partialPath -Destination $cachePath -Force
+    }
     $picture.downloadSha256 = (Get-FileHash -LiteralPath $cachePath -Algorithm SHA256).Hash.ToLowerInvariant()
+    if (-not $reusedDownload) {
+        # Only a real download dates the sidecar: a reuse keeps the day the bytes arrived, so the reuse window cannot be stretched.
+        Save-EpCacheSource -CachePath $cachePath -DownloadUrl ([string]$picture.downloadUrl) -Sha256 $picture.downloadSha256
+    }
     $keptPictures = [System.Collections.Generic.List[PSObject]]::new()
     foreach ($existingPicture in $packData.Pictures) {
         if ($existingPicture.key -ne $Key) {
@@ -2162,7 +2224,8 @@ function Invoke-EpFetchPicture {
     }
     $keptPictures.Add($picture)
     Save-EpPictures -Pack $packData -Pictures $keptPictures
-    Write-Host "  recorded '$Key' in source\$Pack\pictures.json; downloaded to $cachePath" -ForegroundColor Gray
+    $downloadNote = if ($reusedDownload) { "reused the cached download $cachePath (same URL and hash)" } else { "downloaded to $cachePath" }
+    Write-Host "  recorded '$Key' in source\$Pack\pictures.json; $downloadNote" -ForegroundColor Gray
     return 0
 }
 
@@ -2187,7 +2250,7 @@ function Invoke-EpRemovePicture {
     }
     $cachePath = Get-EpCacheFilePath -Pack $packData -Picture $picture
     $ddsPath = Join-Path $packData.PackRoot ((Get-EpPictureRelativePath -Pack $packData -PictureKey $Key).Replace('/', '\'))
-    $filesToRemove = @(@($cachePath, $ddsPath) | Where-Object { Test-Path -LiteralPath $_ })
+    $filesToRemove = @(@($cachePath, (Get-EpCacheSourcePath -CachePath $cachePath), $ddsPath) | Where-Object { Test-Path -LiteralPath $_ })
     if ($DryRun) {
         Write-Host "Dry run: would remove '$Key' ($($picture.commonsTitle)) from source\$Pack\pictures.json" -ForegroundColor Gray
         foreach ($fileToRemove in $filesToRemove) {
@@ -2252,6 +2315,7 @@ function Invoke-EpConvertPictures {
             }
             Invoke-EpCommonsRequest -Uri $picture.downloadUrl -OutFile $cachePath
             $downloadedHash = (Get-FileHash -LiteralPath $cachePath -Algorithm SHA256).Hash.ToLowerInvariant()
+            Save-EpCacheSource -CachePath $cachePath -DownloadUrl ([string]$picture.downloadUrl) -Sha256 $downloadedHash
             if ($picture.downloadSha256 -and $downloadedHash -ne $picture.downloadSha256) {
                 Write-Host "  [WARN] $pictureKey downloaded again with other bytes than recorded; Commons may have re-rendered the thumbnail" -ForegroundColor Yellow
             }

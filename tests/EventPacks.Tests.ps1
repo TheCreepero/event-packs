@@ -466,6 +466,80 @@ Describe 'The licence record cannot be bent by hand' {
         $picture.downloadSha256 | Should -Be ((Get-FileHash -LiteralPath (Get-EpCacheFilePath -Pack (Get-EpPack -RepoRoot $fixtureRoot -Pack 'testland') -Picture $picture) -Algorithm SHA256).Hash.ToLowerInvariant())
     }
 
+    It 'reuses a finished download of the same URL instead of downloading it again' {
+        $fixtureRoot = New-EpFixtureRepo
+        $script:DownloadCount = 0
+        Mock Invoke-RestMethod { Get-CommonsFixture -Name 'cc-by' }
+        Mock Invoke-WebRequest { $script:DownloadCount++; [System.IO.File]::WriteAllText($OutFile, 'picture bytes') }
+        Invoke-EpFetchPicture -RepoRoot $fixtureRoot -Pack 'testland' -File 'x.jpg' -Key 'zulu' 6>$null | Select-Object -Last 1 | Should -Be 0
+        Invoke-EpFetchPicture -RepoRoot $fixtureRoot -Pack 'testland' -File 'x.jpg' -Key 'zulu' -Crop '20' 6>$null | Select-Object -Last 1 | Should -Be 0
+        $script:DownloadCount | Should -Be 1
+        $packData = Get-EpPack -RepoRoot $fixtureRoot -Pack 'testland'
+        $picture = Get-EpPictureByKey -Pack $packData -PictureKey 'zulu'
+        $picture.crop | Should -Be '20'
+        $cachePath = Get-EpCacheFilePath -Pack $packData -Picture $picture
+        $picture.downloadSha256 | Should -Be ((Get-FileHash -LiteralPath $cachePath -Algorithm SHA256).Hash.ToLowerInvariant())
+        Test-Path -LiteralPath (Get-EpCacheSourcePath -CachePath $cachePath) | Should -BeTrue
+        @(Get-ChildItem -LiteralPath $packData.CacheDir -Filter 'zulu.*' -File).Count | Should -Be 1 -Because "the thumbnail spec names a background as sources-cache/<pack>/<key>.* and needs exactly one match"
+        Invoke-EpRemovePicture -RepoRoot $fixtureRoot -Pack 'testland' -Key 'zulu' 6>$null | Select-Object -Last 1 | Should -Be 0
+        Test-Path -LiteralPath (Get-EpCacheSourcePath -CachePath $cachePath) | Should -BeFalse
+    }
+
+    It 'downloads again when the cached download is older than the reuse window' {
+        $fixtureRoot = New-EpFixtureRepo
+        $script:DownloadCount = 0
+        Mock Invoke-RestMethod { Get-CommonsFixture -Name 'cc-by' }
+        Mock Invoke-WebRequest { $script:DownloadCount++; [System.IO.File]::WriteAllText($OutFile, 'picture bytes') }
+        Invoke-EpFetchPicture -RepoRoot $fixtureRoot -Pack 'testland' -File 'x.jpg' -Key 'zulu' 6>$null | Out-Null
+        $packData = Get-EpPack -RepoRoot $fixtureRoot -Pack 'testland'
+        $sourcePath = Get-EpCacheSourcePath -CachePath (Get-EpCacheFilePath -Pack $packData -Picture (Get-EpPictureByKey -Pack $packData -PictureKey 'zulu'))
+        $cacheSource = [System.IO.File]::ReadAllText($sourcePath) | ConvertFrom-Json
+        $cacheSource.downloaded = (Get-Date).AddDays(-10).ToString('yyyy-MM-dd')
+        [System.IO.File]::WriteAllText($sourcePath, ($cacheSource | ConvertTo-Json))
+        Invoke-EpFetchPicture -RepoRoot $fixtureRoot -Pack 'testland' -File 'x.jpg' -Key 'zulu' 6>$null | Out-Null
+        $script:DownloadCount | Should -Be 1 -Because 'a 10-day-old download is inside the window'
+        ([System.IO.File]::ReadAllText($sourcePath) | ConvertFrom-Json).downloaded | Should -Be $cacheSource.downloaded -Because 'a reuse must not date the download anew'
+        $cacheSource.downloaded = (Get-Date).AddDays(-30).ToString('yyyy-MM-dd')
+        [System.IO.File]::WriteAllText($sourcePath, ($cacheSource | ConvertTo-Json))
+        Invoke-EpFetchPicture -RepoRoot $fixtureRoot -Pack 'testland' -File 'x.jpg' -Key 'zulu' 6>$null | Out-Null
+        $script:DownloadCount | Should -Be 2
+    }
+
+    It 'downloads again when the cached file has no sidecar, other bytes than its sidecar, or another URL' {
+        $fixtureRoot = New-EpFixtureRepo
+        $script:DownloadCount = 0
+        Mock Invoke-RestMethod { Get-CommonsFixture -Name 'cc-by' }
+        Mock Invoke-WebRequest { $script:DownloadCount++; [System.IO.File]::WriteAllText($OutFile, 'picture bytes') }
+        Invoke-EpFetchPicture -RepoRoot $fixtureRoot -Pack 'testland' -File 'x.jpg' -Key 'zulu' 6>$null | Out-Null
+        $packData = Get-EpPack -RepoRoot $fixtureRoot -Pack 'testland'
+        $cachePath = Get-EpCacheFilePath -Pack $packData -Picture (Get-EpPictureByKey -Pack $packData -PictureKey 'zulu')
+        [System.IO.File]::WriteAllText($cachePath, 'cut off')
+        Invoke-EpFetchPicture -RepoRoot $fixtureRoot -Pack 'testland' -File 'x.jpg' -Key 'zulu' 6>$null | Out-Null
+        $script:DownloadCount | Should -Be 2
+        $sourcePath = Get-EpCacheSourcePath -CachePath $cachePath
+        Remove-Item -LiteralPath $sourcePath
+        Invoke-EpFetchPicture -RepoRoot $fixtureRoot -Pack 'testland' -File 'x.jpg' -Key 'zulu' 6>$null | Out-Null
+        $script:DownloadCount | Should -Be 3
+        [System.IO.File]::WriteAllText($sourcePath, (@{ downloadUrl = 'https://upload.wikimedia.org/other.jpg'; downloadSha256 = (Get-FileHash -LiteralPath $cachePath -Algorithm SHA256).Hash; downloaded = (Get-Date).ToString('yyyy-MM-dd') } | ConvertTo-Json))
+        Invoke-EpFetchPicture -RepoRoot $fixtureRoot -Pack 'testland' -File 'x.jpg' -Key 'zulu' 6>$null | Out-Null
+        $script:DownloadCount | Should -Be 4
+    }
+
+    It 'leaves the cached file and its sidecar as they were when a download fails' {
+        $fixtureRoot = New-EpFixtureRepo
+        Mock Start-Sleep { }
+        Mock Invoke-RestMethod { Get-CommonsFixture -Name 'cc-by' }
+        Mock Invoke-WebRequest { [System.IO.File]::WriteAllText($OutFile, 'picture bytes') }
+        Invoke-EpFetchPicture -RepoRoot $fixtureRoot -Pack 'testland' -File 'x.jpg' -Key 'zulu' 6>$null | Out-Null
+        $packData = Get-EpPack -RepoRoot $fixtureRoot -Pack 'testland'
+        $cachePath = Get-EpCacheFilePath -Pack $packData -Picture (Get-EpPictureByKey -Pack $packData -PictureKey 'zulu')
+        [System.IO.File]::WriteAllText($cachePath, 'other bytes')
+        Mock Invoke-WebRequest { [System.IO.File]::WriteAllText($OutFile, 'cut'); throw 'connection reset' }
+        { Invoke-EpFetchPicture -RepoRoot $fixtureRoot -Pack 'testland' -File 'x.jpg' -Key 'zulu' 6>$null } | Should -Throw
+        [System.IO.File]::ReadAllText($cachePath) | Should -Be 'other bytes'
+        @(Get-ChildItem -LiteralPath $packData.CacheDir -Filter 'zulu.*' -File).Count | Should -Be 1
+    }
+
     It 'waits and tries again when Wikimedia answers 429 or 503, as long as Retry-After asks' {
         $fixtureRoot = New-EpFixtureRepo
         $script:DownloadAttempts = 0
