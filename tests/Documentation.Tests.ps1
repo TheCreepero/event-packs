@@ -95,6 +95,13 @@ Describe 'Plan template and guides' {
         $templateText | Should -Match '```markdown fact-sheets'
     }
 
+    It 'template step 9 runs -ValidateOnly and leaves the full suite to implement 3.2' {
+        $templateText = [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'docs\plans\TEMPLATE-pack.md'))
+        $stepLine = [regex]::Match($templateText, '(?m)^- \[ \] 9\. .*$').Value
+        $stepLine | Should -Match 'build\.ps1 -ValidateOnly' -Because 'step 9 validates the mod'
+        $stepLine | Should -Not -Match 'build\.ps1 -Test\b' -Because 'the suite runs once, in the implement skill''s step 3.2'
+    }
+
     It 'the allow list matches every build.ps1 switch the plan template and the implementer run' {
         # Judged as the harness reads a rule: Tool(pattern), * is any run of characters, the whole command must match.
         $settingsPath = Join-Path $script:RepoRoot '.claude\settings.json'
@@ -110,7 +117,7 @@ Describe 'Plan template and guides' {
             return $false
         }
         $switchNames = [System.Collections.Generic.SortedSet[string]]::new()
-        foreach ($documentPath in @('docs\plans\TEMPLATE-pack.md', '.claude\agents\ep-implementer.md')) {
+        foreach ($documentPath in @('docs\plans\TEMPLATE-pack.md', '.claude\agents\ep-implementer.md', '.claude\skills\event-pack-implement\SKILL.md')) {
             $documentText = [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot $documentPath), [System.Text.Encoding]::UTF8)
             foreach ($switchMatch in [regex]::Matches($documentText, 'build\.ps1\s+-(\w+)')) {
                 [void]$switchNames.Add($switchMatch.Groups[1].Value)
