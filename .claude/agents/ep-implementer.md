@@ -45,7 +45,7 @@ What the usual steps mean:
 - **`-Generate -Pack <pack>`**: must end `Generated pack '<pack>'`; an `[ERROR]` line is a stop condition.
 - **`-Check -Pack <pack>`**: must end `Check OK`; it also prints `Bundle 'all': <n> member(s), 0 error(s)` for the bundle that holds the pack, and an error there (a pack that is not a member, an intro that does not name a member, a bundle page that differs from the source) is a stop condition. A `[WARN]` line the plan's "Kept on judgment" does not list is a stop condition.
 - **`-DevLink -Pack all`** (a step of a plan that checks the pack inside the bundle): builds the git-ignored `.devlink/` folder of hard links and points the launcher at it; `-DevLink -CheckLinks -Pack all` must report no problem. Run it only when the plan says so.
-- **`-RenderEvents -Pack <pack>`**: must end `Rendered <n> events to ...`, one image per event in `artifacts/workshop-images/<pack>/` and `00-overview`. A `[WARN]` line (a title or option that overflows its box) the plan's "Kept on judgment" does not list, or an `[ERROR]`, is a stop condition.
+- **`-RenderEvents -Pack <pack>`**: must end `Rendered <n> events to ...`, one image per event in `artifacts/workshop-images/<pack>/`, `00-overview` and `contact-sheet-NOT-FOR-WORKSHOP` (for the skill's look at the renders, not an upload). A `[WARN]` line (a title or option that overflows its box) the plan's "Kept on judgment" does not list, or an `[ERROR]`, is a stop condition.
 - **`-ValidateOnly` and `-Test`**: must end `Validation succeeded.` and with no failed test.
 
 ## 3. Stop conditions

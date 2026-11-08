@@ -16,7 +16,10 @@ default, one named screen, or none (a plain dark backdrop). Each image is writte
 NN-<event key>.png (a JPEG when the PNG is over 1 MB) into artifacts/workshop-images/<pack>/, which is
 emptied first. 00-overview.png throws up to PILE_CARDS of the windows, spread over the pack, on a pile
 over the first background: the first event on top, the rest turned a little and overlapping, laid out
-the same way on every run of the pack.
+the same way on every run of the pack. contact-sheet-NOT-FOR-WORKSHOP.png (a JPEG when over 1 MB) is one more
+image for whoever checks the renders, not for the Workshop page: every event's window as a small card in a grid
+of SHEET_COLUMNS columns, each under its file stem (NN-<event key>), on a plain dark backdrop without a flag,
+with a header saying so.
 
 Every image carries the country's flag in the game's GFX_large_flag_frame at the top right: the tag is
 the "tag" of events.json, the file gfx/flags/<TAG>_<ideology>.tga of the party ruling in the vanilla
@@ -37,7 +40,7 @@ import struct
 import sys
 import zlib
 
-from PIL import Image, ImageChops, ImageEnhance, ImageFilter
+from PIL import Image, ImageChops, ImageDraw, ImageEnhance, ImageFilter, ImageFont
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOKEN_RE = re.compile(r'#[^\r\n]*|"[^"]*"|[{}=]|[^\s{}=#"]+')
@@ -52,6 +55,14 @@ SHADOW_BLUR = 10
 PILE_CARDS = 7
 PILE_SIZE = (1600, 900)
 PILE_TURN = 12
+SHEET_STEM = "contact-sheet-NOT-FOR-WORKSHOP"
+SHEET_COLUMNS = 5
+SHEET_CELL_WIDTH = 290
+SHEET_MARGIN = 24
+SHEET_GAP = 16
+SHEET_FONT_SIZE = 15
+SHEET_TEXT = (235, 235, 235)
+SHEET_HEADER = "Contact sheet for checking the renders, not an image for the Workshop page"
 FLAG_MARGIN = 24
 FLAG_INSET = (5, 2)
 FLAG_FRAME_SPRITE = "GFX_large_flag_frame"
@@ -570,6 +581,42 @@ def pile(windows, background, seed):
     return canvas.convert("RGB")
 
 
+def sheet_font():
+    try:
+        return ImageFont.load_default(size=SHEET_FONT_SIZE)
+    except TypeError:
+        return ImageFont.load_default()
+
+
+def contact_sheet(items):
+    """One image of every event: the windows as small cards in rows of SHEET_COLUMNS, each under its label
+    (the file stem of its render), on a plain dark backdrop with no flag, so that it is not taken for a
+    Workshop image. items are (label, window image) pairs in event order."""
+    font = sheet_font()
+    line = SHEET_FONT_SIZE + 8
+    columns = max(1, min(SHEET_COLUMNS, len(items)))
+    cards = []
+    for label, window in items:
+        height = max(1, round(window.height * SHEET_CELL_WIDTH / window.width))
+        cards.append((label, window.convert("RGBA").resize((SHEET_CELL_WIDTH, height), Image.LANCZOS)))
+    rows = [cards[i:i + columns] for i in range(0, len(cards), columns)]
+    row_heights = [line + max(card.height for _label, card in row) for row in rows]
+    width = 2 * SHEET_MARGIN + columns * SHEET_CELL_WIDTH + (columns - 1) * SHEET_GAP
+    top = SHEET_MARGIN + line + SHEET_GAP
+    height = top + sum(row_heights) + SHEET_GAP * (len(rows) - 1) + SHEET_MARGIN
+    canvas = Image.new("RGBA", (width, height), BACKDROP + (255,))
+    draw = ImageDraw.Draw(canvas)
+    draw.text((SHEET_MARGIN, SHEET_MARGIN), SHEET_HEADER, font=font, fill=SHEET_TEXT)
+    y = top
+    for row, row_height in zip(rows, row_heights):
+        for column, (label, card) in enumerate(row):
+            x = SHEET_MARGIN + column * (SHEET_CELL_WIDTH + SHEET_GAP)
+            draw.text((x, y), label, font=font, fill=SHEET_TEXT)
+            canvas.alpha_composite(card, (x, y + line))
+        y += row_height + SHEET_GAP
+    return canvas.convert("RGB")
+
+
 def save(framed, folder, stem):
     path = os.path.join(folder, stem + ".png")
     framed.save(path)
@@ -657,6 +704,9 @@ def main():
         chosen = spread([image for _event, image in rendered], PILE_CARDS)
         save(stamp_flag(pile(chosen, backdrop(screens[0] if screens else None, PILE_SIZE), zlib.crc32(args.pack.encode("utf-8"))), badge), out, "00-overview")
         print("  00-overview: %d events on a pile" % len(chosen))
+        sheet = contact_sheet([("%02d-%s" % (event["id"], event["key"]), image) for event, image in rendered])
+        save(sheet, out, SHEET_STEM)
+        print("  %s: %d events in %d columns" % (SHEET_STEM, len(rendered), min(SHEET_COLUMNS, len(rendered))))
     print("Rendered %d events to %s" % (len(events), out))
     return 1 if errors else 0
 

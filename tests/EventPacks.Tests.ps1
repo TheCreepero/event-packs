@@ -853,7 +853,7 @@ for flags, alpha_mask in ((0x41, 0xFF000000), (0x40, 0)):
         if ($result.Text -match 'no Hearts of Iron IV install found') { Set-ItResult -Skipped -Because 'the game is not installed here'; return }
         $result.ExitCode | Should -Be 0 -Because $result.Text
         $eventCount = @(([System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'source\finland\events.json'), [System.Text.Encoding]::UTF8) | ConvertFrom-Json).events).Count
-        $allFiles = @(Get-ChildItem -LiteralPath $outputDir -File | Where-Object { $_.Extension -in @('.png', '.jpg') } | Sort-Object Name)
+        $allFiles = @(Get-ChildItem -LiteralPath $outputDir -File | Where-Object { $_.Extension -in @('.png', '.jpg') -and $_.BaseName -ne 'contact-sheet-NOT-FOR-WORKSHOP' } | Sort-Object Name)
         $allFiles[0].BaseName | Should -Be '00-overview'
         $renderFiles = @($allFiles | Select-Object -Skip 1)
         $renderFiles.Count | Should -Be $eventCount
@@ -871,6 +871,57 @@ for flags, alpha_mask in ((0x41, 0xFF000000), (0x40, 0)):
         $width | Should -Be ([math]::Round($height * 16 / 9))
         $width | Should -BeGreaterThan 581
         $result.Text | Should -Match "Rendered $eventCount events to"
+    }
+
+    It 'writes one contact sheet of every event next to the renders, under a name that no Workshop upload takes for an event image' {
+        if (-not $script:PythonExecutable) { Set-ItResult -Skipped -Because 'Python 3 with Pillow is not installed'; return }
+        $probe = @'
+import sys
+sys.path.insert(0, sys.argv[1])
+import render_event_cards as cards
+from PIL import Image
+colours = [(220, 40, 40), (40, 200, 60), (50, 70, 230), (230, 210, 40), (200, 60, 200), (40, 210, 210), (240, 140, 30)]
+windows = [Image.new("RGBA", (485, 300 + 40 * i), colours[i] + (255,)) for i in range(7)]
+labels = ["%02d-ep_probe_%d" % (i + 1, i) for i in range(7)]
+sheet = cards.contact_sheet(list(zip(labels, windows)))
+print("size %dx%d columns %d mode %s" % (sheet.width, sheet.height, cards.SHEET_COLUMNS, sheet.mode))
+cell = cards.SHEET_CELL_WIDTH
+drawn = 0
+for i, colour in enumerate(colours):
+    column = i % cards.SHEET_COLUMNS
+    x0 = cards.SHEET_MARGIN + column * (cell + cards.SHEET_GAP)
+    data = sheet.crop((x0, 0, x0 + cell, sheet.height)).convert("RGB").tobytes()
+    pixels = list(zip(data[0::3], data[1::3], data[2::3]))
+    near = sum(1 for p in pixels if all(abs(a - b) < 12 for a, b in zip(p, colour)))
+    drawn += 1 if near > cell * cell // 2 else 0
+print("cards drawn %d" % drawn)
+label_top = cards.SHEET_MARGIN + cards.SHEET_FONT_SIZE + 8 + cards.SHEET_GAP
+data = sheet.crop((cards.SHEET_MARGIN, label_top, cards.SHEET_MARGIN + cell, label_top + cards.SHEET_FONT_SIZE + 8)).convert("RGB").tobytes()
+light = sum(1 for p in zip(data[0::3], data[1::3], data[2::3]) if min(p) > 200 and max(p) - min(p) < 20)
+print("label pixels %s" % (light > 40))
+single = cards.contact_sheet([(labels[0], windows[0])])
+print("single %s" % (single.width < sheet.width and single.height < sheet.height))
+'@
+        $probePath = Join-Path $TestDrive 'sheet_probe.py'
+        [System.IO.File]::WriteAllText($probePath, $probe, [System.Text.UTF8Encoding]::new($false))
+        $probeOutput = @(& $script:PythonExecutable -I -B $probePath (Join-Path $script:RepoRoot 'tools') 2>&1 | ForEach-Object { "$_" })
+        $probeOutput.Count | Should -Be 4 -Because ($probeOutput -join "`n")
+        $sheetSize = [regex]::Match($probeOutput[0], '^size (\d+)x(\d+) columns 5 mode RGB$')
+        $sheetSize.Success | Should -BeTrue -Because ($probeOutput -join "`n")
+        [int]$sheetSize.Groups[1].Value | Should -BeLessThan 1568
+        $probeOutput[1] | Should -Be 'cards drawn 7'
+        $probeOutput[2] | Should -Be 'label pixels True'
+        $probeOutput[3] | Should -Be 'single True'
+        $outputDir = Join-Path $TestDrive 'sheet-renders'
+        $result = Invoke-EventRenderer -SourceDir (Join-Path $script:RepoRoot 'source\finland') -PackDir (Join-Path $script:RepoRoot 'packs\finland') -OutputDir $outputDir
+        if ($result.Text -match 'no Hearts of Iron IV install found') { Set-ItResult -Skipped -Because 'the game is not installed here'; return }
+        $result.ExitCode | Should -Be 0 -Because $result.Text
+        $eventCount = @(([System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'source\finland\events.json'), [System.Text.Encoding]::UTF8) | ConvertFrom-Json).events).Count
+        $result.Text | Should -Match "contact-sheet-NOT-FOR-WORKSHOP: $eventCount events"
+        $sheetFiles = @(Get-ChildItem -LiteralPath $outputDir -File | Where-Object { $_.BaseName -eq 'contact-sheet-NOT-FOR-WORKSHOP' })
+        $sheetFiles.Count | Should -Be 1
+        $sheetFiles[0].Length | Should -BeLessThan (1024 * 1024)
+        @(Get-ChildItem -LiteralPath $outputDir -File | Where-Object { $_.BaseName -match '^\d\d-' }).Count | Should -Be ($eventCount + 1)
     }
 
     It 'warns of a title or option that overflows its box, and fails on a missing picture' {
@@ -914,6 +965,8 @@ from PIL import Image, ImageChops, ImageStat
 game_dir = cards.find_game_dir()
 flag = Image.open(os.path.join(game_dir, "gfx", "flags", "FIN_neutrality.tga")).convert("RGB")
 for path in sorted(glob.glob(os.path.join(sys.argv[2], "*.*"))):
+    if os.path.basename(path).startswith("contact-sheet"):
+        continue
     image = Image.open(path).convert("RGB")
     frame_left = image.width - 24 - 92
     left = frame_left + 5
@@ -984,14 +1037,14 @@ for tag in ("AAA", "BBB", "CCC", "DDD"):
         if ($result.Text -match 'no Hearts of Iron IV install found') { Set-ItResult -Skipped -Because 'the game is not installed here'; return }
         $result.ExitCode | Should -Be 0 -Because $result.Text
         $result.Text | Should -Match '\[WARN\] flag: events\.json has no tag'
-        @(Get-ChildItem -LiteralPath (Join-Path $TestDrive 'flagless\untagged-out') -File).Count | Should -Be 2
+        @(Get-ChildItem -LiteralPath (Join-Path $TestDrive 'flagless\untagged-out') -File).Count | Should -Be 3
         $unknownDir = Join-Path $TestDrive 'flagless\unknown'
         $eventSource | Add-Member -NotePropertyName 'tag' -NotePropertyValue 'QQQ'
         Write-EpText -Path (Join-Path $unknownDir 'events.json') -Text (ConvertTo-Json -InputObject $eventSource -Depth 8)
         $result = Invoke-EventRenderer -SourceDir $unknownDir -PackDir $packDir -OutputDir (Join-Path $TestDrive 'flagless\unknown-out')
         $result.ExitCode | Should -Be 0 -Because $result.Text
         $result.Text | Should -Match '\[WARN\] flag: no flag file for QQQ'
-        @(Get-ChildItem -LiteralPath (Join-Path $TestDrive 'flagless\unknown-out') -File).Count | Should -Be 2
+        @(Get-ChildItem -LiteralPath (Join-Path $TestDrive 'flagless\unknown-out') -File).Count | Should -Be 3
     }
 }
 
