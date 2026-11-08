@@ -1125,6 +1125,434 @@ Describe 'Bundle' {
     }
 }
 
+Describe 'Plans' {
+    BeforeAll {
+        function Get-FixturePlanEvent {
+            $planEvent = Get-FixtureEvent
+            $planEvent.id = 2
+            $planEvent.key = 'trench_line'
+            $planEvent.title = 'Trenches on the Isthmus'
+            $planEvent.picture = 'trench_line'
+            $planEvent.factSheet = 'trench_line'
+            return $planEvent
+        }
+
+        function New-FixturePlan {
+            param([string]$Root)
+
+            $eventSource = Read-EpJson -Path (Join-Path $Root 'source\testland\events.json')
+            $eventSource.events = @(@($eventSource.events) + @(Get-FixturePlanEvent))
+            $pictureRows = [System.Collections.Generic.List[object]]::new()
+            $pictureRows.Add([ordered]@{ Key = 'trench_line'; File = 'File:Trench line 1939.jpg'; Licence = 'PD (Public domain), 800x600, unknown author'; Crop = '50'; Tone = 'warm'; Event = 'trench_line' })
+            return @{
+                PackLine   = 'Pack: testland (TST, namespace ep_tst)'
+                Source     = $eventSource
+                EventsText = $null
+                FactSheet  = [ordered]@{ trench_line = (Get-FixtureFactLine) }
+                Rows       = $pictureRows
+            }
+        }
+
+        function Write-FixturePlan {
+            param([string]$Root, [hashtable]$Plan, [string]$Name = 'test-plan.md')
+
+            $lines = [System.Collections.Generic.List[string]]::new()
+            foreach ($headerLine in @('# Testland pack: test plan', '', 'Status: READY')) { $lines.Add($headerLine) }
+            if ($Plan.PackLine) { $lines.Add($Plan.PackLine) }
+            foreach ($tableLine in @('Kind: new events', '', '## Pictures', '', '| Key | Commons file | Licence (from the dry run) | Crop | Tone | Event |', '|---|---|---|---|---|---|')) { $lines.Add($tableLine) }
+            foreach ($row in $Plan.Rows) {
+                $lines.Add('| ' + (@($row.Key, $row.File, $row.Licence, $row.Crop, $row.Tone, $row.Event) -join ' | ') + ' |')
+            }
+            foreach ($middleLine in @('', 'Thumbnail: unchanged', '', '## Implementation steps', '', '- [ ] 1. Apply the plan.', '', '## Fact sheets', '', '```markdown fact-sheets')) { $lines.Add($middleLine) }
+            $firstSection = $true
+            foreach ($sectionKey in @($Plan.FactSheet.Keys)) {
+                if (-not $firstSection) { $lines.Add('') }
+                $firstSection = $false
+                $lines.Add('## ' + $sectionKey)
+                $lines.Add('')
+                $lines.Add($Plan.FactSheet[$sectionKey])
+            }
+            foreach ($blockLine in @('```', '', '## Events source', '', '```json events')) { $lines.Add($blockLine) }
+            $lines.Add($(if ($null -ne $Plan.EventsText) { $Plan.EventsText } else { (ConvertTo-Json -InputObject $Plan.Source -Depth 10) -replace "`r`n", "`n" }))
+            $lines.Add('```')
+            $planPath = Join-Path $Root ('docs\plans\' + $Name)
+            Write-EpText -Path $planPath -Text (($lines -join "`n") + "`n")
+            return $planPath
+        }
+
+        function Get-PlanMessages {
+            param([string]$Root, [string]$PlanPath, [string]$Level = 'ERROR', [string]$Pack)
+
+            $planArguments = @{ RepoRoot = $Root; PlanPath = $PlanPath }
+            if ($Pack) { $planArguments['Pack'] = $Pack }
+            return @(Test-EpPlan @planArguments | Where-Object { $_.Level -eq $Level } | ForEach-Object { "$($_.Where): $($_.Message)" })
+        }
+
+        function Get-FixtureHashes {
+            param([string]$Root)
+
+            return @(Get-ChildItem -LiteralPath $Root -Recurse -File | Sort-Object FullName | ForEach-Object { $_.FullName.Substring($Root.Length) + '=' + (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash })
+        }
+
+        function Get-GitBlobText {
+            param([string]$Revision, [string]$Path)
+
+            $processInfo = [System.Diagnostics.ProcessStartInfo]::new('git', ('-C "{0}" show {1}:{2}' -f $script:RepoRoot, $Revision, $Path))
+            $processInfo.UseShellExecute = $false
+            $processInfo.RedirectStandardOutput = $true
+            $processInfo.RedirectStandardError = $true
+            $processInfo.StandardOutputEncoding = [System.Text.UTF8Encoding]::new($false)
+            try {
+                $gitProcess = [System.Diagnostics.Process]::Start($processInfo)
+            } catch {
+                return $null
+            }
+            $blobText = $gitProcess.StandardOutput.ReadToEnd()
+            [void]$gitProcess.StandardError.ReadToEnd()
+            $gitProcess.WaitForExit()
+            if ($gitProcess.ExitCode -ne 0) {
+                return $null
+            }
+            return $blobText
+        }
+
+        function Write-CanonicalEvents {
+            param([string]$Root, $EventSource)
+
+            Write-EpText -Path (Join-Path $Root 'source\testland\events.json') -Text ((ConvertTo-EpJsonText -Value $EventSource) + "`n")
+        }
+
+        function New-ThreeEventRepo {
+            $fixtureRoot = New-EpFixtureRepo
+            $eventSource = Read-EpJson -Path (Join-Path $fixtureRoot 'source\testland\events.json')
+            $threeEvents = foreach ($eventNumber in 1..3) {
+                $packEvent = Get-FixtureEvent
+                $packEvent.id = $eventNumber
+                $packEvent.key = @('border_fortification', 'second_event', 'third_event')[$eventNumber - 1]
+                $packEvent.title = @('Work on the Isthmus Line', 'Second Work on the Line', 'Third Work on the Line')[$eventNumber - 1]
+                $packEvent
+            }
+            $eventSource.events = @($threeEvents)
+            Write-CanonicalEvents -Root $fixtureRoot -EventSource $eventSource
+            return $fixtureRoot
+        }
+
+        function New-MergePlan {
+            param([object[]]$Events, [object[]]$Ideas)
+
+            $mergeSource = [PSCustomObject][ordered]@{ pack = 'testland'; tag = 'TST'; mergeById = $true; events = @($Events) }
+            if ($PSBoundParameters.ContainsKey('Ideas')) {
+                $mergeSource | Add-Member -NotePropertyName 'ideas' -NotePropertyValue @($Ideas)
+            }
+            return @{ PackLine = 'Pack: testland (TST, namespace ep_tst)'; Source = $mergeSource; EventsText = $null; FactSheet = [ordered]@{}; Rows = [System.Collections.Generic.List[object]]::new() }
+        }
+    }
+
+    It 'passes a plan whose blocks and picture rows hold to every source rule' {
+        $fixtureRoot = New-EpFixtureRepo
+        $planPath = Write-FixturePlan -Root $fixtureRoot -Plan (New-FixturePlan -Root $fixtureRoot)
+        Get-PlanMessages -Root $fixtureRoot -PlanPath $planPath | Should -BeNullOrEmpty
+        Get-PlanMessages -Root $fixtureRoot -PlanPath $planPath -Level 'WARN' | Should -BeNullOrEmpty
+        Invoke-EpPlanCheck -RepoRoot $fixtureRoot -PlanPath $planPath 6>$null | Select-Object -Last 1 | Should -Be 0
+    }
+
+    It 'refuses a plan block that breaks the rule: <Rule>' -TestCases @(
+        @{ Rule = 'factQuotesFromId a whole number'; Pattern = "factQuotesFromId '0' must be a whole number"; Change = { param($plan) $plan.Source | Add-Member -NotePropertyName 'factQuotesFromId' -NotePropertyValue 0 } }
+        @{ Rule = 'country tag'; Pattern = "tag 'tst' is not a country tag"; Change = { param($plan) $plan.Source.tag = 'tst' } }
+        @{ Rule = 'namespace form'; Pattern = 'must be ep_ and lower-case letters or digits'; Change = { param($plan) $plan.Source.namespace = 'ep-tst' } }
+        @{ Rule = 'id a whole number from 1'; Pattern = 'id must be a whole number from 1'; Change = { param($plan) $plan.Source.events[1].id = 0 } }
+        @{ Rule = 'id unique'; Pattern = 'id used twice'; Change = { param($plan) $plan.Source.events[1].id = 1 } }
+        @{ Rule = 'key form'; Pattern = "key 'Trench_Line' must be lower-case"; Change = { param($plan) $plan.Source.events[1].key = 'Trench_Line' } }
+        @{ Rule = 'key unique'; Pattern = "key 'border_fortification' used twice"; Change = { param($plan) $plan.Source.events[1].key = 'border_fortification' } }
+        @{ Rule = 'title not empty'; Pattern = 'ep_tst\.2 title: empty text'; Change = { param($plan) $plan.Source.events[1].title = '' } }
+        @{ Rule = 'no forbidden character'; Pattern = 'ep_tst\.2 desc: contains a em dash'; Change = { param($plan) $plan.Source.events[1].desc = $plan.Source.events[1].desc.Replace(' The army', ([string][char]0x2014) + 'the army') } }
+        @{ Rule = 'no banned phrase'; Pattern = "banned phrase 'testament to'"; Change = { param($plan) $plan.Source.events[1].desc += ' It is a testament to their work.' } }
+        @{ Rule = 'title length'; Pattern = 'characters, at most 60'; Change = { param($plan) $plan.Source.events[1].title = 'Volunteers from the Civil Guard Dig Trenches Across the Karelian Isthmus' } }
+        @{ Rule = 'desc word count'; Pattern = 'words, needs 40 to 170'; Change = { param($plan) $plan.Source.events[1].desc = 'Taipale and the Karelian Isthmus in 1937.' } }
+        @{ Rule = 'desc character count'; Pattern = 'the event window shows 2226'; Change = { param($plan) $plan.Source.events[1].desc = ((1..100 | ForEach-Object { 'Karelianisthmusfortifiers' }) -join ' ') + ' Karelian Isthmus at Taipale.' } }
+        @{ Rule = 'two anchors listed'; Pattern = 'lists 1 anchor\(s\) from its fact sheet; needs 2'; Change = { param($plan) $plan.Source.events[1].anchors = @('Taipale') } }
+        @{ Rule = 'two anchors used'; Pattern = 'uses 0 of its anchors; needs 2'; Change = { param($plan) $plan.Source.events[1].anchors = @('Viipuri', 'Kotka') } }
+        @{ Rule = 'fact-sheet section exists'; Pattern = "no section '## missing_section'"; Change = { param($plan) $plan.Source.events[1].factSheet = 'missing_section' } }
+        @{ Rule = 'fact sheet cites a source'; Pattern = "fact sheet 'trench_line' cites no source URL"; Change = { param($plan) $plan.FactSheet['trench_line'] = '- Volunteers dug on the Karelian Isthmus in 1937.' } }
+        @{ Rule = 'fact lines'; Pattern = "fact sheet 'trench_line' has no fact lines"; Change = { param($plan) $plan.FactSheet['trench_line'] = 'Volunteers dug on the Karelian Isthmus, see https://example.org/isthmus.' } }
+        @{ Rule = 'no UNVERIFIED fact'; Pattern = 'holds an UNVERIFIED fact'; Change = { param($plan) $plan.FactSheet['trench_line'] = (Get-FixtureFactLine) + "`n- UNVERIFIED: the army paid them. Source: https://example.org/pay (Pay)" } }
+        @{ Rule = 'quoted facts'; Pattern = 'has a fact without its source and the quote of its page'; Change = { param($plan) $plan.FactSheet['trench_line'] = (Get-FixtureFactLine -WithoutQuote) } }
+        @{ Rule = 'date form'; Pattern = "date '1937-5-1' is not YYYY\.M\.D"; Change = { param($plan) $plan.Source.events[1].fire.after = '1937-5-1' } }
+        @{ Rule = 'both dates'; Pattern = 'fire needs an after and a before date'; Change = { param($plan) $plan.Source.events[1].fire.before = '' } }
+        @{ Rule = 'window order'; Pattern = 'the before date is not after the after date'; Change = { param($plan) $plan.Source.events[1].fire.before = '1937.4.1' } }
+        @{ Rule = 'weekly chance'; Pattern = 'chance must be 1 to 100'; Change = { param($plan) $plan.Source.events[1].fire.chance = 0 } }
+        @{ Rule = 'a picture'; Pattern = 'ep_tst\.2: no picture'; Change = { param($plan) $plan.Source.events[1].picture = '' } }
+        @{ Rule = 'vanilla picture form'; Pattern = "'vanilla:GFX_bad' is not a vanilla event picture sprite"; Change = { param($plan) $plan.Source.events[1].picture = 'vanilla:GFX_bad' } }
+        @{ Rule = 'picture fetched or planned'; Pattern = "picture 'no_such_picture' is neither in source/testland/pictures\.json nor in the plan's Pictures table"; Change = { param($plan) $plan.Source.events[1].picture = 'no_such_picture' } }
+        @{ Rule = 'option count'; Pattern = '0 option\(s\), needs 1 to 4'; Change = { param($plan) $plan.Source.events[1].options = @() } }
+        @{ Rule = 'option length'; Pattern = 'ep_tst\.2\.a: option text over 12 words'; Change = { param($plan) $plan.Source.events[1].options[0].name = 'One two three four five six seven eight nine ten eleven twelve thirteen.' } }
+        @{ Rule = 'ai weight'; Pattern = 'ai weight below 0'; Change = { param($plan) $plan.Source.events[1].options[0].ai = -1 } }
+        @{ Rule = 'ideology with popularity'; Pattern = "ideology 'fascism' without popularity"; Change = { param($plan) $plan.Source.events[1].options[1].effects = @([PSCustomObject]@{ ideology = 'fascism' }) } }
+        @{ Rule = 'timed idea defined'; Pattern = "timed_idea 'no_such_idea' is not in the pack's ideas"; Change = { param($plan) $plan.Source.events[1].options[0].effects[1].timed_idea = 'no_such_idea' } }
+        @{ Rule = 'timed idea days'; Pattern = 'timed idea for 365 days'; Change = { param($plan) $plan.Source.events[1].options[0].effects[1].days = 365 } }
+        @{ Rule = 'known effect'; Pattern = "effect 'add_manpower' is not one of"; Change = { param($plan) $plan.Source.events[1].options[1].effects = @([PSCustomObject]@{ add_manpower = 1000 }) } }
+        @{ Rule = 'effect cap'; Pattern = 'war_support 0\.5 is over the cap of 0\.1'; Change = { param($plan) $plan.Source.events[1].options[0].effects[0].war_support = 0.5 } }
+        @{ Rule = 'whole manpower'; Pattern = 'manpower 500\.5 is not a whole number'; Change = { param($plan) $plan.Source.events[1].options[1].effects = @([PSCustomObject]@{ manpower = 500.5 }) } }
+        @{ Rule = 'popularity ideology'; Pattern = 'popularity needs an ideology'; Change = { param($plan) $plan.Source.events[1].options[1].effects = @([PSCustomObject]@{ popularity = 0.02 }) } }
+        @{ Rule = 'idea key'; Pattern = 'key missing, used twice or not lower-case'; Change = { param($plan) $plan.Source.ideas[0].key = 'Volunteer Work' } }
+        @{ Rule = 'idea text'; Pattern = 'idea volunteer_work name: contains a hash sign'; Change = { param($plan) $plan.Source.ideas[0].name = 'Volunteer Work #1' } }
+        @{ Rule = 'idea picture'; Pattern = "picture 'some_custom_picture' is not one of"; Change = { param($plan) $plan.Source.ideas[0].picture = 'some_custom_picture' } }
+        @{ Rule = 'idea modifier count'; Pattern = '0 modifier\(s\), needs 1 to 3'; Change = { param($plan) $plan.Source.ideas[0].modifier = [PSCustomObject]@{} } }
+        @{ Rule = 'idea modifier known'; Pattern = "modifier 'industrial_capacity_dockyard' is not in data/effect-caps\.json"; Change = { param($plan) $plan.Source.ideas[0].modifier = [PSCustomObject]@{ industrial_capacity_dockyard = 0.1 } } }
+        @{ Rule = 'idea modifier cap'; Pattern = 'war_support_factor 0\.5 is over the cap of 0\.05'; Change = { param($plan) $plan.Source.ideas[0].modifier = [PSCustomObject]@{ war_support_factor = 0.5 } } }
+        @{ Rule = 'picture row key form'; Pattern = "picture row 'Trench-Line': key must be lower-case letters, digits and underscores"; Change = { param($plan) $plan.Rows[0].Key = 'Trench-Line'; $plan.Source.events[1].picture = 'Trench-Line' } }
+        @{ Rule = 'picture row once'; Pattern = "picture row 'trench_line': listed twice in the Pictures table"; Change = { param($plan) $plan.Rows.Add([ordered]@{ Key = 'trench_line'; File = 'File:Other trench.jpg'; Licence = 'CC0 (CC0), 800x600, someone'; Crop = '50'; Tone = 'none'; Event = 'trench_line' }) } }
+        @{ Rule = 'picture row file'; Pattern = "picture row 'trench_line': names no Commons file"; Change = { param($plan) $plan.Rows[0].File = '' } }
+        @{ Rule = 'picture row licence BY-SA'; Pattern = "licence 'CC BY-SA \(CC BY-SA 4\.0\), 800x600, someone' is not a licence the policy accepts"; Change = { param($plan) $plan.Rows[0].Licence = 'CC BY-SA (CC BY-SA 4.0), 800x600, someone' } }
+        @{ Rule = 'picture row licence other'; Pattern = "licence 'Fair use' is not a licence the policy accepts"; Change = { param($plan) $plan.Rows[0].Licence = 'Fair use' } }
+        @{ Rule = 'picture row size'; Pattern = '200x150 is smaller than 210x176'; Change = { param($plan) $plan.Rows[0].Licence = 'PD (Public domain), 200x150, unknown author' } }
+        @{ Rule = 'picture row crop'; Pattern = "crop '150' is not 0 to 100 \(50 centres\) or fit"; Change = { param($plan) $plan.Rows[0].Crop = '150' } }
+        @{ Rule = 'picture row tone'; Pattern = "tone 'sepia' is not none, grey or warm"; Change = { param($plan) $plan.Rows[0].Tone = 'sepia' } }
+        @{ Rule = 'events block parses'; Pattern = 'the json events block does not parse'; Change = { param($plan) $plan.EventsText = '{ "pack": "testland", "events": [' } }
+        @{ Rule = 'no event id removed'; Pattern = 'the json events block lacks event\(s\) 1 of source/testland/events\.json'; Change = { param($plan) $plan.Source.events = @(Get-FixturePlanEvent) } }
+        @{ Rule = 'one pack'; Pattern = "the events block names pack 'otherland', the plan 'testland'"; Change = { param($plan) $plan.Source.pack = 'otherland' } }
+        @{ Rule = 'a pack named'; Pattern = 'the plan names no pack'; Change = { param($plan) $plan.PackLine = $null; $plan.Source.PSObject.Properties.Remove('pack') } }
+        @{ Rule = 'the pack exists'; Pattern = "pack 'nowhere' is not a pack of tools/HoiModBuild\.json"; Change = { param($plan) $plan.PackLine = 'Pack: nowhere (NWH, namespace ep_nwh)'; $plan.Source.pack = 'nowhere' } }
+    ) {
+        param($Rule, $Pattern, $Change)
+
+        $fixtureRoot = New-EpFixtureRepo
+        $plan = New-FixturePlan -Root $fixtureRoot
+        & $Change $plan
+        $planPath = Write-FixturePlan -Root $fixtureRoot -Plan $plan
+        $errorMessages = (Get-PlanMessages -Root $fixtureRoot -PlanPath $planPath) -join "`n"
+        $errorMessages | Should -Match $Pattern
+        Invoke-EpPlanCheck -RepoRoot $fixtureRoot -PlanPath $planPath 6>$null | Select-Object -Last 1 | Should -Be 1
+    }
+
+    It 'warns about a fact-sheet section no event uses and a picture row no event uses' {
+        $fixtureRoot = New-EpFixtureRepo
+        $plan = New-FixturePlan -Root $fixtureRoot
+        $plan.FactSheet['unused_section'] = Get-FixtureFactLine
+        $plan.Rows.Add([ordered]@{ Key = 'spare_picture'; File = 'File:Spare.jpg'; Licence = 'CC0 (CC0), 800x600, someone'; Crop = 'fit'; Tone = 'grey'; Event = '' })
+        $planPath = Write-FixturePlan -Root $fixtureRoot -Plan $plan
+        Get-PlanMessages -Root $fixtureRoot -PlanPath $planPath | Should -BeNullOrEmpty
+        $warnings = (Get-PlanMessages -Root $fixtureRoot -PlanPath $planPath -Level 'WARN') -join "`n"
+        $warnings | Should -Match "section 'unused_section' belongs to no event"
+        $warnings | Should -Match "picture row 'spare_picture': no event uses this picture"
+    }
+
+    It 'refuses a -Pack that is not a pack of the build settings, also a path out of source' {
+        $fixtureRoot = New-EpFixtureRepo
+        $plan = New-FixturePlan -Root $fixtureRoot
+        $plan.PackLine = $null
+        $plan.Source.PSObject.Properties.Remove('pack')
+        $planPath = Write-FixturePlan -Root $fixtureRoot -Plan $plan
+        (Get-PlanMessages -Root $fixtureRoot -PlanPath $planPath -Pack '..\..\outside') -join "`n" | Should -Match ([regex]::Escape("pack '..\..\outside' is not a pack of tools/HoiModBuild.json"))
+    }
+
+    It 'refuses a namespace another pack uses' {
+        $fixtureRoot = New-EpFixtureRepo -Packs @('testland', 'otherland')
+        $plan = New-FixturePlan -Root $fixtureRoot
+        $plan.Source.namespace = 'ep_tsu'
+        $planPath = Write-FixturePlan -Root $fixtureRoot -Plan $plan
+        (Get-PlanMessages -Root $fixtureRoot -PlanPath $planPath) -join "`n" | Should -Match "namespace 'ep_tsu' is used by another pack"
+    }
+
+    It 'refuses two blocks of a kind, no block at all, a -Pack the plan contradicts, and a fact-sheets block with stray text or a section twice' {
+        $fixtureRoot = New-EpFixtureRepo
+        $planPath = Write-FixturePlan -Root $fixtureRoot -Plan (New-FixturePlan -Root $fixtureRoot)
+        $planText = [System.IO.File]::ReadAllText($planPath)
+        $eventsBlock = [regex]::Match($planText, '(?ms)^```json events\n.*?^```\n').Value
+        Write-EpText -Path $planPath -Text ($planText + "`n" + $eventsBlock)
+        (Get-PlanMessages -Root $fixtureRoot -PlanPath $planPath) -join "`n" | Should -Match 'the plan has 2 ```json events blocks; one is allowed'
+        Write-EpText -Path $planPath -Text "# A plan`n`nPack: testland`n"
+        (Get-PlanMessages -Root $fixtureRoot -PlanPath $planPath) -join "`n" | Should -Match 'the plan has no ```json events block and no ```markdown fact-sheets block'
+        Write-EpText -Path $planPath -Text $planText
+        (Get-PlanMessages -Root $fixtureRoot -PlanPath $planPath -Pack 'otherland') -join "`n" | Should -Match "the plan names pack 'testland', -Pack 'otherland'"
+        Write-EpText -Path $planPath -Text $planText.Replace("``````markdown fact-sheets`n", "``````markdown fact-sheets`nStray line.`n`n## trench_line`n`n" + (Get-FixtureFactLine) + "`n`n")
+        $errorMessages = (Get-PlanMessages -Root $fixtureRoot -PlanPath $planPath) -join "`n"
+        $errorMessages | Should -Match "text before the first '## <key>' heading belongs to no section: 'Stray line\.'"
+        $errorMessages | Should -Match "section 'trench_line' is in the block twice"
+    }
+
+    It 'takes the pack from -Pack when the plan names none' {
+        $fixtureRoot = New-EpFixtureRepo
+        $plan = New-FixturePlan -Root $fixtureRoot
+        $plan.PackLine = $null
+        $plan.Source.PSObject.Properties.Remove('pack')
+        $planPath = Write-FixturePlan -Root $fixtureRoot -Plan $plan
+        Get-PlanMessages -Root $fixtureRoot -PlanPath $planPath -Pack 'testland' | Should -BeNullOrEmpty
+    }
+
+    It 'writes nothing with -DryRun and prints what would change' {
+        $fixtureRoot = New-EpFixtureRepo
+        $planPath = Write-FixturePlan -Root $fixtureRoot -Plan (New-FixturePlan -Root $fixtureRoot)
+        $hashesBefore = Get-FixtureHashes -Root $fixtureRoot
+        $output = @(Invoke-EpApplyPlan -RepoRoot $fixtureRoot -PlanPath $planPath -DryRun 6>&1 | ForEach-Object { [string]$_ })
+        $output[-1] | Should -Be '0'
+        Get-FixtureHashes -Root $fixtureRoot | Should -Be $hashesBefore
+        $outputText = $output -join "`n"
+        $outputText | Should -Match 'source/testland/events\.json: event 2 trench_line added'
+        $outputText | Should -Match "source/testland/fact-sheets\.md: section 'trench_line' added"
+        $outputText | Should -Match 'Dry run: 2 file\(s\) would be written'
+    }
+
+    It 'writes the events and adds the fact-sheet section, and then finds nothing left to change' {
+        $fixtureRoot = New-EpFixtureRepo
+        $factSheetPath = Join-Path $fixtureRoot 'source\testland\fact-sheets.md'
+        $factSheetBefore = [System.IO.File]::ReadAllText($factSheetPath)
+        $planPath = Write-FixturePlan -Root $fixtureRoot -Plan (New-FixturePlan -Root $fixtureRoot)
+        Invoke-EpApplyPlan -RepoRoot $fixtureRoot -PlanPath $planPath 6>$null | Select-Object -Last 1 | Should -Be 0
+        $eventsPath = Join-Path $fixtureRoot 'source\testland\events.json'
+        $writtenSource = Read-EpJson -Path $eventsPath
+        @($writtenSource.events | ForEach-Object { $_.key }) | Should -Be @('border_fortification', 'trench_line')
+        $writtenText = [System.IO.File]::ReadAllText($eventsPath)
+        $writtenText.Replace("`r`n", "`n") | Should -BeExactly ((ConvertTo-EpJsonText -Value $writtenSource) + "`n")
+        $writtenText | Should -Match "\r\n" -Because 'the file keeps the line ends it had (the fixture writes CRLF)'
+        $eventsBytes = [System.IO.File]::ReadAllBytes($eventsPath)
+        $eventsBytes[0] | Should -Be ([byte][char]'{') -Because 'events.json is UTF-8 without a BOM'
+        [System.IO.File]::ReadAllText($factSheetPath) | Should -BeExactly ($factSheetBefore + "`r`n## trench_line`r`n`r`n" + (Get-FixtureFactLine) + "`r`n")
+        $output = @(Invoke-EpApplyPlan -RepoRoot $fixtureRoot -PlanPath $planPath -DryRun 6>&1 | ForEach-Object { [string]$_ })
+        ($output -join "`n") | Should -Match 'Dry run: 0 file\(s\) would be written'
+    }
+
+    It 'replaces a fact-sheet section by its key and leaves the others as they are' {
+        $fixtureRoot = New-EpFixtureRepo
+        $factSheetPath = Join-Path $fixtureRoot 'source\testland\fact-sheets.md'
+        Write-FixtureFile -Root $fixtureRoot -RelativePath 'source\testland\fact-sheets.md' -Text ("# Fact sheets`n`n## border_fortification`n`n" + (Get-FixtureFactLine) + "`n`n## other_section`n`n- Kept. Source: https://example.org/kept (Kept). Quote: " + [char]0x00AB + 'Kept.' + [char]0x00BB + "`n")
+        $plan = New-FixturePlan -Root $fixtureRoot
+        $newLine = '- Volunteers dug near Taipale in 1937. Source: https://example.org/new (New). Quote: ' + [char]0x00AB + 'Uusi.' + [char]0x00BB
+        $plan.FactSheet = [ordered]@{ border_fortification = $newLine; trench_line = (Get-FixtureFactLine) }
+        $planPath = Write-FixturePlan -Root $fixtureRoot -Plan $plan
+        Invoke-EpApplyPlan -RepoRoot $fixtureRoot -PlanPath $planPath 6>$null | Select-Object -Last 1 | Should -Be 0
+        [System.IO.File]::ReadAllText($factSheetPath) | Should -BeExactly ("# Fact sheets`n`n## border_fortification`n`n" + $newLine + "`n`n## other_section`n`n- Kept. Source: https://example.org/kept (Kept). Quote: " + [char]0x00AB + 'Kept.' + [char]0x00BB + "`n`n## trench_line`n`n" + (Get-FixtureFactLine) + "`n")
+    }
+
+    It 'refuses to apply a plan the check fails and writes nothing' {
+        $fixtureRoot = New-EpFixtureRepo
+        $plan = New-FixturePlan -Root $fixtureRoot
+        $plan.Source.events[1].options[0].effects[0].war_support = 0.5
+        $planPath = Write-FixturePlan -Root $fixtureRoot -Plan $plan
+        $hashesBefore = Get-FixtureHashes -Root $fixtureRoot
+        $output = @(Invoke-EpApplyPlan -RepoRoot $fixtureRoot -PlanPath $planPath 6>&1 | ForEach-Object { [string]$_ })
+        $output[-1] | Should -Be '1'
+        ($output -join "`n") | Should -Match 'nothing written'
+        Get-FixtureHashes -Root $fixtureRoot | Should -Be $hashesBefore
+    }
+
+    It 'gives the archived Poland audit plan the files of the audit commit, applied to the source before it' {
+        $auditCommit = '135bfbd'
+        $sourceFiles = @('events.json', 'fact-sheets.md', 'pictures.json')
+        $beforeTexts = @{}
+        foreach ($sourceFile in $sourceFiles) { $beforeTexts[$sourceFile] = Get-GitBlobText -Revision "$auditCommit~1" -Path "source/poland/$sourceFile" }
+        $afterEvents = Get-GitBlobText -Revision $auditCommit -Path 'source/poland/events.json'
+        $afterFactSheets = Get-GitBlobText -Revision $auditCommit -Path 'source/poland/fact-sheets.md'
+        if ($null -eq $afterEvents -or @($beforeTexts.Values | Where-Object { $null -eq $_ }).Count -gt 0) {
+            Set-ItResult -Skipped -Because "the clone holds no history of the Poland audit commit $auditCommit (a shallow checkout)"
+            return
+        }
+        $afterEvents | Should -Not -Be $beforeTexts['events.json'] -Because 'the audit changed the events'
+        $fixtureRoot = Join-Path $TestDrive 'poland-audit'
+        New-Item -ItemType Directory -Path (Join-Path $fixtureRoot 'data') -Force | Out-Null
+        Copy-Item -Path (Join-Path $script:RepoRoot 'data\*') -Destination (Join-Path $fixtureRoot 'data')
+        Write-FixtureFile -Root $fixtureRoot -RelativePath 'tools\HoiModBuild.json' -Text '{ "packages": { "poland": { "root": "packs/poland", "modFolderName": "event_pack_poland" } } }'
+        foreach ($sourceFile in $sourceFiles) { Write-EpText -Path (Join-Path $fixtureRoot "source\poland\$sourceFile") -Text $beforeTexts[$sourceFile] }
+        $planPath = Join-Path $script:RepoRoot 'docs\plans\archive\2026-11-05-poland-audit.md'
+        Invoke-EpApplyPlan -RepoRoot $fixtureRoot -PlanPath $planPath 6>$null | Select-Object -Last 1 | Should -Be 0
+        [System.IO.File]::ReadAllText((Join-Path $fixtureRoot 'source\poland\events.json')) | Should -BeExactly $afterEvents
+        [System.IO.File]::ReadAllText((Join-Path $fixtureRoot 'source\poland\fact-sheets.md')) | Should -BeExactly $afterFactSheets
+    }
+
+    It 'writes every events.json of this repository back unchanged' {
+        foreach ($packName in @(Get-EpPackNames -RepoRoot $script:RepoRoot)) {
+            $eventsPath = Join-Path $script:RepoRoot "source\$packName\events.json"
+            $eventsText = [System.IO.File]::ReadAllText($eventsPath, [System.Text.Encoding]::UTF8)
+            ((ConvertTo-EpJsonText -Value (Read-EpJson -Path $eventsPath)) + "`n") | Should -BeExactly $eventsText -Because "-ApplyPlan writes source/$packName/events.json in its own format"
+        }
+    }
+
+    It 'build.ps1 takes -Plan for -Check and -ApplyPlan' {
+        $buildParameters = (Get-Command (Join-Path $script:RepoRoot 'build.ps1')).Parameters
+        $buildParameters.Keys | Should -Contain 'Plan'
+        $buildParameters.Keys | Should -Contain 'ApplyPlan'
+        @($buildParameters['Plan'].ParameterSets.Keys) | Should -Contain 'Check'
+        @($buildParameters['Plan'].ParameterSets.Keys) | Should -Contain 'ApplyPlan'
+    }
+
+    Context 'An audit block of the changed events only' {
+        It 'merges the changed events by id and leaves the other events and their order as they are' {
+            $fixtureRoot = New-ThreeEventRepo
+            $eventsPath = Join-Path $fixtureRoot 'source\testland\events.json'
+            $expectedSource = Read-EpJson -Path $eventsPath
+            $changedEvent = Get-FixtureEvent
+            $changedEvent.id = 2
+            $changedEvent.key = 'second_event'
+            $changedEvent.title = 'Second Work on the Line, Rewritten'
+            $expectedSource.events[1] = $changedEvent
+            $planPath = Write-FixturePlan -Root $fixtureRoot -Plan (New-MergePlan -Events @($changedEvent))
+            $output = @(Invoke-EpApplyPlan -RepoRoot $fixtureRoot -PlanPath $planPath 6>&1 | ForEach-Object { [string]$_ })
+            $output[-1] | Should -Be '0'
+            ($output -join "`n") | Should -Match 'event 2 second_event changed \(title\)'
+            [System.IO.File]::ReadAllText($eventsPath) | Should -BeExactly ((ConvertTo-EpJsonText -Value $expectedSource) + "`n")
+            @((Read-EpJson -Path $eventsPath).events | ForEach-Object { $_.id }) | Should -Be @(1, 2, 3)
+        }
+
+        It 'merges a changed idea by key and removes factQuotesFromId when the block sets it to null' {
+            $fixtureRoot = New-ThreeEventRepo
+            $eventsPath = Join-Path $fixtureRoot 'source\testland\events.json'
+            $startSource = Read-EpJson -Path $eventsPath
+            $startSource | Add-Member -NotePropertyName 'factQuotesFromId' -NotePropertyValue 1
+            Write-CanonicalEvents -Root $fixtureRoot -EventSource $startSource
+            $changedIdea = [PSCustomObject][ordered]@{ key = 'volunteer_work'; name = 'Volunteer Work on the Line'; desc = 'Students dig on the Karelian Isthmus.'; picture = 'generic_morale_bonus'; modifier = [PSCustomObject]@{ war_support_factor = 0.02 } }
+            $plan = New-MergePlan -Events @() -Ideas @($changedIdea)
+            $plan.Source | Add-Member -NotePropertyName 'factQuotesFromId' -NotePropertyValue $null
+            $planPath = Write-FixturePlan -Root $fixtureRoot -Plan $plan
+            Invoke-EpApplyPlan -RepoRoot $fixtureRoot -PlanPath $planPath 6>$null | Select-Object -Last 1 | Should -Be 0
+            $writtenSource = Read-EpJson -Path $eventsPath
+            $writtenSource.PSObject.Properties['factQuotesFromId'] | Should -BeNullOrEmpty
+            $writtenSource.ideas[0].name | Should -Be 'Volunteer Work on the Line'
+            @($writtenSource.events | ForEach-Object { $_.id }) | Should -Be @(1, 2, 3)
+        }
+
+        It 'refuses an id that is not in events.json and writes nothing' {
+            $fixtureRoot = New-ThreeEventRepo
+            $newEvent = Get-FixtureEvent
+            $newEvent.id = 4
+            $newEvent.key = 'fourth_event'
+            $planPath = Write-FixturePlan -Root $fixtureRoot -Plan (New-MergePlan -Events @($newEvent))
+            (Get-PlanMessages -Root $fixtureRoot -PlanPath $planPath) -join "`n" | Should -Match 'event 4 \(fourth_event\) is not in source/testland/events\.json'
+            $hashesBefore = Get-FixtureHashes -Root $fixtureRoot
+            Invoke-EpApplyPlan -RepoRoot $fixtureRoot -PlanPath $planPath 6>$null | Select-Object -Last 1 | Should -Be 1
+            Get-FixtureHashes -Root $fixtureRoot | Should -Be $hashesBefore
+        }
+
+        It 'refuses a tag or namespace other than the file''s and an event twice, and warns about a field the block event drops' {
+            $fixtureRoot = New-ThreeEventRepo
+            $changedEvent = Get-FixtureEvent
+            $changedEvent.id = 2
+            $changedEvent.key = 'second_event'
+            $changedEvent.PSObject.Properties.Remove('anchors')
+            $plan = New-MergePlan -Events @($changedEvent, $changedEvent)
+            $plan.Source.tag = 'TSX'
+            $plan.Source | Add-Member -NotePropertyName 'namespace' -NotePropertyValue 'ep_tsx'
+            $planPath = Write-FixturePlan -Root $fixtureRoot -Plan $plan
+            $errorMessages = (Get-PlanMessages -Root $fixtureRoot -PlanPath $planPath) -join "`n"
+            $errorMessages | Should -Match ([regex]::Escape('"tag" ''TSX'' differs from source/testland/events.json (''TST'')'))
+            $errorMessages | Should -Match ([regex]::Escape('"namespace" ''ep_tsx'' differs from source/testland/events.json (''ep_tst'')'))
+            $errorMessages | Should -Match 'event 2 is in the block twice'
+            (Get-PlanMessages -Root $fixtureRoot -PlanPath $planPath -Level 'WARN') -join "`n" | Should -Match 'event 2 \(second_event\) lacks the field\(s\) anchors of its current event'
+        }
+
+        It 'refuses a block without the pack and tag, or with a field of its own' {
+            $fixtureRoot = New-ThreeEventRepo
+            $changedEvent = Get-FixtureEvent
+            $plan = New-MergePlan -Events @($changedEvent)
+            $plan.Source.PSObject.Properties.Remove('tag')
+            $plan.Source | Add-Member -NotePropertyName 'comment' -NotePropertyValue 'audit'
+            $planPath = Write-FixturePlan -Root $fixtureRoot -Plan $plan
+            $errorMessages = (Get-PlanMessages -Root $fixtureRoot -PlanPath $planPath) -join "`n"
+            $errorMessages | Should -Match 'a "mergeById" block needs "pack" and "tag"'
+            $errorMessages | Should -Match '"comment" is not a field of a "mergeById" block'
+        }
+    }
+}
+
 Describe 'This repository' {
     It 'every pack passes the check' {
         $packNames = @(Get-EpPackNames -RepoRoot $script:RepoRoot)

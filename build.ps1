@@ -67,6 +67,13 @@ param(
     [Parameter(ParameterSetName = 'Check', Mandatory = $true)]
     [switch]$Check,
 
+    [Parameter(ParameterSetName = 'ApplyPlan', Mandatory = $true)]
+    [switch]$ApplyPlan,
+
+    [Parameter(ParameterSetName = 'Check')]
+    [Parameter(ParameterSetName = 'ApplyPlan', Mandatory = $true)]
+    [string]$Plan,
+
     [Parameter(ParameterSetName = 'Audit', Mandatory = $true)]
     [switch]$Audit,
 
@@ -160,7 +167,13 @@ switch ($PSCmdlet.ParameterSetName) {
         exit $worstExitCode
     }
     'Check' {
+        if ($Plan) {
+            exit ([int](@(Invoke-EpPlanCheck -RepoRoot $PSScriptRoot -PlanPath $Plan -Pack $Pack)[-1]))
+        }
         exit ([int](@(Invoke-EpCheck -RepoRoot $PSScriptRoot -Pack (Get-SelectedPackNames))[-1]))
+    }
+    'ApplyPlan' {
+        exit ([int](@(Invoke-EpApplyPlan -RepoRoot $PSScriptRoot -PlanPath $Plan -Pack $Pack -DryRun:$DryRun)[-1]))
     }
     'Audit' {
         if (-not $Pack) {

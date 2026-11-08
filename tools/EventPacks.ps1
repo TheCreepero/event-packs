@@ -192,7 +192,6 @@ function Get-EpPack {
         Pictures       = $pictures
         FactSheetText  = $(if (Test-Path -LiteralPath $factSheetPath) { [System.IO.File]::ReadAllText($factSheetPath, [System.Text.Encoding]::UTF8) } else { '' })
         WorkshopIntro  = $(if (Test-Path -LiteralPath $introPath) { [System.IO.File]::ReadAllText($introPath, [System.Text.Encoding]::UTF8).Trim() } else { '' })
-        Workshop       = Read-EpJson -Path (Join-Path $RepoRoot 'data\workshop.json')
     }
 }
 
@@ -985,8 +984,14 @@ function Get-EpPictureYear {
 }
 
 function Test-EpPackSource {
-    param($Pack)
+    param(
+        $Pack,
+        # Picture keys of a plan's "Pictures" table, not fetched yet: given by Test-EpPlan, which checks those rows itself.
+        [AllowEmptyCollection()][string[]]$PlannedPictureKeys
+    )
 
+    $planMode = $PSBoundParameters.ContainsKey('PlannedPictureKeys')
+    $PlannedPictureKeys = @($PlannedPictureKeys | Where-Object { $_ })
     $problems = [System.Collections.Generic.List[PSObject]]::new()
     $rules = Get-EpTextRules
     $caps = Get-EpCaps -RepoRoot $Pack.RepoRoot
@@ -1098,8 +1103,12 @@ function Test-EpPackSource {
             if ($pictureKey -notmatch '^vanilla:GFX_report_event_\w+$') {
                 $problems.Add((New-EpProblem -Level 'ERROR' -Where $eventWhere -Message "'$pictureKey' is not a vanilla event picture sprite [SPR-028]"))
             }
-        } elseif ($null -eq (Get-EpPictureByKey -Pack $Pack -PictureKey $pictureKey)) {
-            $problems.Add((New-EpProblem -Level 'ERROR' -Where $eventWhere -Message "picture '$pictureKey' is not in $sourceWhere/pictures.json: fetch it with build.ps1 -FetchPicture"))
+        } elseif ($null -eq (Get-EpPictureByKey -Pack $Pack -PictureKey $pictureKey) -and $PlannedPictureKeys -cnotcontains $pictureKey) {
+            if ($planMode) {
+                $problems.Add((New-EpProblem -Level 'ERROR' -Where $eventWhere -Message "picture '$pictureKey' is neither in $sourceWhere/pictures.json nor in the plan's Pictures table"))
+            } else {
+                $problems.Add((New-EpProblem -Level 'ERROR' -Where $eventWhere -Message "picture '$pictureKey' is not in $sourceWhere/pictures.json: fetch it with build.ps1 -FetchPicture"))
+            }
         }
 
         $options = @(ConvertTo-EpArray (Get-EpProperty -Object $packEvent -Name 'options'))
@@ -1232,6 +1241,18 @@ function Get-EpDdsSize {
     return [PSCustomObject]@{ Height = [System.BitConverter]::ToInt32($headerBytes, 12); Width = [System.BitConverter]::ToInt32($headerBytes, 16) }
 }
 
+function Get-EpOtherNamespaces {
+    param(
+        [Parameter(Mandatory = $true)][string]$RepoRoot,
+        [Parameter(Mandatory = $true)][string]$Pack
+    )
+
+    return @(Get-EpPackNames -RepoRoot $RepoRoot | Where-Object { $_ -ne $Pack } | ForEach-Object {
+            $otherEventsPath = Join-Path $RepoRoot ('source\' + $_ + '\events.json')
+            if (Test-Path -LiteralPath $otherEventsPath) { [string](Get-EpProperty -Object (Read-EpJson -Path $otherEventsPath) -Name 'namespace' -Default '') }
+        } | Where-Object { $_ })
+}
+
 function Test-EpPack {
     param(
         [Parameter(Mandatory = $true)][string]$RepoRoot,
@@ -1277,10 +1298,7 @@ function Test-EpPack {
             }
         }
     }
-    $otherNamespaces = @(Get-EpPackNames -RepoRoot $RepoRoot | Where-Object { $_ -ne $Pack } | ForEach-Object {
-            $otherEventsPath = Join-Path $RepoRoot ('source\' + $_ + '\events.json')
-            if (Test-Path -LiteralPath $otherEventsPath) { [string](Get-EpProperty -Object (Read-EpJson -Path $otherEventsPath) -Name 'namespace' -Default '') }
-        } | Where-Object { $_ })
+    $otherNamespaces = @(Get-EpOtherNamespaces -RepoRoot $RepoRoot -Pack $Pack)
     if ($otherNamespaces -contains $packData.Namespace) {
         $problems.Add((New-EpProblem -Level 'ERROR' -Where "source/$Pack/events.json" -Message "namespace '$($packData.Namespace)' is used by another pack"))
     }
@@ -1371,6 +1389,656 @@ function Invoke-EpAudit {
     $errorCount = @($problems | Where-Object { $_.Level -eq 'ERROR' }).Count
     Write-Host ("Audit: {0} error(s), {1} warning(s)" -f $errorCount, @($problems | Where-Object { $_.Level -eq 'WARN' }).Count) -ForegroundColor $(if ($errorCount -gt 0) { 'Red' } else { 'Green' })
     return $(if ($errorCount -gt 0) { 1 } else { 0 })
+}
+
+function ConvertTo-EpJsonString {
+    param([AllowEmptyString()][string]$Text)
+
+    $builder = [System.Text.StringBuilder]::new($Text.Length + 2)
+    [void]$builder.Append('"')
+    foreach ($character in $Text.ToCharArray()) {
+        $code = [int]$character
+        if ($code -eq 34) {
+            [void]$builder.Append('\"')
+        } elseif ($code -eq 92) {
+            [void]$builder.Append('\\')
+        } elseif ($code -eq 10) {
+            [void]$builder.Append('\n')
+        } elseif ($code -eq 13) {
+            [void]$builder.Append('\r')
+        } elseif ($code -eq 9) {
+            [void]$builder.Append('\t')
+        } elseif ($code -eq 8) {
+            [void]$builder.Append('\b')
+        } elseif ($code -eq 12) {
+            [void]$builder.Append('\f')
+        } elseif ($code -lt 32) {
+            [void]$builder.Append(('\u{0:x4}' -f $code))
+        } else {
+            [void]$builder.Append($character)
+        }
+    }
+    [void]$builder.Append('"')
+    return $builder.ToString()
+}
+
+function ConvertTo-EpJsonNumber {
+    param([Parameter(Mandatory = $true)]$Number)
+
+    $culture = [System.Globalization.CultureInfo]::InvariantCulture
+    if ($Number -is [double] -or $Number -is [single]) {
+        $doubleValue = [double]$Number
+        if ([double]::IsNaN($doubleValue) -or [double]::IsInfinity($doubleValue)) {
+            throw "JSON has no number for $doubleValue"
+        }
+        if ($doubleValue -eq [Math]::Truncate($doubleValue) -and [Math]::Abs($doubleValue) -lt 1e16) {
+            return $doubleValue.ToString('0', $culture) + '.0'
+        }
+        return $doubleValue.ToString('R', $culture).Replace('E', 'e')
+    }
+    return ([System.IFormattable]$Number).ToString($null, $culture)
+}
+
+function ConvertTo-EpJsonText {
+    # The format of every source/<pack>/events.json: four-space indents, one item per line, non-ASCII characters
+    # as they are (what Python's json.dumps(indent=4, ensure_ascii=False) writes).
+    param([AllowNull()]$Value, [int]$Depth = 0)
+
+    if ($null -eq $Value) {
+        return 'null'
+    }
+    if ($Value -is [string] -or $Value -is [char]) {
+        return ConvertTo-EpJsonString -Text ([string]$Value)
+    }
+    if ($Value -is [bool]) {
+        return $(if ($Value) { 'true' } else { 'false' })
+    }
+    if ($Value -is [System.ValueType]) {
+        return ConvertTo-EpJsonNumber -Number $Value
+    }
+    $innerIndent = '    ' * ($Depth + 1)
+    $outerIndent = '    ' * $Depth
+    $memberTexts = [System.Collections.Generic.List[string]]::new()
+    if ($Value -is [System.Collections.IDictionary]) {
+        foreach ($memberKey in @($Value.Keys)) {
+            $memberTexts.Add($innerIndent + (ConvertTo-EpJsonString -Text ([string]$memberKey)) + ': ' + (ConvertTo-EpJsonText -Value $Value[$memberKey] -Depth ($Depth + 1)))
+        }
+        $isObject = $true
+    } elseif ($Value -is [System.Collections.IEnumerable]) {
+        foreach ($item in $Value) {
+            $memberTexts.Add($innerIndent + (ConvertTo-EpJsonText -Value $item -Depth ($Depth + 1)))
+        }
+        $isObject = $false
+    } else {
+        foreach ($property in @($Value.PSObject.Properties | Where-Object { $_.MemberType -eq 'NoteProperty' })) {
+            $memberTexts.Add($innerIndent + (ConvertTo-EpJsonString -Text $property.Name) + ': ' + (ConvertTo-EpJsonText -Value $property.Value -Depth ($Depth + 1)))
+        }
+        $isObject = $true
+    }
+    $openText = if ($isObject) { '{' } else { '[' }
+    $closeText = if ($isObject) { '}' } else { ']' }
+    if ($memberTexts.Count -eq 0) {
+        return $openText + $closeText
+    }
+    return $openText + "`n" + ($memberTexts -join ",`n") + "`n" + $outerIndent + $closeText
+}
+
+function Get-EpPlanBlocks {
+    param([AllowEmptyString()][string]$Text, [Parameter(Mandatory = $true)][string]$Info)
+
+    return @([regex]::Matches($Text, '(?ms)^```' + [regex]::Escape($Info) + '[ \t]*\n(.*?)^```[ \t]*$') | ForEach-Object { $_.Groups[1].Value })
+}
+
+function Get-EpPlanPictureRows {
+    param([AllowEmptyString()][string]$Text)
+
+    $rows = [System.Collections.Generic.List[PSObject]]::new()
+    $sectionMatch = [regex]::Match($Text, '(?ms)^## Pictures[ \t]*\n(.*?)(?=^## |\z)')
+    if (-not $sectionMatch.Success) {
+        return $rows.ToArray()
+    }
+    $columnNames = $null
+    foreach ($tableLine in @($sectionMatch.Groups[1].Value -split "`n" | Where-Object { $_.TrimStart().StartsWith('|') })) {
+        $cells = @($tableLine.Trim().TrimStart('|') -replace '\|\s*$', '' -split '\|' | ForEach-Object { $_.Trim() -replace '^`(.*)`$', '$1' })
+        if ($null -eq $columnNames) {
+            $columnNames = @($cells | ForEach-Object {
+                    $headerText = $_.ToLowerInvariant()
+                    if ($headerText -eq 'key') { 'Key' }
+                    elseif ($headerText -like '*file*') { 'File' }
+                    elseif ($headerText -like 'licen*') { 'Licence' }
+                    elseif ($headerText -eq 'crop') { 'Crop' }
+                    elseif ($headerText -eq 'tone') { 'Tone' }
+                    elseif ($headerText -like 'event*') { 'Event' }
+                    else { '' }
+                })
+            if ($columnNames -notcontains 'Key') {
+                return $rows.ToArray()
+            }
+            continue
+        }
+        if (@($cells | Where-Object { $_ -notmatch '^:?-+:?$' }).Count -eq 0) {
+            continue
+        }
+        $row = [ordered]@{ Key = ''; File = ''; Licence = ''; Crop = ''; Tone = ''; Event = '' }
+        for ($cellIndex = 0; $cellIndex -lt [Math]::Min($cells.Count, $columnNames.Count); $cellIndex++) {
+            if ($columnNames[$cellIndex]) {
+                $row[$columnNames[$cellIndex]] = $cells[$cellIndex]
+            }
+        }
+        if (-not $row.Key -or $row.Key -match '^\(.*\)$') {
+            continue
+        }
+        $rows.Add([PSCustomObject]$row)
+    }
+    return $rows.ToArray()
+}
+
+function Test-EpPlanPictureRows {
+    param([AllowEmptyCollection()]$Rows, [AllowEmptyCollection()][string[]]$UsedPictureKeys)
+
+    $problems = [System.Collections.Generic.List[PSObject]]::new()
+    $seenKeys = @{}
+    foreach ($row in @($Rows)) {
+        $rowWhere = "picture row '$($row.Key)'"
+        if ($row.Key -cnotmatch '^[a-z0-9_]+$') {
+            $problems.Add((New-EpProblem -Level 'ERROR' -Where $rowWhere -Message 'key must be lower-case letters, digits and underscores (build.ps1 -FetchPicture -Key)'))
+        }
+        if ($seenKeys.ContainsKey($row.Key)) {
+            $problems.Add((New-EpProblem -Level 'ERROR' -Where $rowWhere -Message 'listed twice in the Pictures table'))
+        }
+        $seenKeys[$row.Key] = $true
+        if ($row.File -notmatch '^(?:File:)?\S.*\.[A-Za-z0-9]+$') {
+            $problems.Add((New-EpProblem -Level 'ERROR' -Where $rowWhere -Message "names no Commons file (File:<name>.<extension>): '$($row.File)'"))
+        }
+        if ($row.Licence -cnotmatch '^(?:PD|CC0|CC BY(?!-SA))(?:[\s(,]|$)') {
+            $problems.Add((New-EpProblem -Level 'ERROR' -Where $rowWhere -Message "licence '$($row.Licence)' is not a licence the policy accepts: PD, CC0 or CC BY, as build.ps1 -FetchPicture -DryRun printed it"))
+        }
+        $sizeMatch = [regex]::Match([string]$row.Licence, '\b(\d+)x(\d+)\b')
+        if ($sizeMatch.Success -and ([int]$sizeMatch.Groups[1].Value -lt 210 -or [int]$sizeMatch.Groups[2].Value -lt 176)) {
+            $problems.Add((New-EpProblem -Level 'ERROR' -Where $rowWhere -Message "$($sizeMatch.Value) is smaller than 210x176, the event picture [SPR-028]"))
+        }
+        if ($row.Crop -ne 'fit' -and ($row.Crop -notmatch '^\d{1,3}$' -or [int]$row.Crop -gt 100)) {
+            $problems.Add((New-EpProblem -Level 'ERROR' -Where $rowWhere -Message "crop '$($row.Crop)' is not 0 to 100 (50 centres) or fit"))
+        }
+        if (@('none', 'grey', 'warm') -cnotcontains $row.Tone) {
+            $problems.Add((New-EpProblem -Level 'ERROR' -Where $rowWhere -Message "tone '$($row.Tone)' is not none, grey or warm"))
+        }
+        if (@($UsedPictureKeys) -cnotcontains $row.Key) {
+            $problems.Add((New-EpProblem -Level 'WARN' -Where $rowWhere -Message 'no event uses this picture'))
+        }
+    }
+    return $problems.ToArray()
+}
+
+function Get-EpFactSheetBlockSections {
+    param([AllowEmptyString()][string]$Text, [Parameter(Mandatory = $true)][string]$Where, [Parameter(Mandatory = $true)]$Problems)
+
+    $sections = [System.Collections.Generic.List[PSObject]]::new()
+    $headings = @([regex]::Matches($Text, '(?m)^##[ \t]+(\S+)[ \t]*$'))
+    $preambleText = if ($headings.Count -gt 0) { $Text.Substring(0, $headings[0].Index) } else { $Text }
+    if ($preambleText.Trim()) {
+        $Problems.Add((New-EpProblem -Level 'ERROR' -Where $Where -Message "text before the first '## <key>' heading belongs to no section: '$((($preambleText.Trim()) -split "`n")[0])'"))
+    }
+    $seenKeys = @{}
+    for ($headingIndex = 0; $headingIndex -lt $headings.Count; $headingIndex++) {
+        $sectionEnd = if ($headingIndex + 1 -lt $headings.Count) { $headings[$headingIndex + 1].Index } else { $Text.Length }
+        $sectionKey = $headings[$headingIndex].Groups[1].Value
+        if ($seenKeys.ContainsKey($sectionKey)) {
+            $Problems.Add((New-EpProblem -Level 'ERROR' -Where $Where -Message "section '$sectionKey' is in the block twice"))
+        }
+        $seenKeys[$sectionKey] = $true
+        $sections.Add([PSCustomObject]@{ Key = $sectionKey; Text = $Text.Substring($headings[$headingIndex].Index, $sectionEnd - $headings[$headingIndex].Index).TrimEnd() })
+    }
+    return $sections.ToArray()
+}
+
+function Merge-EpFactSheetText {
+    # Replaces each section of the file by the block's section of the same key, keeping the blank lines after it,
+    # and appends the sections of new keys; everything else in the file stays as it is.
+    param([AllowEmptyString()][string]$Text, [AllowEmptyCollection()]$Sections)
+
+    $newline = if ($Text.Contains("`r`n")) { "`r`n" } else { "`n" }
+    $headings = @([regex]::Matches($Text, '(?m)^##[ \t]+(\S+)[ \t]*\r?$'))
+    $replacements = @{}
+    $appended = [System.Collections.Generic.List[string]]::new()
+    $changes = [System.Collections.Generic.List[PSObject]]::new()
+    foreach ($section in @($Sections)) {
+        $newCore = $section.Text.Replace("`n", $newline)
+        $headingIndex = -1
+        for ($candidateIndex = 0; $candidateIndex -lt $headings.Count; $candidateIndex++) {
+            if ($headings[$candidateIndex].Groups[1].Value -ceq $section.Key) {
+                $headingIndex = $candidateIndex
+                break
+            }
+        }
+        if ($headingIndex -lt 0) {
+            $appended.Add($newCore)
+            $changes.Add([PSCustomObject]@{ Key = $section.Key; Change = 'added' })
+            continue
+        }
+        $spanStart = $headings[$headingIndex].Index
+        $spanEnd = if ($headingIndex + 1 -lt $headings.Count) { $headings[$headingIndex + 1].Index } else { $Text.Length }
+        $spanText = $Text.Substring($spanStart, $spanEnd - $spanStart)
+        $oldCore = $spanText.TrimEnd()
+        if ($oldCore -ceq $newCore) {
+            $changes.Add([PSCustomObject]@{ Key = $section.Key; Change = 'unchanged' })
+            continue
+        }
+        $replacements[$spanStart] = [PSCustomObject]@{ End = $spanEnd; Text = $newCore + $spanText.Substring($oldCore.Length) }
+        $changes.Add([PSCustomObject]@{ Key = $section.Key; Change = 'replaced' })
+    }
+    $builder = [System.Text.StringBuilder]::new()
+    $position = 0
+    foreach ($spanStart in @($replacements.Keys | Sort-Object)) {
+        [void]$builder.Append($Text.Substring($position, $spanStart - $position))
+        [void]$builder.Append($replacements[$spanStart].Text)
+        $position = $replacements[$spanStart].End
+    }
+    [void]$builder.Append($Text.Substring($position))
+    foreach ($newCore in $appended) {
+        $currentText = $builder.ToString()
+        if ($currentText.Length -gt 0 -and -not $currentText.EndsWith($newline)) {
+            [void]$builder.Append($newline)
+        }
+        if ($builder.Length -gt 0 -and -not $builder.ToString().EndsWith($newline + $newline)) {
+            [void]$builder.Append($newline)
+        }
+        [void]$builder.Append($newCore + $newline)
+    }
+    return [PSCustomObject]@{ Text = $builder.ToString(); Changes = $changes.ToArray() }
+}
+
+function Get-EpJsonPropertyTexts {
+    param($Object)
+
+    $propertyTexts = [ordered]@{}
+    if ($null -ne $Object) {
+        foreach ($property in @($Object.PSObject.Properties | Where-Object { $_.MemberType -eq 'NoteProperty' })) {
+            $propertyTexts[$property.Name] = ConvertTo-EpJsonText -Value $property.Value
+        }
+    }
+    return $propertyTexts
+}
+
+function Get-EpEventSourceChanges {
+    param($OldSource, $NewSource)
+
+    $changes = [System.Collections.Generic.List[string]]::new()
+    $counts = [ordered]@{ Changed = 0; Added = 0; Unchanged = 0 }
+    $oldEvents = @{}
+    foreach ($oldEvent in @(ConvertTo-EpArray (Get-EpProperty -Object $OldSource -Name 'events'))) {
+        $oldEvents[[string]$oldEvent.id] = $oldEvent
+    }
+    foreach ($newEvent in @(ConvertTo-EpArray (Get-EpProperty -Object $NewSource -Name 'events'))) {
+        $eventLabel = 'event ' + [string]$newEvent.id + ' ' + [string](Get-EpProperty -Object $newEvent -Name 'key' -Default '')
+        if (-not $oldEvents.ContainsKey([string]$newEvent.id)) {
+            $changes.Add($eventLabel + ' added')
+            $counts.Added++
+            continue
+        }
+        $oldTexts = Get-EpJsonPropertyTexts -Object $oldEvents[[string]$newEvent.id]
+        $newTexts = Get-EpJsonPropertyTexts -Object $newEvent
+        $changedNames = @(@(@($newTexts.Keys) + @($oldTexts.Keys)) | Select-Object -Unique | Where-Object { -not $oldTexts.Contains($_) -or -not $newTexts.Contains($_) -or $oldTexts[$_] -cne $newTexts[$_] })
+        if ($changedNames.Count -gt 0) {
+            $changes.Add($eventLabel + ' changed (' + ($changedNames -join ', ') + ')')
+            $counts.Changed++
+        } else {
+            $counts.Unchanged++
+        }
+    }
+    $oldIdeas = @{}
+    foreach ($oldIdea in @(ConvertTo-EpArray (Get-EpProperty -Object $OldSource -Name 'ideas'))) {
+        $oldIdeas[[string]$oldIdea.key] = ConvertTo-EpJsonText -Value $oldIdea
+    }
+    $newIdeaKeys = @{}
+    foreach ($newIdea in @(ConvertTo-EpArray (Get-EpProperty -Object $NewSource -Name 'ideas'))) {
+        $newIdeaKeys[[string]$newIdea.key] = $true
+        if (-not $oldIdeas.ContainsKey([string]$newIdea.key)) {
+            $changes.Add("idea '$($newIdea.key)' added")
+        } elseif ($oldIdeas[[string]$newIdea.key] -cne (ConvertTo-EpJsonText -Value $newIdea)) {
+            $changes.Add("idea '$($newIdea.key)' changed")
+        }
+    }
+    foreach ($oldIdeaKey in @($oldIdeas.Keys | Where-Object { -not $newIdeaKeys.ContainsKey($_) } | Sort-Object)) {
+        $changes.Add("idea '$oldIdeaKey' removed")
+    }
+    $oldTopTexts = Get-EpJsonPropertyTexts -Object $OldSource
+    $newTopTexts = Get-EpJsonPropertyTexts -Object $NewSource
+    foreach ($topName in @(@(@($newTopTexts.Keys) + @($oldTopTexts.Keys)) | Select-Object -Unique | Where-Object { $_ -notin 'events', 'ideas' })) {
+        if (-not $oldTopTexts.Contains($topName)) {
+            $changes.Add("$topName added: $($newTopTexts[$topName])")
+        } elseif (-not $newTopTexts.Contains($topName)) {
+            $changes.Add("$topName removed")
+        } elseif ($oldTopTexts[$topName] -cne $newTopTexts[$topName]) {
+            $changes.Add("$topName changed: $($oldTopTexts[$topName]) to $($newTopTexts[$topName])")
+        }
+    }
+    return [PSCustomObject]@{ Lines = $changes.ToArray(); Counts = $counts }
+}
+
+function Get-EpPlanEventSource {
+    # The events.json a plan's events block gives: the block itself (a whole file), or with "mergeById": true the
+    # current file with the block's events and ideas put in place of those of the same id and key.
+    param($CurrentSource, $Block, [Parameter(Mandatory = $true)][string]$Where, [Parameter(Mandatory = $true)][string]$EventsWhere, [Parameter(Mandatory = $true)]$Problems)
+
+    $currentEvents = @(ConvertTo-EpArray (Get-EpProperty -Object $CurrentSource -Name 'events'))
+    $blockEvents = @(ConvertTo-EpArray (Get-EpProperty -Object $Block -Name 'events'))
+    $mergeById = (Get-EpProperty -Object $Block -Name 'mergeById' -Default $false) -eq $true
+    $resultMap = [ordered]@{}
+    if (-not $mergeById) {
+        foreach ($property in @($Block.PSObject.Properties | Where-Object { $_.MemberType -eq 'NoteProperty' -and $_.Name -ne 'mergeById' })) {
+            $resultMap[$property.Name] = $property.Value
+        }
+        $blockIds = @($blockEvents | ForEach-Object { [string]$_.id })
+        $missingIds = @($currentEvents | ForEach-Object { [string]$_.id } | Where-Object { $blockIds -notcontains $_ })
+        if ($missingIds.Count -gt 0) {
+            $Problems.Add((New-EpProblem -Level 'ERROR' -Where $Where -Message ("the json events block lacks event(s) $($missingIds -join ', ') of ${EventsWhere}: an event id is never removed, so a whole block holds every event; a block of the changed events only needs `"mergeById`": true")))
+        }
+        return [PSCustomObject]@{ Source = [PSCustomObject]$resultMap; MergeById = $false }
+    }
+
+    $mergeFields = @('pack', 'tag', 'namespace', 'displayName', 'mergeById', 'factQuotesFromId', 'events', 'ideas')
+    foreach ($property in @($Block.PSObject.Properties | Where-Object { $_.MemberType -eq 'NoteProperty' })) {
+        if ($mergeFields -cnotcontains $property.Name) {
+            $Problems.Add((New-EpProblem -Level 'ERROR' -Where $Where -Message "`"$($property.Name)`" is not a field of a `"mergeById`" block ($($mergeFields -join ', '))"))
+        }
+    }
+    if (-not [string](Get-EpProperty -Object $Block -Name 'pack' -Default '') -or -not [string](Get-EpProperty -Object $Block -Name 'tag' -Default '')) {
+        $Problems.Add((New-EpProblem -Level 'ERROR' -Where $Where -Message 'a "mergeById" block needs "pack" and "tag" (the trigger checker reads the tag)'))
+    }
+    foreach ($headerName in @('tag', 'namespace', 'displayName')) {
+        $blockValue = Get-EpProperty -Object $Block -Name $headerName
+        $currentValue = [string](Get-EpProperty -Object $CurrentSource -Name $headerName -Default '')
+        if ($null -ne $blockValue -and [string]$blockValue -cne $currentValue) {
+            $Problems.Add((New-EpProblem -Level 'ERROR' -Where $Where -Message "`"$headerName`" '$blockValue' differs from $EventsWhere ('$currentValue'): a `"mergeById`" block changes events, ideas and factQuotesFromId only"))
+        }
+    }
+    foreach ($property in @($CurrentSource.PSObject.Properties | Where-Object { $_.MemberType -eq 'NoteProperty' })) {
+        $resultMap[$property.Name] = $property.Value
+    }
+
+    $mergedEvents = [System.Collections.Generic.List[object]]::new()
+    $eventPositions = @{}
+    foreach ($currentEvent in $currentEvents) {
+        $eventPositions[[string]$currentEvent.id] = $mergedEvents.Count
+        $mergedEvents.Add($currentEvent)
+    }
+    $seenBlockIds = @{}
+    foreach ($blockEvent in $blockEvents) {
+        $blockId = [string](Get-EpProperty -Object $blockEvent -Name 'id' -Default '')
+        $blockKey = [string](Get-EpProperty -Object $blockEvent -Name 'key' -Default '')
+        if ($seenBlockIds.ContainsKey($blockId)) {
+            $Problems.Add((New-EpProblem -Level 'ERROR' -Where $Where -Message "event $blockId is in the block twice"))
+            continue
+        }
+        $seenBlockIds[$blockId] = $true
+        if (-not $eventPositions.ContainsKey($blockId)) {
+            $Problems.Add((New-EpProblem -Level 'ERROR' -Where $Where -Message "event $blockId ($blockKey) is not in ${EventsWhere}: a `"mergeById`" block changes events only; a new event goes into a whole json events block (event-pack-create)"))
+            continue
+        }
+        $currentFieldNames = @($mergedEvents[$eventPositions[$blockId]].PSObject.Properties | Where-Object { $_.MemberType -eq 'NoteProperty' } | ForEach-Object { $_.Name })
+        $blockFieldNames = @($blockEvent.PSObject.Properties | Where-Object { $_.MemberType -eq 'NoteProperty' } | ForEach-Object { $_.Name })
+        $droppedFieldNames = @($currentFieldNames | Where-Object { $blockFieldNames -cnotcontains $_ })
+        if ($droppedFieldNames.Count -gt 0) {
+            $Problems.Add((New-EpProblem -Level 'WARN' -Where $Where -Message "event $blockId ($blockKey) lacks the field(s) $($droppedFieldNames -join ', ') of its current event: a `"mergeById`" event replaces the whole event, so they are dropped"))
+        }
+        $mergedEvents[$eventPositions[$blockId]] = $blockEvent
+    }
+    $resultMap['events'] = $mergedEvents.ToArray()
+
+    if ($null -ne $Block.PSObject.Properties['ideas']) {
+        $mergedIdeas = [System.Collections.Generic.List[object]]::new()
+        $ideaPositions = @{}
+        foreach ($currentIdea in @(ConvertTo-EpArray (Get-EpProperty -Object $CurrentSource -Name 'ideas'))) {
+            $ideaPositions[[string]$currentIdea.key] = $mergedIdeas.Count
+            $mergedIdeas.Add($currentIdea)
+        }
+        foreach ($blockIdea in @(ConvertTo-EpArray $Block.ideas)) {
+            $ideaKey = [string](Get-EpProperty -Object $blockIdea -Name 'key' -Default '')
+            if ($ideaPositions.ContainsKey($ideaKey)) {
+                $mergedIdeas[$ideaPositions[$ideaKey]] = $blockIdea
+            } else {
+                $ideaPositions[$ideaKey] = $mergedIdeas.Count
+                $mergedIdeas.Add($blockIdea)
+            }
+        }
+        $resultMap['ideas'] = $mergedIdeas.ToArray()
+    }
+
+    $factQuotesProperty = $Block.PSObject.Properties['factQuotesFromId']
+    if ($null -ne $factQuotesProperty) {
+        if ($null -eq $factQuotesProperty.Value) {
+            $resultMap.Remove('factQuotesFromId')
+        } elseif ($resultMap.Contains('factQuotesFromId')) {
+            $resultMap['factQuotesFromId'] = $factQuotesProperty.Value
+        } else {
+            $eventsIndex = @($resultMap.Keys).IndexOf('events')
+            if ($eventsIndex -lt 0) { $eventsIndex = $resultMap.Count }
+            $resultMap.Insert($eventsIndex, 'factQuotesFromId', $factQuotesProperty.Value)
+        }
+    }
+    return [PSCustomObject]@{ Source = [PSCustomObject]$resultMap; MergeById = $true }
+}
+
+function Get-EpPlan {
+    param(
+        [Parameter(Mandatory = $true)][string]$RepoRoot,
+        [Parameter(Mandatory = $true)][string]$PlanPath,
+        [string]$Pack
+    )
+
+    $problems = [System.Collections.Generic.List[PSObject]]::new()
+    $plan = [PSCustomObject]@{
+        PlanPath = $PlanPath; PlanName = (Split-Path -Leaf $PlanPath); Pack = $Pack; Problems = $problems; PackData = $null; ResultPack = $null
+        EventsBlock = $null; MergeById = $false; EventSource = $null; EventsText = $null; EventChanges = $null
+        FactSections = @(); FactSheetText = $null; FactChanges = @(); PictureRows = @()
+    }
+    $resolvedPlanPath = $PlanPath
+    if (-not [System.IO.Path]::IsPathRooted($resolvedPlanPath)) {
+        $resolvedPlanPath = Join-Path (Get-Location).Path $PlanPath
+        if (-not (Test-Path -LiteralPath $resolvedPlanPath)) {
+            $resolvedPlanPath = Join-Path $RepoRoot $PlanPath
+        }
+    }
+    if (-not (Test-Path -LiteralPath $resolvedPlanPath -PathType Leaf)) {
+        $problems.Add((New-EpProblem -Level 'ERROR' -Where $plan.PlanName -Message "plan file '$PlanPath' not found"))
+        return $plan
+    }
+    $plan.PlanPath = $resolvedPlanPath
+    $planText = [System.IO.File]::ReadAllText($resolvedPlanPath, [System.Text.Encoding]::UTF8).Replace("`r`n", "`n")
+    $eventsBlocks = @(Get-EpPlanBlocks -Text $planText -Info 'json events')
+    $factBlocks = @(Get-EpPlanBlocks -Text $planText -Info 'markdown fact-sheets')
+    foreach ($blockKind in @(@{ Name = '```json events'; Count = $eventsBlocks.Count }, @{ Name = '```markdown fact-sheets'; Count = $factBlocks.Count })) {
+        if ($blockKind.Count -gt 1) {
+            $problems.Add((New-EpProblem -Level 'ERROR' -Where $plan.PlanName -Message "the plan has $($blockKind.Count) $($blockKind.Name) blocks; one is allowed"))
+        }
+    }
+    if ($eventsBlocks.Count -eq 0 -and $factBlocks.Count -eq 0) {
+        $problems.Add((New-EpProblem -Level 'ERROR' -Where $plan.PlanName -Message 'the plan has no ```json events block and no ```markdown fact-sheets block'))
+    }
+    if ($eventsBlocks.Count -gt 0) {
+        try {
+            $plan.EventsBlock = $eventsBlocks[0] | ConvertFrom-Json -ErrorAction Stop
+        } catch {
+            $problems.Add((New-EpProblem -Level 'ERROR' -Where "$($plan.PlanName) events block" -Message ('the json events block does not parse: ' + (($_.Exception.Message -split "`n")[0]).Trim())))
+        }
+    }
+    $plan.PictureRows = @(Get-EpPlanPictureRows -Text $planText)
+
+    $headerMatch = [regex]::Match($planText, '(?m)^Pack:\s*([a-z][a-z0-9_]*)')
+    $headerPack = if ($headerMatch.Success) { $headerMatch.Groups[1].Value } else { '' }
+    $blockPack = [string](Get-EpProperty -Object $plan.EventsBlock -Name 'pack' -Default '')
+    $namedPack = if ($Pack) { $Pack } elseif ($headerPack) { $headerPack } else { $blockPack }
+    if (-not $namedPack) {
+        $problems.Add((New-EpProblem -Level 'ERROR' -Where $plan.PlanName -Message "the plan names no pack: give -Pack <key>, or the plan a 'Pack: <key>' line or its events block a `"pack`""))
+    }
+    if ($Pack -and $headerPack -and $headerPack -cne $Pack) {
+        $problems.Add((New-EpProblem -Level 'ERROR' -Where $plan.PlanName -Message "the plan names pack '$headerPack', -Pack '$Pack'"))
+    }
+    if ($blockPack -and $namedPack -and $blockPack -cne $namedPack) {
+        $problems.Add((New-EpProblem -Level 'ERROR' -Where "$($plan.PlanName) events block" -Message "the events block names pack '$blockPack', the plan '$namedPack'"))
+    }
+    $plan.Pack = $namedPack
+    if ($namedPack -and @(Get-EpPackNames -RepoRoot $RepoRoot) -cnotcontains $namedPack) {
+        $problems.Add((New-EpProblem -Level 'ERROR' -Where $plan.PlanName -Message "pack '$namedPack' is not a pack of tools/HoiModBuild.json"))
+    }
+    if (-not $namedPack -or @($problems | Where-Object { $_.Level -eq 'ERROR' }).Count -gt 0) {
+        return $plan
+    }
+    try {
+        $plan.PackData = Get-EpPack -RepoRoot $RepoRoot -Pack $namedPack
+        $plan.ResultPack = Get-EpPack -RepoRoot $RepoRoot -Pack $namedPack
+    } catch {
+        $problems.Add((New-EpProblem -Level 'ERROR' -Where $plan.PlanName -Message ($_.Exception.Message -replace '\\', '/')))
+        return $plan
+    }
+
+    $sourceWhere = 'source/' + $namedPack
+    $eventsPath = Join-Path $plan.PackData.SourceDir 'events.json'
+    $currentEventsText = [System.IO.File]::ReadAllText($eventsPath, [System.Text.Encoding]::UTF8)
+    if ($null -ne $plan.EventsBlock) {
+        $currentSource = Read-EpJson -Path $eventsPath
+        $eventResult = Get-EpPlanEventSource -CurrentSource $currentSource -Block $plan.EventsBlock -Where "$($plan.PlanName) events block" -EventsWhere "$sourceWhere/events.json" -Problems $problems
+        $plan.MergeById = $eventResult.MergeById
+        $plan.EventSource = $eventResult.Source
+        $eventsNewline = if ($currentEventsText.Contains("`r`n")) { "`r`n" } else { "`n" }
+        $plan.EventsText = ((ConvertTo-EpJsonText -Value $plan.EventSource) + "`n").Replace("`n", $eventsNewline)
+        $plan.EventChanges = Get-EpEventSourceChanges -OldSource $currentSource -NewSource $plan.EventSource
+        $plan.ResultPack.Tag = [string](Get-EpProperty -Object $plan.EventSource -Name 'tag' -Default '')
+        $plan.ResultPack.Namespace = [string](Get-EpProperty -Object $plan.EventSource -Name 'namespace' -Default '')
+        $plan.ResultPack.DisplayName = [string](Get-EpProperty -Object $plan.EventSource -Name 'displayName' -Default $namedPack)
+        $plan.ResultPack.FactQuotesFromId = Get-EpProperty -Object $plan.EventSource -Name 'factQuotesFromId'
+        $plan.ResultPack.Events = @(ConvertTo-EpArray (Get-EpProperty -Object $plan.EventSource -Name 'events'))
+        $plan.ResultPack.Ideas = @(ConvertTo-EpArray (Get-EpProperty -Object $plan.EventSource -Name 'ideas'))
+    }
+    if ($factBlocks.Count -gt 0) {
+        $plan.FactSections = @(Get-EpFactSheetBlockSections -Text $factBlocks[0] -Where "$($plan.PlanName) fact-sheets block" -Problems $problems)
+        $factResult = Merge-EpFactSheetText -Text $plan.PackData.FactSheetText -Sections $plan.FactSections
+        $plan.FactSheetText = $factResult.Text
+        $plan.FactChanges = @($factResult.Changes)
+        $plan.ResultPack.FactSheetText = $factResult.Text
+    }
+    $plannedKeys = @($plan.PictureRows | ForEach-Object { $_.Key })
+    $plan.ResultPack.Pictures = @($plan.PackData.Pictures | Where-Object { $plannedKeys -cnotcontains [string]$_.key })
+    return $plan
+}
+
+function Test-EpPlanData {
+    param([Parameter(Mandatory = $true)]$Plan)
+
+    $problems = [System.Collections.Generic.List[PSObject]]::new()
+    foreach ($planProblem in @($Plan.Problems)) {
+        $problems.Add($planProblem)
+    }
+    if ($null -eq $Plan.ResultPack -or @($problems | Where-Object { $_.Level -eq 'ERROR' }).Count -gt 0) {
+        return $problems.ToArray()
+    }
+    $plannedKeys = @($Plan.PictureRows | ForEach-Object { [string]$_.Key })
+    foreach ($sourceProblem in @(Test-EpPackSource -Pack $Plan.ResultPack -PlannedPictureKeys $plannedKeys)) {
+        $problems.Add($sourceProblem)
+    }
+    foreach ($rowProblem in @(Test-EpPlanPictureRows -Rows $Plan.PictureRows -UsedPictureKeys @(Get-EpUsedPictureKeys -Pack $Plan.ResultPack))) {
+        $problems.Add($rowProblem)
+    }
+    $factSheetKeys = @($Plan.ResultPack.Events | ForEach-Object { [string](Get-EpProperty -Object $_ -Name 'factSheet' -Default ([string](Get-EpProperty -Object $_ -Name 'key' -Default ''))) })
+    foreach ($section in @($Plan.FactSections)) {
+        if ($factSheetKeys -cnotcontains $section.Key) {
+            $problems.Add((New-EpProblem -Level 'WARN' -Where "$($Plan.PlanName) fact-sheets block" -Message "section '$($section.Key)' belongs to no event (no event has it as its key or factSheet)"))
+        }
+    }
+    if (@(Get-EpOtherNamespaces -RepoRoot $Plan.ResultPack.RepoRoot -Pack $Plan.Pack) -contains $Plan.ResultPack.Namespace) {
+        $problems.Add((New-EpProblem -Level 'ERROR' -Where "$($Plan.PlanName) events block" -Message "namespace '$($Plan.ResultPack.Namespace)' is used by another pack"))
+    }
+    if ($null -ne $Plan.EventSource -and $Plan.PackData.Namespace -and $Plan.ResultPack.Namespace -cne $Plan.PackData.Namespace) {
+        $problems.Add((New-EpProblem -Level 'WARN' -Where "$($Plan.PlanName) events block" -Message "namespace changes from '$($Plan.PackData.Namespace)' to '$($Plan.ResultPack.Namespace)': a released pack's namespace never changes (saves hold its guard flags)"))
+    }
+    return $problems.ToArray()
+}
+
+function Test-EpPlan {
+    param(
+        [Parameter(Mandatory = $true)][string]$RepoRoot,
+        [Parameter(Mandatory = $true)][string]$PlanPath,
+        [string]$Pack
+    )
+
+    return @(Test-EpPlanData -Plan (Get-EpPlan -RepoRoot $RepoRoot -PlanPath $PlanPath -Pack $Pack))
+}
+
+function Invoke-EpPlanCheck {
+    param(
+        [Parameter(Mandatory = $true)][string]$RepoRoot,
+        [Parameter(Mandatory = $true)][string]$PlanPath,
+        [string]$Pack
+    )
+
+    $plan = Get-EpPlan -RepoRoot $RepoRoot -PlanPath $PlanPath -Pack $Pack
+    $problems = @(Test-EpPlanData -Plan $plan)
+    Write-EpProblems -Problems $problems
+    $errorCount = @($problems | Where-Object { $_.Level -eq 'ERROR' }).Count
+    $warningCount = @($problems | Where-Object { $_.Level -eq 'WARN' }).Count
+    if ($errorCount -gt 0) {
+        Write-Host "Plan check FAILED: $($plan.PlanName): $errorCount error(s), $warningCount warning(s)." -ForegroundColor Red
+        return 1
+    }
+    Write-Host ("Plan check OK: {0}, pack '{1}': {2} event(s), {3} fact-sheet section(s) in the plan, {4} picture row(s), {5} warning(s)." -f $plan.PlanName, $plan.Pack, @($plan.ResultPack.Events).Count, @($plan.FactSections).Count, @($plan.PictureRows).Count, $warningCount) -ForegroundColor Green
+    return 0
+}
+
+function Invoke-EpApplyPlan {
+    param(
+        [Parameter(Mandatory = $true)][string]$RepoRoot,
+        [Parameter(Mandatory = $true)][string]$PlanPath,
+        [string]$Pack,
+        [switch]$DryRun
+    )
+
+    $plan = Get-EpPlan -RepoRoot $RepoRoot -PlanPath $PlanPath -Pack $Pack
+    $problems = @(Test-EpPlanData -Plan $plan)
+    Write-EpProblems -Problems $problems
+    $errorCount = @($problems | Where-Object { $_.Level -eq 'ERROR' }).Count
+    if ($errorCount -gt 0) {
+        Write-Host "ApplyPlan refused: $errorCount error(s) in $($plan.PlanName) (build.ps1 -Check -Plan lists them); nothing written." -ForegroundColor Red
+        return 1
+    }
+    $sourceWhere = 'source/' + $plan.Pack
+    $blockKind = if ($null -eq $plan.EventSource) { 'no events block' } elseif ($plan.MergeById) { 'events block: changed events, merged by id' } else { 'events block: the whole events.json' }
+    Write-Host "Plan $($plan.PlanName), pack '$($plan.Pack)' ($blockKind)" -ForegroundColor Cyan
+    $writes = [System.Collections.Generic.List[PSObject]]::new()
+    $eventCounts = [ordered]@{ Changed = 0; Added = 0; Unchanged = 0 }
+    if ($null -ne $plan.EventSource) {
+        $eventsPath = Join-Path $plan.PackData.SourceDir 'events.json'
+        foreach ($changeLine in @($plan.EventChanges.Lines)) {
+            Write-Host "  $sourceWhere/events.json: $changeLine"
+        }
+        $eventCounts = $plan.EventChanges.Counts
+        if ($plan.EventsText -cne [System.IO.File]::ReadAllText($eventsPath, [System.Text.Encoding]::UTF8)) {
+            if (@($plan.EventChanges.Lines).Count -eq 0) {
+                Write-Host "  $sourceWhere/events.json: written again in the source format (no event changed)"
+            }
+            $writes.Add([PSCustomObject]@{ Path = $eventsPath; Text = $plan.EventsText })
+        }
+    }
+    $sectionCounts = [ordered]@{ replaced = 0; added = 0; unchanged = 0 }
+    foreach ($factChange in @($plan.FactChanges)) {
+        $sectionCounts[$factChange.Change]++
+        if ($factChange.Change -ne 'unchanged') {
+            Write-Host "  $sourceWhere/fact-sheets.md: section '$($factChange.Key)' $($factChange.Change)"
+        }
+    }
+    if ($null -ne $plan.FactSheetText -and $plan.FactSheetText -cne $plan.PackData.FactSheetText) {
+        $writes.Add([PSCustomObject]@{ Path = (Join-Path $plan.PackData.SourceDir 'fact-sheets.md'); Text = $plan.FactSheetText })
+    }
+    $countText = "events $($eventCounts.Changed) changed, $($eventCounts.Added) added, $($eventCounts.Unchanged) unchanged; fact-sheet sections $($sectionCounts.replaced) replaced, $($sectionCounts.added) added, $($sectionCounts.unchanged) unchanged"
+    if ($DryRun) {
+        Write-Host "Dry run: $($writes.Count) file(s) would be written; $countText. Nothing written." -ForegroundColor Green
+        return 0
+    }
+    foreach ($write in $writes) {
+        Write-EpText -Path $write.Path -Text $write.Text
+    }
+    Write-Host "Applied $($plan.PlanName): $($writes.Count) file(s) written; $countText." -ForegroundColor Green
+    return 0
 }
 
 function Get-EpCommonsQueryUrl {

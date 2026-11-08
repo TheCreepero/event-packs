@@ -7,7 +7,7 @@ Created: <YYYY-MM-DD>
 
 ## For the implementer
 
-Carry out "Implementation steps" in order with `.claude/agents/ep-implementer.md`. Everything the steps write is in this file: the `json events` block is the whole `source/<pack>/events.json`, the `markdown fact-sheets` block holds the sections for `source/<pack>/fact-sheets.md`, and the picture table gives every `-FetchPicture` call. Decide nothing; stop and report when something does not fit.
+Carry out "Implementation steps" in order with `.claude/agents/ep-implementer.md`. Everything the steps write is in this file: the `json events` block is the whole `source/<pack>/events.json` (in an audit plan with `"mergeById": true`, only the events it changes), the `markdown fact-sheets` block holds the sections for `source/<pack>/fact-sheets.md`, and the picture table gives every `-FetchPicture` call. Step 1 writes both blocks with `build.ps1 -ApplyPlan`, never by hand. Decide nothing; stop and report when something does not fit.
 
 ## Context
 
@@ -53,8 +53,8 @@ Bundle intro: <the new first sentence of `source/all/workshop-intro.bbcode`, whi
 
 ## Implementation steps
 
-- [ ] 1. Write the events: replace `source/<pack>/events.json` with the `json events` block below, whole.
-- [ ] 2. Write the fact sheets: add each section of the `markdown fact-sheets` block below to `source/<pack>/fact-sheets.md`, replacing a section of the same key.
+- [ ] 1. Write the source from the blocks below: `powershell -File .\build.ps1 -ApplyPlan -Plan docs\plans\<plan file>.md`: expect `Applied <plan file>.md`, with no `[WARN]` outside "Kept on judgment", and with the events and fact-sheet sections it lists as changed or added being the ones this plan changes. It writes `source/<pack>/events.json` from the `json events` block (the whole file; a `"mergeById": true` block puts its events in place of those of the same id) and puts each section of the `markdown fact-sheets` block in place of the section of the same key in `source/<pack>/fact-sheets.md`, adding new keys. An `[ERROR]` (`ApplyPlan refused`) is a stop condition.
+- [ ] 2. Check that the source holds the blocks: `powershell -File .\build.ps1 -ApplyPlan -Plan docs\plans\<plan file>.md -DryRun`: expect `Dry run: 0 file(s) would be written`.
 - [ ] 3. Fetch the pictures as one loop in one tool call, not one call per picture: a PowerShell `foreach` over the rows of the picture table, running the command below for each row and printing its output. The loop stops at the first row whose output has no `ACCEPTED` (`$out = powershell -File ...; $out; if (-not ($out -cmatch '\bACCEPTED\b')) { break }`); a retry after a failure reruns the loop over the remaining rows only, the failed row onward, not over all of them. Each row is expected to print `ACCEPTED`:
   - `powershell -File .\build.ps1 -FetchPicture -Pack <pack> -File "<File:...>" -Key <key> -Crop <crop> -Tone <tone>`
 - [ ] 4. Make the thumbnail from the picture fetched in step 3 (when "Thumbnail" says unchanged, this step reads `Thumbnail unchanged: nothing to run.`):
@@ -86,6 +86,8 @@ Bundle intro: <the new first sentence of `source/all/workshop-intro.bbcode`, whi
 ```
 
 ## Events source
+
+<The whole `source/<pack>/events.json`. An audit plan holds only the events its fixes change, each as its whole object with its id unchanged, under `"pack"`, `"tag"` and `"mergeById": true` (and `"ideas"` with only the changed ideas, `"factQuotesFromId": null` to remove that field): see `docs/source-format.md`, "Plans".>
 
 ```json events
 {
