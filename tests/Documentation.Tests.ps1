@@ -75,6 +75,14 @@ Describe 'Agents' {
         (Get-FrontMatter -Path (Join-Path $script:AgentRoot 'ep-audit-researcher.md'))['tools'] | Should -Not -Match 'Edit|Write|PowerShell|Bash'
     }
 
+    It 'the reviewer runs the trigger lookup once with -Strict and trusts the pasted check lines' {
+        $reviewerText = [System.IO.File]::ReadAllText((Join-Path $script:AgentRoot 'ep-reviewer.md'))
+        $reviewerText | Should -Match 'Test-HoiConditions\.ps1[^\r\n]*-Limit 12 -Strict` once'
+        $reviewerText | Should -Match 'trust the pasted `-Check`, `-ValidateOnly` and full `-Test` summary lines'
+        $reviewerText | Should -Match 'every event with no row in that section' -Because 'check 10 follows only the events the record does not cover'
+        $reviewerText | Should -Match 'git diff HEAD -- source/<pack>/events\.json' -Because 'the changed events are read from the diff against the start of the change'
+    }
+
     It 'the researchers carry the shared research method' {
         foreach ($agentName in @('ep-historical-researcher', 'ep-picture-researcher', 'ep-audit-researcher')) {
             [System.IO.File]::ReadAllText((Join-Path $script:AgentRoot "$agentName.md")) | Should -Match '(?s)hoi-agent-block:web-research-method:begin -->\r?\n- Use WebSearch' -Because "$agentName includes the Manager's block; Sync-ModScaffold.ps1 fills it"
