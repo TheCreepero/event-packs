@@ -62,6 +62,8 @@ Describe 'Protect-ProjectFiles hook' {
         @{ Path = 'packs\all\thumbnail.png' },
         @{ Path = 'packs\all\events\ep_fin_events.txt' },
         @{ Path = 'source\finland\pictures.json' },
+        @{ Path = 'source\finland\events.json' },
+        @{ Path = 'source\finland\fact-sheets.md' },
         @{ Path = 'wiki\Event-Pack-Finland.md' },
         @{ Path = 'tools\HoiModBuild.ps1' },
         @{ Path = 'tools\HoiImageSources.ps1' },
@@ -77,11 +79,11 @@ Describe 'Protect-ProjectFiles hook' {
         @{ Path = 'packs\finland\descriptor.mod' },
         @{ Path = 'packs\all\descriptor.mod' },
         @{ Path = 'source\all\workshop-intro.bbcode' },
-        @{ Path = 'source\finland\events.json' },
-        @{ Path = 'source\finland\fact-sheets.md' },
+        @{ Path = 'source\finland\workshop-intro.bbcode' },
         @{ Path = 'docs\plans\2026-11-01-finland-pack.md' },
         @{ Path = 'scratch\rehearsal\packs\finland\events\ep_fin_events.txt' },
-        @{ Path = 'scratch\rehearsal\source\finland\pictures.json' }
+        @{ Path = 'scratch\rehearsal\source\finland\pictures.json' },
+        @{ Path = 'scratch\rehearsal\source\finland\events.json' }
     ) {
         param($Path)
         Invoke-ProtectHook -ToolName 'Edit' -ToolInput @{ file_path = (Join-Path $script:RepoRoot $Path) } | Should -Be 0
@@ -96,6 +98,20 @@ Describe 'Protect-ProjectFiles hook' {
         @{ Command = 'powershell -File .\build.ps1 -Generate; Remove-Item packs\finland\events\ep_fin_events.txt' },
         @{ Command = 'echo x > packs/finland/sound/x.wav' },
         @{ Command = 'cp other.json source/finland/pictures.json' },
+        @{ Command = 'Set-Content source\finland\events.json "{}"' },
+        @{ Command = 'Set-Content source\finland\fact-sheets.md "## x"' },
+        @{ Command = 'Add-Content source\finland\fact-sheets.md "## x"' },
+        @{ Command = 'echo x > source/finland/events.json' },
+        @{ Command = 'cp other.json source/finland/events.json' },
+        @{ Command = 'powershell -File .\build.ps1 -ApplyPlan -Plan docs\plans\x.md; Set-Content source\finland\events.json "{}"' },
+        @{ Command = 'Set-Content scratch\rehearsal\source\finland\events.json "{}"' },
+        @{ Command = 'cd source\finland; Set-Content events.json x' },
+        @{ Command = 'cd source/finland && rm fact-sheets.md' },
+        @{ Command = '$p = Join-Path source\finland events.json; Set-Content $p x' },
+        @{ Command = 'cd source\finland; Set-Content .\events.json x' },
+        @{ Command = 'cd source/finland && rm ./fact-sheets.md' },
+        @{ Command = 'Push-Location source\finland; Remove-Item .\events.json' },
+        @{ Command = 'cd source; Set-Content finland\events.json x' },
         @{ Command = 'Get-ChildItem docs; Set-Content packs\finland\events\x.txt x' },
         @{ Command = 'cd packs/finland && rm events/x.txt' },
         @{ Command = "python -c `"import os; open('packs/finland/x.txt','w')`"" },
@@ -139,7 +155,9 @@ Describe 'Protect-ProjectFiles hook' {
         @{ Command = "python - <<EOF`nopen('packs/finland/x.txt','w')`nEOF" },
         @{ Command = "rm \`npacks/finland/events/x.txt" },
         @{ Command = 'echo `rm packs/finland/events/x.txt`' },
-        @{ Command = 'cp scratch/thumbnail/finland/thumbnail.png packs/finland/thumbnail.png' }
+        @{ Command = 'cp scratch/thumbnail/finland/thumbnail.png packs/finland/thumbnail.png' },
+        @{ Command = 'echo x > source/finland/events.json' },
+        @{ Command = 'sed -i s/a/b/ source/finland/fact-sheets.md' }
     ) {
         param($Command)
         Invoke-ProtectHook -ToolName 'Bash' -ToolInput @{ command = $Command } | Should -Be 2
@@ -149,6 +167,14 @@ Describe 'Protect-ProjectFiles hook' {
         @{ Command = 'powershell -File .\build.ps1 -Generate -Pack finland' },
         @{ Command = 'powershell -File .\build.ps1 -FetchPicture -Pack finland -File "File:Abatis at Taipale.jpg" -Key abatis -Tone warm' },
         @{ Command = '.\build.ps1 -Check' },
+        @{ Command = 'powershell -File .\build.ps1 -ApplyPlan -Plan docs\plans\2026-11-08-finland-more-events.md -Pack finland' },
+        @{ Command = '.\build.ps1 -ApplyPlan -Plan docs\plans\x.md -Pack finland -DryRun' },
+        @{ Command = 'powershell -File .\build.ps1 -NewPack -Pack finland -Tag FIN -DisplayName Finland' },
+        @{ Command = 'git diff -- source/finland/events.json source/finland/fact-sheets.md' },
+        @{ Command = 'git add source/finland/events.json source/finland/fact-sheets.md' },
+        @{ Command = 'Get-Content source\finland\events.json' },
+        @{ Command = 'Select-String -Path source\finland\fact-sheets.md -Pattern "^## "' },
+        @{ Command = 'Get-Content source\finland\events.json; Copy-Item docs\a.md scratch\b.md' },
         @{ Command = 'git status --short -- packs/finland' },
         @{ Command = 'git diff -- source/finland/pictures.json' },
         @{ Command = 'Get-Content packs\finland\events\ep_fin_events.txt' },

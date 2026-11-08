@@ -16,7 +16,7 @@ Small packs of historical flavor events for Hearts of Iron IV, one pack per coun
 ```
 event-packs/
 |-- build.ps1                 # lifecycle and pack commands (Get-Help .\build.ps1)
-|-- source/<pack>/            # hand-written: events.json, fact-sheets.md, workshop-intro.bbcode; pictures.json from -FetchPicture and -RemovePicture
+|-- source/<pack>/            # events.json and fact-sheets.md from -ApplyPlan (a plan's blocks), workshop-intro.bbcode hand-written; pictures.json from -FetchPicture and -RemovePicture
 |-- source/all/               # the bundle's hand-written workshop-intro.bbcode
 |-- packs/<pack>/             # one Workshop item: descriptor.mod, thumbnail.png and everything -Generate writes
 |-- packs/all/                # the bundle item: only descriptor.mod, thumbnail.png and the generated description; its content is every member's, added at build time
