@@ -52,4 +52,9 @@ Your dossier is the only source of facts the event texts may use. After the owne
   - `Anchors:` three to six names, places, dates or numbers from the facts, written exactly as the text should use them;
   - `Choice:` one line on the decision the government faces;
   - `Picture ideas:` one or two lines on what a period photograph could show (no file search: another agent does that).
-- Your final message is only the file path and a summary of at most 200 words: how many candidates per kind, how many facts were read on their page and how many are `UNVERIFIED`, and web calls used. Do not repeat the dossier in the message.
+- Your final message is the file path, an index table and a summary of at most 100 words: how many candidates per kind, how many facts were read on their page and how many are `UNVERIFIED`, and web calls used. Do not repeat the dossier in the message. The table has one row per candidate, in the dossier's order, so that the caller builds its shortlist from it without opening the dossier:
+
+  | Key | Date | Kind | Gate | Facts read | UNVERIFIED | One line |
+  |---|---|---|---|---|---|---|
+
+  `Gate` is `date window` or `game state` (from `Suggested window:`, with the condition in a few words); `Facts read` and `UNVERIFIED` are that candidate's counts; `One line` says what happened in at most 15 words.

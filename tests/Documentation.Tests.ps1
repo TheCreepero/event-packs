@@ -88,6 +88,8 @@ Describe 'Plan template and guides' {
             $templateText | Should -Match ('(?m)^' + [regex]::Escape($heading) + '\s*$')
         }
         $templateText | Should -Match '(?m)^Status: PLANNING'
+        $templateText | Should -Match '(?m)^Pack intro: ' -Because 'the pack intro goes into the plan and a step writes it'
+        $templateText | Should -Match '(?m)^Bundle intro: '
         $templateText | Should -Match '```json events'
         $templateText | Should -Match '```markdown fact-sheets'
     }

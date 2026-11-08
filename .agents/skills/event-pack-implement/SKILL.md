@@ -36,7 +36,7 @@ The report is a claim. Check:
 Then dispatch `ep-reviewer` with the task as the owner asked it, the plan path and the summary lines of the three commands. Fix nothing yourself: Critical or Important findings go back to the planner (section 4).
 
 ## 4. When it stops
-The implementer reported `STOPPED`, a check failed, or the reviewer found a problem. Leave the files, report to the owner (the step, the exact output, what the plan would need), and stop. Once the plan is corrected, dispatch again: the implementer resumes at the first unticked step.
+The implementer reported `STOPPED`, a check failed, or the reviewer found a problem. Leave the files, report to the owner (the step, the exact output, what the plan would need), and stop. An intro that step 6's `Test-WorkshopText.ps1` fails goes back through `workshop-editor` before the plan is changed (a plan change, as below), because the editor judged it without that check. Once the plan is corrected, dispatch again: the implementer resumes at the first unticked step.
 
 ## 5. Report and ship
 Report: the `-Check` line, the files changed, the reviewer's verdict, and that the plan is ready to ship. Unless the owner has already reported the in-game look passed, add the pack change's row to the Manager's `docs/ingame-verification-pending.md` now, citing the plan: the agent gets no turn at the end of a session, and a later `ship` then finds the row instead of adding a second. Offer an in-game look: `powershell -File .\build.ps1 -DevLink -Pack <key>`, then in the game console `event ep_<tag>.<id>` for each new event; or enable "Event Packs Test (dev only)" (written by `build.ps1 -TestMod -Pack <key>`) and run `ep_<tag>_all` to fire every event of the pack. To see the pack inside the bundle item, `powershell -File .\build.ps1 -DevLink -Pack all` loads every member from the git-ignored `.devlink/` folder (`-DevLink -CheckLinks -Pack all` first, after a `git checkout` or `pull`); the bundle and the single pack of the same release load together without a duplicate [LOAD-022]. Then stop.
@@ -44,6 +44,8 @@ Report: the `-Check` line, the files changed, the reviewer's verdict, and that t
 On the owner's word ("ship"), the shared `ship` skill takes over: the commit, the push, the wiki push (`push-wiki.ps1 -CommitMessage`), archiving the plan and the in-game row of the Manager's `docs/ingame-verification-pending.md` when the owner has not checked the change in game. Before it runs, this skill does what is the pack's:
 1. Tick the plan's ship box.
 2. Give `ship` the commit message of the plan's ship step as the subject, and the files of section 3.3 as this session's files, together with the plan (at its archived path) and the `Used:` and `Checked:` lines the planning session wrote under `research/<key>/`.
+
+After the ship, end the report with the command for the release in a new session, which needs none of this one's context: `/clear`, then `/event-pack-release <pack>` when you publish.
 
 When the owner later reports the in-game look passed, the row comes out of `docs/ingame-verification-pending.md`, as that file's own text says: "a row comes out when the user reports the check".
 

@@ -14,7 +14,7 @@ You find pictures for "Event Packs", a Hearts of Iron IV mod of small flavor eve
 
 The licence decision is not yours. The caller runs every file you propose through `build.ps1 -FetchPicture`, which reads the licence from the Commons API and refuses anything outside the policy. Your job is to find files that fit the event and are likely to pass, and to say clearly which ones.
 
-**Budget**: about 30 web calls (WebSearch and WebFetch combined).
+**Budget**: about 30 web calls (WebSearch and WebFetch combined) for the at most ten events the caller gives you; other agents may be working on other batches of the same pack at the same time.
 
 **Where to look**
 - Wikimedia Commons only: its licence data is machine-readable. Search with `site:commons.wikimedia.org` and the place, person or event, then fetch the category page (`Category:...`) that collects the period's photographs. Good collections: national photo archives mirrored on Commons (the Finnish Wartime Photograph Archive, SA-kuva; the Finnish Heritage Agency; national libraries and press archives), and categories by year and city (`Category:1937 in Helsinki`).

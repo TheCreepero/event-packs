@@ -31,6 +31,8 @@ Every row passed `build.ps1 -FetchPicture ... -DryRun` while planning; the licen
 
 Thumbnail: <picture key, the background of step 4>, crop <crop> | unchanged
 
+Pack intro: <the pack's intro text, two or three plain sentences, as it goes before the `strip-info` region of `source/<pack>/workshop-intro.bbcode`> | unchanged (events added to a pack whose intro stays true)
+
 Bundle intro: <the new first sentence of `source/all/workshop-intro.bbcode`, which names this pack's country> | unchanged (a new pack names its country there; events added to an existing pack leave it unchanged)
 
 ## Fact verification
@@ -39,7 +41,7 @@ Bundle intro: <the new first sentence of `source/all/workshop-intro.bbcode`, whi
 
 ## Trigger verification
 
-<Phase 4 of event-pack-create, or Phase 1 of an audit: the `trigger-checker` verdict per event (OK, FIX with the trigger that replaced the old one, OPEN with the probe and its result or the owner's decision) and the round it came in. No plan is READY with an OPEN that has neither.>
+<Phase 4 of event-pack-create, or Phase 1 and the rerun of Phase 3 of an audit: the `trigger-checker` verdict per event (OK, FIX with the trigger that replaced the old one, OPEN with the probe and its result or the owner's decision) and the round it came in. No plan is READY with an OPEN that has neither.>
 
 ## Editor record
 
@@ -53,14 +55,14 @@ Bundle intro: <the new first sentence of `source/all/workshop-intro.bbcode`, whi
 
 - [ ] 1. Write the events: replace `source/<pack>/events.json` with the `json events` block below, whole.
 - [ ] 2. Write the fact sheets: add each section of the `markdown fact-sheets` block below to `source/<pack>/fact-sheets.md`, replacing a section of the same key.
-- [ ] 3. Fetch the pictures, one command per row of the picture table, each expected to print `ACCEPTED`:
+- [ ] 3. Fetch the pictures as one loop in one tool call, not one call per picture: a PowerShell `foreach` over the rows of the picture table, running the command below for each row and printing its output. The loop stops at the first row whose output has no `ACCEPTED` (`$out = powershell -File ...; $out; if (-not ($out -cmatch '\bACCEPTED\b')) { break }`); a retry after a failure reruns the loop over the remaining rows only, the failed row onward, not over all of them. Each row is expected to print `ACCEPTED`:
   - `powershell -File .\build.ps1 -FetchPicture -Pack <pack> -File "<File:...>" -Key <key> -Crop <crop> -Tone <tone>`
 - [ ] 4. Make the thumbnail from the picture fetched in step 3 (when "Thumbnail" says unchanged, this step reads `Thumbnail unchanged: nothing to run.`):
   - In `assets/thumbnail.json`, set `packs.<pack>.background` to `{ "path": "sources-cache/<pack>/<picture key>.*", "crop": <crop> }`, adding the pack's entry under `packs` when it has none.
   - `powershell -File "<Manager root>\Scripts\Showcase\New-HoiThumbnail.ps1" -Path . -Pack <pack>`: expect the pack's line with `new` or `changed` and no `Warning:` line; open the preview it names with the Read tool.
   - `powershell -File "<Manager root>\Scripts\Showcase\New-HoiThumbnail.ps1" -Path . -Pack <pack> -Apply`: expect the pack's line with `new` or `changed`.
 - [ ] 5. `powershell -File .\build.ps1 -ConvertPictures -Pack <pack>`: expect `failed=0`.
-- [ ] 6. When "Bundle intro" gives a sentence, replace the intro text of `source/all/workshop-intro.bbcode` with it (the lines around it stay). Then `powershell -File .\build.ps1 -Generate -Pack <pack>`: expect `Generated pack '<pack>'`; it also writes the bundle page `packs/all/WORKSHOP_DESCRIPTION_GUIDELINES.md` with this pack's event count.
+- [ ] 6. When "Pack intro" gives text, replace the intro text of `source/<pack>/workshop-intro.bbcode` with it, and when "Bundle intro" gives a sentence, replace the first sentence of the intro of `source/all/workshop-intro.bbcode` with it (the lines around each stay: region markers, the info lines). Then `powershell -File .\build.ps1 -Generate -Pack <pack>`: expect `Generated pack '<pack>'`; it also writes the bundle page `packs/all/WORKSHOP_DESCRIPTION_GUIDELINES.md` with this pack's event count. When "Pack intro" gave text: `powershell -NoProfile -File "<Manager root>\Scripts\Workshop\Sync-WorkshopRegions.ps1" -ModName "Event Packs"` and `powershell -NoProfile -File "<Manager root>\Scripts\Workshop\Test-WorkshopText.ps1" -Mod "Event Packs" -Pack <pack> -TextOnly`: expect the second to report `no problem found (the description Steam gets, apart from the cross-link block)`. Image addresses and cross-links stay with the release preflight. (The planning rehearsal skips these two: they act on the registered repository, not on its copy.)
 - [ ] 7. `powershell -File .\build.ps1 -Check -Pack <pack>`: expect `Check OK` and `Bundle 'all': <n> member(s), 0 error(s)`, with no warning outside "Kept on judgment". A new pack is already in the bundle's `members` (`-NewPack` added it).
 - [ ] 8. `powershell -File .\build.ps1 -RenderEvents -Pack <pack>`: expect `Rendered <n> events to ...artifacts\workshop-images\<pack>`, with no `[WARN]` outside "Kept on judgment".
 - [ ] 9. `powershell -File .\build.ps1 -ValidateOnly` then `powershell -File .\build.ps1 -Test`: expect `Validation succeeded.` and no failed test.
