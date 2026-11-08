@@ -95,6 +95,36 @@ Describe 'Plan template and guides' {
         $templateText | Should -Match '```markdown fact-sheets'
     }
 
+    It 'the allow list matches every build.ps1 switch the plan template and the implementer run' {
+        # Judged as the harness reads a rule: Tool(pattern), * is any run of characters, the whole command must match.
+        $settingsPath = Join-Path $script:RepoRoot '.claude\settings.json'
+        $permissions = (Get-Content -LiteralPath $settingsPath -Raw -Encoding UTF8 | ConvertFrom-Json).permissions
+        $testRuleMatch = {
+            param([string[]]$Rules, [string]$Tool, [string]$Command)
+            foreach ($rule in $Rules) {
+                if ($rule -match ('^' + $Tool + '\((.*)\)$')) {
+                    $pattern = '^' + ([regex]::Escape($Matches[1]).Replace('\*', '.*')) + '$'
+                    if ($Command -cmatch $pattern) { return $true }
+                }
+            }
+            return $false
+        }
+        $switchNames = [System.Collections.Generic.SortedSet[string]]::new()
+        foreach ($documentPath in @('docs\plans\TEMPLATE-pack.md', '.claude\agents\ep-implementer.md')) {
+            $documentText = [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot $documentPath), [System.Text.Encoding]::UTF8)
+            foreach ($switchMatch in [regex]::Matches($documentText, 'build\.ps1\s+-(\w+)')) {
+                [void]$switchNames.Add($switchMatch.Groups[1].Value)
+            }
+        }
+        $switchNames.Count | Should -BeGreaterThan 5
+        foreach ($switchName in $switchNames) {
+            $command = "powershell -File .\build.ps1 -$switchName -Pack x"
+            if (& $testRuleMatch @($permissions.ask) 'PowerShell' $command) { continue }
+            (& $testRuleMatch @($permissions.allow) 'PowerShell' $command) | Should -BeTrue -Because "a PowerShell allow rule covers build.ps1 -$switchName"
+            (& $testRuleMatch @($permissions.allow) 'Bash' $command) | Should -BeTrue -Because "a Bash allow rule covers build.ps1 -$switchName"
+        }
+    }
+
     It 'the style guide and the source format exist and the rule file points to them' {
         $rulesText = [System.IO.File]::ReadAllText((Join-Path $script:RepoRoot 'AGENTS.md'))
         foreach ($guidePath in @('docs/style-guide.md', 'docs/source-format.md')) {

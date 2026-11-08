@@ -49,7 +49,29 @@
       "PowerShell(Remove-Item -Recurse -Force scratch\\rehearsal)",
       "Bash(rm -rf scratch/rehearsal)",
       "PowerShell(*New-HoiThumbnail.ps1*)",
-      "Bash(*New-HoiThumbnail.ps1*)"
+      "Bash(*New-HoiThumbnail.ps1*)",
+      "PowerShell(powershell -File .\\build.ps1 -RemovePicture*)",
+      "Bash(powershell*build.ps1 -RemovePicture*)",
+      "PowerShell(powershell -File .\\build.ps1 -ApplyPlan*)",
+      "Bash(powershell*build.ps1 -ApplyPlan*)",
+      "PowerShell(*Test-WorkshopText.ps1*)",
+      "Bash(*Test-WorkshopText.ps1*)",
+      "PowerShell(*Sync-WorkshopRegions.ps1*)",
+      "Bash(*Sync-WorkshopRegions.ps1*)",
+      "PowerShell(*Sync-WorkshopCrossLinks.ps1*)",
+      "Bash(*Sync-WorkshopCrossLinks.ps1*)",
+      "PowerShell(*Test-HoiConditions.ps1*)",
+      "Bash(*Test-HoiConditions.ps1*)",
+      "PowerShell(*Find-HoiDoc.ps1*)",
+      "Bash(*Find-HoiDoc.ps1*)",
+      "PowerShell(*Find-HoiUsage.ps1*)",
+      "Bash(*Find-HoiUsage.ps1*)",
+      "PowerShell(*Get-HoiState.ps1*)",
+      "Bash(*Get-HoiState.ps1*)",
+      "PowerShell(*Get-HoiCountryHistory.ps1*)",
+      "Bash(*Get-HoiCountryHistory.ps1*)",
+      "PowerShell(*Get-HoiCountry.ps1*)",
+      "Bash(*Get-HoiCountry.ps1*)"
     ],
     "ask": [
       "Read(tools/EventPacks.ps1)",
@@ -91,10 +113,17 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "Edit|Write|MultiEdit",
+        "matcher": "Edit|Write",
         "hooks": [
           {
             "type": "command",
+            "if": "Edit(.claude/skills/**)",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/Sync-SkillMirrors.ps1\"",
+            "timeout": 60
+          },
+          {
+            "type": "command",
+            "if": "Write(.claude/skills/**)",
             "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/Sync-SkillMirrors.ps1\"",
             "timeout": 60
           }
