@@ -40,7 +40,7 @@ Build the shortlist from the index tables the researchers ended their messages w
 
 ## Phase 3a: verify
 Runs after the owner's choice, at the same time as Phase 3 if you like; a researcher's quote is a lead, not yet a check.
-1. Dispatch `ep-audit-researcher` on the chosen events, at most five per agent, all in parallel. Paste each event's dossier section whole; send no pictures.
+1. Dispatch `ep-audit-researcher` on the chosen events, at most five per agent, all in parallel. The prompt gives the pack, the path of the dossier or addendum file that holds each event's newest section (`research/<key>/<date>-dossier*.md`, or an addendum such as `research/finland/2026-10-31-sillanpaa-addendum.md`) and the event keys: do not read the dossiers to build it, and paste no section. The agent reads its events' sections itself; send no picture keys.
 2. Only `KEEP` and `FIX` facts go on, each with the source and quote the checker returned. An event left with less than 40 words of verified detail goes back to Phase 2 for a replacement, and the replacement comes through Phase 3a too.
 3. Fill the plan's "Fact verification": agents and events per agent; per checked event, replaced ones included, the `KEEP`, `FIX` and `DROP` counts, each fixed fact with its correction and each dropped fact; the events replaced.
 

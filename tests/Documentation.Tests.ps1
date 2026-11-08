@@ -72,6 +72,7 @@ Describe 'Agents' {
         (Get-FrontMatter -Path (Join-Path $script:AgentRoot 'ep-picture-researcher.md'))['tools'] | Should -Match 'WebFetch'
         (Get-FrontMatter -Path (Join-Path $script:AgentRoot 'ep-editor.md'))['tools'] | Should -Not -Match 'Edit|Write|PowerShell|Bash|Web'
         (Get-FrontMatter -Path (Join-Path $script:AgentRoot 'ep-reviewer.md'))['tools'] | Should -Not -Match 'Edit|Write'
+        (Get-FrontMatter -Path (Join-Path $script:AgentRoot 'ep-audit-researcher.md'))['tools'] | Should -Not -Match 'Edit|Write|PowerShell|Bash'
     }
 
     It 'the researchers carry the shared research method' {

@@ -22,7 +22,7 @@ Finds what an existing pack needs: broken checks, facts that no longer hold, pic
 4. Note the events and pictures the scorecard flags.
 
 ## Phase 1: recheck
-1. Dispatch `ep-audit-researcher` with the fact-sheet sections of the events (pasted from `source/<key>/fact-sheets.md`), at most five events per agent, all in parallel; send one of them, or one more, the rows of the pictures: one row per picture from `source/<key>/pictures.json` (key, Commons title, page URL, licence).
+1. Dispatch `ep-audit-researcher` with the pack, the path `source/<key>/fact-sheets.md` and the event keys, at most five events per agent, all in parallel. Take the keys from a `Grep` of `^## ` in that file (headings only); do not read `fact-sheets.md` or paste a section. Send one of them, or one more, the picture keys instead (a `Grep` of `"key":` in `source/<key>/pictures.json`, matches only): the agent reads their rows (Commons title, page URL, licence) from that file itself, so name the file's path in the prompt.
 2. For each picture it marks `RECHECK`, run `powershell -File .\build.ps1 -FetchPicture -Pack <key> -File "<File:...>" -Key <picture key> -DryRun`: `REJECTED` is Critical.
 3. Dispatch `trigger-checker` (the Modding Manager's `Agents/trigger-checker.md`) with `source/<key>/events.json`, all event keys and the pack's tag: an event it marks `FIX` cannot fire or says something false, which is Critical for a war event and Important for any other; an `OPEN` is Important and names its probe.
 4. Dispatch `ep-editor` with `source/<key>/events.json` as the draft, `source/<key>/fact-sheets.md` as the fact sheet and the event keys: every REWRITE or REJECT is Important.
