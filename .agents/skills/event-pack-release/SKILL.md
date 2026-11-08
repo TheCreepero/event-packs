@@ -9,7 +9,7 @@ disable-model-invocation: true
 
 # Event Pack: release a pack
 
-Each pack is a Workshop item of its own, and the bundle "Immersive Events Expanded" (package `all`) holds all of them. Follow the shared `hoi4-mod-release` skill, sections "Repos with packages" and "A pack that belongs to a bundle", with these additions. Every command names the package: `-Pack <key>`, or `-Pack all` for the bundle alone.
+Each pack is a Workshop item of its own, and the bundle "Immersive Events Expanded" (package `all`) holds all of them. The agent cannot load the shared `hoi4-mod-release` skill: first ask the owner to run `/hoi4-mod-release` in this session, and do not read its file instead. Once the owner has run it, work from both skills: follow its sections "Repos with packages" and "A pack that belongs to a bundle", with these additions. Every command names the package: `-Pack <key>`, or `-Pack all` for the bundle alone.
 
 A pack's release is one run with two items: the pack goes up first and the bundle next (with the released members and this pack). Until the bundle has a `remote_file_id` in `packs/all/descriptor.mod`, only the pack goes up and the preflight shows `Bundle: Upload WARN skipped: bundle 'all' not yet published`; the bundle's own first release is section 6.
 

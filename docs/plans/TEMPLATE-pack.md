@@ -64,7 +64,7 @@ Bundle intro: <the new first sentence of `source/all/workshop-intro.bbcode`, whi
 - [ ] 7. `powershell -File .\build.ps1 -Check -Pack <pack>`: expect `Check OK` and `Bundle 'all': <n> member(s), 0 error(s)`, with no warning outside "Kept on judgment". A new pack is already in the bundle's `members` (`-NewPack` added it).
 - [ ] 8. `powershell -File .\build.ps1 -RenderEvents -Pack <pack>`: expect `Rendered <n> events to ...artifacts\workshop-images\<pack>`, with no `[WARN]` outside "Kept on judgment".
 - [ ] 9. `powershell -File .\build.ps1 -ValidateOnly` then `powershell -File .\build.ps1 -Test`: expect `Validation succeeded.` and no failed test.
-- [ ] 10. Ship (after the user confirms): move this plan to `docs/plans/archive/`, commit with the message `feat(<pack>): <summary>`, then `powershell -File .\wiki\push-wiki.ps1`. The commit holds the bundle's files too (`tools/HoiModBuild.json`, `source/all/`, `packs/all/`). The Workshop upload is `event-pack-release`: one `Publish-Mod.ps1 -Pack <pack>` run uploads the pack and then the bundle, and a new country is released with its Commanders Pack in the same session.
+- [ ] 10. Ship, after the user confirms, through the shared `ship` skill: commit with the message `feat(<pack>): <summary>`. `ship` archives this plan, pushes the repository and its wiki, and writes the in-game row when one is due. The commit holds the bundle's files too (`tools/HoiModBuild.json`, `source/all/`, `packs/all/`). The Workshop upload is `event-pack-release`: one `Publish-Mod.ps1 -Pack <pack>` run uploads the pack and then the bundle, and a new country is released with its Commanders Pack in the same session.
 
 ## Stop conditions
 

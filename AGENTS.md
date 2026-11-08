@@ -33,7 +33,7 @@ Shared rules for every mod in this tree (file encodings, build commands, engine 
 | A new pack or new events | skill `event-pack-create` |
 | Checking an existing pack | skill `event-pack-audit` |
 | Carrying out a READY plan | skill `event-pack-implement` |
-| Publishing a pack | skill `event-pack-release` (and the shared `hoi4-mod-release`) |
+| Publishing a pack | skill `event-pack-release` (the owner runs the shared `/hoi4-mod-release` in the same session) |
 | Writing or judging event text | `docs/style-guide.md` |
 | The source files and what is generated | `docs/source-format.md` |
 
