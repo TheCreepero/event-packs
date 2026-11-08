@@ -52,6 +52,8 @@
       "Bash(*New-HoiThumbnail.ps1*)"
     ],
     "ask": [
+      "Read(tools/EventPacks.ps1)",
+      "Read(tools/HoiModBuild.ps1)",
       "PowerShell(*build.ps1*-NewPack*)",
       "PowerShell(*build.ps1*-PublishSteam*)",
       "PowerShell(*build.ps1*-InstallSteamCmd*)",
