@@ -1589,7 +1589,8 @@ Describe 'Plans' {
     It 'writes every events.json of this repository back unchanged' {
         foreach ($packName in @(Get-EpPackNames -RepoRoot $script:RepoRoot)) {
             $eventsPath = Join-Path $script:RepoRoot "source\$packName\events.json"
-            $eventsText = [System.IO.File]::ReadAllText($eventsPath, [System.Text.Encoding]::UTF8)
+            # The layout is what is checked, not the line ends: a checkout with core.autocrlf (the CI runner) gives CRLF.
+            $eventsText = [System.IO.File]::ReadAllText($eventsPath, [System.Text.Encoding]::UTF8).Replace("`r`n", "`n")
             ((ConvertTo-EpJsonText -Value (Read-EpJson -Path $eventsPath)) + "`n") | Should -BeExactly $eventsText -Because "-ApplyPlan writes source/$packName/events.json in its own format"
         }
     }
