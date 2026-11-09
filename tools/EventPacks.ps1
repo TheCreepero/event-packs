@@ -1324,20 +1324,21 @@ function Invoke-EpCheck {
     $errorCount = 0
     $warningCount = 0
     foreach ($bundleName in $bundleNames) {
+        # The summary line first and its problems under it, so that no problem reads as belonging to the line above it.
         $bundleProblems = @(Test-EpBundle -RepoRoot $RepoRoot -Bundle $bundleName)
-        Write-EpProblems -Problems $bundleProblems
         $bundleErrors = @($bundleProblems | Where-Object { $_.Level -eq 'ERROR' }).Count
         $errorCount += $bundleErrors
         Write-Host ("Bundle '{0}': {1} member(s), {2} error(s)" -f $bundleName, @((Get-EpBundle -RepoRoot $RepoRoot -Bundle $bundleName).Members).Count, $bundleErrors) -ForegroundColor $(if ($bundleErrors -gt 0) { 'Red' } else { 'Green' })
+        Write-EpProblems -Problems $bundleProblems
     }
     foreach ($packName in $packNames) {
         $problems = @(Test-EpPack -RepoRoot $RepoRoot -Pack $packName)
-        Write-EpProblems -Problems $problems
         $packErrors = @($problems | Where-Object { $_.Level -eq 'ERROR' }).Count
         $errorCount += $packErrors
         $warningCount += @($problems | Where-Object { $_.Level -eq 'WARN' }).Count
         $packData = Get-EpPack -RepoRoot $RepoRoot -Pack $packName
         Write-Host ("Pack '{0}': {1} event(s), {2} picture(s), {3} error(s)" -f $packName, $packData.Events.Count, $packData.Pictures.Count, $packErrors) -ForegroundColor $(if ($packErrors -gt 0) { 'Red' } else { 'Green' })
+        Write-EpProblems -Problems $problems
     }
     if ($errorCount -gt 0) {
         Write-Host "Check FAILED: $errorCount error(s), $warningCount warning(s)." -ForegroundColor Red

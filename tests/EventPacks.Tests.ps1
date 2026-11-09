@@ -1190,6 +1190,20 @@ Describe 'Bundle' {
         ($checkOutput -join "`n") | Should -Match "Bundle 'all': 2 member"
     }
 
+    It 'prints each pack''s problems under that pack''s line, not under the line before it' {
+        $fixtureRoot = New-EpBundleFixtureRepo
+        Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'all' 6>$null | Out-Null
+        $picturesPath = Join-Path $fixtureRoot 'source\testland\pictures.json'
+        $pictureSource = Read-EpJson -Path $picturesPath
+        $pictureSource.pictures[0].license = 'pd'; $pictureSource.pictures[0].licenseCategory = 'PD'; $pictureSource.pictures[0].publicDomainReason = 'PD-US-expired'
+        Write-EpText -Path $picturesPath -Text (ConvertTo-Json -InputObject $pictureSource -Depth 5)
+        $checkOutput = @(Invoke-EpCheck -RepoRoot $fixtureRoot 6>&1 | ForEach-Object { [string]$_ })
+        $warningIndex = [array]::FindIndex([string[]]$checkOutput, [Predicate[string]] { param($line) $line -match 'United States only' })
+        $warningIndex | Should -BeGreaterThan -1
+        $packLineIndex = [array]::FindLastIndex([string[]]$checkOutput, $warningIndex, [Predicate[string]] { param($line) $line -match "^(Pack|Bundle) '" })
+        $checkOutput[$packLineIndex] | Should -Match "^Pack 'testland'" -Because 'a warning belongs to the pack line printed above it'
+    }
+
     It 'returns a failing exit code from the check for a bundle error, and 0 without one' {
         $fixtureRoot = New-EpBundleFixtureRepo
         Invoke-EpGenerate -RepoRoot $fixtureRoot -Pack 'all' 6>$null | Out-Null

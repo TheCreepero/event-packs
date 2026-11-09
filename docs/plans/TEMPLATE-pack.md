@@ -29,7 +29,7 @@ Every row passed `build.ps1 -FetchPicture ... -DryRun` while planning; the licen
 | Key | Commons file | Licence (from the dry run) | Crop | Tone | Event |
 |---|---|---|---|---|---|
 
-Thumbnail: <picture key, the background of step 4>, crop <crop> | unchanged
+Thumbnail: <picture key, the background of step 4>, crop <thumbnail crop> | unchanged
 
 Pack intro: <the pack's intro text, two or three plain sentences, as it goes before the `strip-info` region of `source/<pack>/workshop-intro.bbcode`> | unchanged (events added to a pack whose intro stays true)
 
@@ -56,9 +56,9 @@ Bundle intro: <the new first sentence of `source/all/workshop-intro.bbcode`, whi
 - [ ] 1. Write the source from the blocks below: `powershell -File .\build.ps1 -ApplyPlan -Plan docs\plans\<plan file>.md`: expect `Applied <plan file>.md`, with no `[WARN]` outside "Kept on judgment", and with the events and fact-sheet sections it lists as changed or added being the ones this plan changes. It writes `source/<pack>/events.json` from the `json events` block (the whole file; a `"mergeById": true` block puts its events in place of those of the same id) and puts each section of the `markdown fact-sheets` block in place of the section of the same key in `source/<pack>/fact-sheets.md`, adding new keys. An `[ERROR]` (`ApplyPlan refused`) is a stop condition.
 - [ ] 2. Check that the source holds the blocks: `powershell -File .\build.ps1 -ApplyPlan -Plan docs\plans\<plan file>.md -DryRun`: expect `Dry run: 0 file(s) would be written`.
 - [ ] 3. Fetch the pictures as one loop in one tool call, not one call per picture: a PowerShell `foreach` over the rows of the picture table, running the command below for each row and printing its output. The loop stops at the first row whose output has no `ACCEPTED` (`$out = powershell -File ...; $out; if (-not ($out -cmatch '\bACCEPTED\b')) { break }`); a retry after a failure reruns the loop over the remaining rows only, the failed row onward, not over all of them. Each row is expected to print `ACCEPTED`:
-  - `powershell -File .\build.ps1 -FetchPicture -Pack <pack> -File "<File:...>" -Key <key> -Crop <crop> -Tone <tone>`
+  - `powershell -File .\build.ps1 -FetchPicture -Pack <pack> -File "<row File>" -Key <row Key> -Crop <row Crop> -Tone <row Tone>`, where each `<row …>` is that row's own column ("Commons file", "Key", "Crop", "Tone"), filled in by the loop for each row: leave them as placeholders in the plan. A fetch crop is `0` to `100` (`50` centres) or `fit`, never a word such as `center`; that word belongs to the thumbnail crop of step 4.
 - [ ] 4. Make the thumbnail from the picture fetched in step 3 (when "Thumbnail" says unchanged, this step reads `Thumbnail unchanged: nothing to run.`):
-  - In `assets/thumbnail.json`, set `packs.<pack>.background` to `{ "path": "sources-cache/<pack>/<picture key>.*", "crop": <crop> }`, adding the pack's entry under `packs` when it has none.
+  - In `assets/thumbnail.json`, set `packs.<pack>.background` to `{ "path": "sources-cache/<pack>/<picture key>.*", "crop": <thumbnail crop> }` (the crop of the "Thumbnail" line, in the form `assets/thumbnail.json` takes, such as `"center"`; not the fetch crop of step 3), adding the pack's entry under `packs` when it has none.
   - `powershell -File "<Manager root>\Scripts\Showcase\New-HoiThumbnail.ps1" -Path . -Pack <pack>`: expect the pack's line with `new` or `changed` and no `Warning:` line; open the preview it names with the Read tool.
   - `powershell -File "<Manager root>\Scripts\Showcase\New-HoiThumbnail.ps1" -Path . -Pack <pack> -Apply`: expect the pack's line with `new` or `changed`.
 - [ ] 5. `powershell -File .\build.ps1 -ConvertPictures -Pack <pack>`: expect `failed=0`.

@@ -196,11 +196,11 @@ Date: 2026-11-09. Steps 1 to 9 done (steps 1, 2, 6 to 9 run again after the revi
 `-Check` summary: `Check OK: 1 pack(s), 1 bundle(s), 0 warning(s).` (`Bundle 'all': 4 member(s), 0 error(s)`; `Pack 'italy': 20 event(s), 13 picture(s), 0 error(s)`.)
 
 Deviations:
-- After the owner's change to event 15 (albania_landing: new title, text, second option and trigger): `-ApplyPlan` printed "events 1 changed, 0 added, 19 unchanged; fact-sheet sections 0 replaced, 0 added, 20 unchanged"; the dry run wrote nothing; `-Generate` wrote 13 files; `-Check` gave `Check OK: 1 pack(s), 1 bundle(s), 0 warning(s).`; `-RenderEvents` had no warning; `-ValidateOnly` gave "Validation succeeded." with the same three finland PD-US warnings as before.
-- After the reviewer's fixes: `-ApplyPlan` changed events 4, 8, 15 and 20 and fact-sheet sections spain_sm81_airlift, guadalajara_ctv and taranto_night; the dry run then wrote nothing. `-Generate` wrote 13 files. `-ValidateOnly` again printed the three finland PD-US `[WARN]` lines and no italy warning.
+- After the owner's change to event 15 (albania_landing: new title, text, second option and trigger): `-ApplyPlan` printed "events 1 changed, 0 added, 19 unchanged; fact-sheet sections 0 replaced, 0 added, 20 unchanged"; the dry run wrote nothing; `-Generate` wrote 13 files; `-Check` gave `Check OK: 1 pack(s), 1 bundle(s), 0 warning(s).`; `-RenderEvents` had no warning; `-ValidateOnly` gave "Validation succeeded." with the same three france PD-US warnings as before.
+- After the reviewer's fixes: `-ApplyPlan` changed events 4, 8, 15 and 20 and fact-sheet sections spain_sm81_airlift, guadalajara_ctv and taranto_night; the dry run then wrote nothing. `-Generate` wrote 13 files. `-ValidateOnly` again printed the three france PD-US `[WARN]` lines and no italy warning.
 - Step 3: the first run stopped at step 3 before any fetch, because the step's literal `-Crop "center"` is rejected by the tool (crop is 0 to 100 or fit). The owner approved the per-row crop from the picture table (50; 25 for ciano_1936; 30 for bartali_1936), the plan was corrected, and the loop ran from row 1 over all 13 rows, all ACCEPTED.
 - Step 6: `Sync-WorkshopRegions.ps1` listed "Event Pack: Italy ... Stale ... Written"; the text check then reported no problem.
-- Step 9: `-ValidateOnly` printed `[WARN]` lines for finland (mermoz_disappearance, pcf_dissolution_1939, richelieu_launch_1939: public domain in the US only). They are not in this plan's scope and are not italy warnings; the italy pack printed none.
+- Step 9: `-ValidateOnly` printed `[WARN]` lines for france (corrected 2026-11-09: `-Check` then printed a pack's problems above its summary line, so they read as finland's; mermoz_disappearance, pcf_dissolution_1939, richelieu_launch_1939: public domain in the US only). They are not in this plan's scope and are not italy warnings; the italy pack printed none.
 
 ## Fact sheets
 
