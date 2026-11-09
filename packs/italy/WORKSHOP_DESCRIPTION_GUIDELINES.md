@@ -63,6 +63,7 @@ The pictures come from Wikimedia Commons, under licences that allow their use he
 [*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3830946508]Event Pack: Finland[/url]
 [*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3832953557]Event Pack: France[/url]
 [*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3834124691]Event Pack: Poland[/url]
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3836799442]Event Pack: Italy[/url]
 [/list]
 <!-- cross-links:end -->
 ```
