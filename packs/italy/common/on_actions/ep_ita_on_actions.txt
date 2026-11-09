@@ -1,0 +1,266 @@
+on_actions = {
+	on_weekly_ITA = {
+		effect = {
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_ita_fired_1 }
+					date > 1936.6.1
+					date < 1939.1.1
+					has_country_flag = ITA_victory_in_ethiopia_flag has_idea = vittorio_emanuele has_country_leader = { character = ITA_benito_mussolini }
+				}
+				random = {
+					chance = 15
+					set_country_flag = ep_ita_fired_1
+					country_event = { id = ep_ita.1 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_ita_fired_2 }
+					date > 1936.7.1
+					date < 1936.8.15
+					NOT = { any_enemy_country = { NOT = { original_tag = ETH } } }
+				}
+				random = {
+					chance = 20
+					set_country_flag = ep_ita_fired_2
+					country_event = { id = ep_ita.2 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_ita_fired_3 }
+					date > 1936.6.9
+					date < 1936.9.1
+					NOT = { any_enemy_country = { NOT = { original_tag = ETH } } } has_country_leader = { character = ITA_benito_mussolini }
+				}
+				random = {
+					chance = 20
+					set_country_flag = ep_ita_fired_3
+					country_event = { id = ep_ita.3 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_ita_fired_4 }
+					date > 1936.1.1
+					date < 1939.4.1
+					has_global_flag = spanish_civil_war NOT = { has_global_flag = scw_over } has_government = fascism any_country = { has_idea = SPA_death_before_surrender } NOT = { any_country = { has_idea = SPR_death_before_surrender has_volunteers_amount_from = { tag = ROOT count > 0 } } }
+				}
+				random = {
+					chance = 12
+					set_country_flag = ep_ita_fired_4
+					country_event = { id = ep_ita.4 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_ita_fired_5 }
+					date > 1936.8.15
+					date < 1936.10.1
+					NOT = { any_enemy_country = { NOT = { original_tag = ETH } } }
+				}
+				random = {
+					chance = 25
+					set_country_flag = ep_ita_fired_5
+					country_event = { id = ep_ita.5 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_ita_fired_6 }
+					date > 1936.10.5
+					date < 1936.12.15
+					NOT = { any_enemy_country = { NOT = { original_tag = ETH } } }
+				}
+				random = {
+					chance = 20
+					set_country_flag = ep_ita_fired_6
+					country_event = { id = ep_ita.6 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_ita_fired_7 }
+					date > 1936.11.2
+					date < 1937.3.1
+					NOT = { any_enemy_country = { NOT = { original_tag = ETH } } } has_country_leader = { character = ITA_benito_mussolini } GER = { has_government = fascism }
+				}
+				random = {
+					chance = 20
+					set_country_flag = ep_ita_fired_7
+					country_event = { id = ep_ita.7 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_ita_fired_8 }
+					date > 1937.1.1
+					date < 1939.4.1
+					has_global_flag = spanish_civil_war NOT = { has_global_flag = scw_over } any_country = { has_idea = SPA_death_before_surrender has_volunteers_amount_from = { tag = ROOT count > 0 } }
+				}
+				random = {
+					chance = 12
+					set_country_flag = ep_ita_fired_8
+					country_event = { id = ep_ita.8 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_ita_fired_9 }
+					date > 1936.12.10
+					date < 1937.2.1
+					NOT = { any_enemy_country = { NOT = { original_tag = ETH } } }
+				}
+				random = {
+					chance = 30
+					set_country_flag = ep_ita_fired_9
+					country_event = { id = ep_ita.9 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_ita_fired_10 }
+					date > 1937.4.28
+					date < 1937.6.30
+					NOT = { any_enemy_country = { NOT = { original_tag = ETH } } } has_country_leader = { character = ITA_benito_mussolini }
+				}
+				random = {
+					chance = 20
+					set_country_flag = ep_ita_fired_10
+					country_event = { id = ep_ita.10 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_ita_fired_11 }
+					date > 1938.4.16
+					date < 1938.11.30
+					NOT = { any_enemy_country = { NOT = { original_tag = ETH } } } ENG = { exists = yes } has_country_flag = ITA_victory_in_ethiopia_flag
+				}
+				random = {
+					chance = 15
+					set_country_flag = ep_ita_fired_11
+					country_event = { id = ep_ita.11 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_ita_fired_12 }
+					date > 1938.5.9
+					date < 1938.6.15
+					NOT = { any_enemy_country = { NOT = { original_tag = ETH } } } has_country_leader = { character = ITA_benito_mussolini } GER = { has_government = fascism has_country_leader = { character = GER_adolf_hitler } }
+				}
+				random = {
+					chance = 40
+					set_country_flag = ep_ita_fired_12
+					country_event = { id = ep_ita.12 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_ita_fired_13 }
+					date > 1938.6.19
+					date < 1938.7.31
+					NOT = { any_enemy_country = { NOT = { original_tag = ETH } } }
+				}
+				random = {
+					chance = 40
+					set_country_flag = ep_ita_fired_13
+					country_event = { id = ep_ita.13 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_ita_fired_14 }
+					date > 1938.7.31
+					date < 1938.9.15
+					NOT = { any_enemy_country = { NOT = { original_tag = ETH } } }
+				}
+				random = {
+					chance = 40
+					set_country_flag = ep_ita_fired_14
+					country_event = { id = ep_ita.14 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_ita_fired_15 }
+					date > 1939.1.1
+					date < 1941.1.1
+					NOT = { country_exists = ALB } 44 = { is_owned_by = ROOT } has_character = ITA_vittorio_emanuele_iii
+				}
+				random = {
+					chance = 50
+					set_country_flag = ep_ita_fired_15
+					country_event = { id = ep_ita.15 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_ita_fired_16 }
+					date > 1939.5.15
+					date < 1939.7.1
+					NOT = { any_enemy_country = { NOT = { original_tag = ETH } } } has_country_leader = { character = ITA_benito_mussolini }
+				}
+				random = {
+					chance = 40
+					set_country_flag = ep_ita_fired_16
+					country_event = { id = ep_ita.16 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_ita_fired_17 }
+					date > 1940.2.1
+					date < 1940.5.31
+					NOT = { any_enemy_country = { NOT = { original_tag = ETH } } }
+				}
+				random = {
+					chance = 15
+					set_country_flag = ep_ita_fired_17
+					country_event = { id = ep_ita.17 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_ita_fired_18 }
+					date > 1940.5.29
+					date < 1940.6.9
+					NOT = { any_enemy_country = { NOT = { original_tag = ETH } } }
+				}
+				random = {
+					chance = 60
+					set_country_flag = ep_ita_fired_18
+					country_event = { id = ep_ita.18 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_ita_fired_19 }
+					date > 1940.1.1
+					date < 1945.1.1
+					has_war_with = ENG has_country_flag = ITA_victory_in_ethiopia_flag 271 = { is_controlled_by = ROOT } 269 = { is_owned_by = ENG is_controlled_by = ENG }
+				}
+				random = {
+					chance = 15
+					set_country_flag = ep_ita_fired_19
+					country_event = { id = ep_ita.19 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = ep_ita_fired_20 }
+					date > 1940.1.1
+					date < 1945.1.1
+					has_war_with = ENG 849 = { is_controlled_by = ROOT } has_navy_size = { size > 1 unit = battleship } ENG = { has_navy_size = { size > 0 unit = carrier } }
+				}
+				random = {
+					chance = 8
+					set_country_flag = ep_ita_fired_20
+					country_event = { id = ep_ita.20 }
+				}
+			}
+		}
+	}
+}

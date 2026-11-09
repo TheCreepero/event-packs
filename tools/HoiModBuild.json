@@ -3,7 +3,7 @@
         "all": {
             "root": "packs/all",
             "modFolderName": "immersive_events_expanded",
-            "members": ["finland", "france", "poland"]
+            "members": ["finland", "france", "poland", "italy"]
         },
         "finland": {
             "root": "packs/finland",
@@ -16,6 +16,10 @@
         "poland": {
             "root": "packs/poland",
             "modFolderName": "event_pack_poland"
+        },
+        "italy": {
+            "root": "packs/italy",
+            "modFolderName": "event_pack_italy"
         }
     },
     "sharedTools": ["image-sources"],

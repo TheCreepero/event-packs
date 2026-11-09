@@ -8,6 +8,7 @@ Historical flavor events for Hearts of Iron IV: one Workshop item per country, a
 ## Packs
 - [Event Pack: Finland](Event-Pack-Finland)
 - [Event Pack: France](Event-Pack-France)
+- [Event Pack: Italy](Event-Pack-Italy)
 - [Event Pack: Poland](Event-Pack-Poland)
 
 ## Navigation

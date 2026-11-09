@@ -1,0 +1,788 @@
+{
+    "pack": "italy",
+    "tag": "ITA",
+    "namespace": "ep_ita",
+    "displayName": "Italy",
+    "events": [
+        {
+            "id": 1,
+            "key": "aoi_empire_proclaimed",
+            "title": "Empire Proclaimed from Palazzo Venezia",
+            "desc": "'Ethiopia is Italian! Italian in fact, because it is occupied by our victorious armies,' Mussolini said. From the balcony of Palazzo Venezia he proclaimed the formation of the Italian Empire, and King Victor Emmanuel III assumed the additional title of Emperor of Ethiopia.\n\nA decree unified the three territories of Ethiopia, Eritrea and Somalia into a single legal and political entity, Italian East Africa. The colony was divided into six governorates.",
+            "picture": "vanilla:GFX_report_event_generic_italian_celebration",
+            "factSheet": "aoi_empire_proclaimed",
+            "anchors": [
+                "Palazzo Venezia",
+                "Emperor of Ethiopia",
+                "six governorates"
+            ],
+            "fire": {
+                "after": "1936.6.1",
+                "before": "1939.1.1",
+                "chance": 15,
+                "trigger": "has_country_flag = ITA_victory_in_ethiopia_flag has_idea = vittorio_emanuele has_country_leader = { character = ITA_benito_mussolini }"
+            },
+            "options": [
+                {
+                    "name": "Celebrate it in every town.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "war_support": 0.03
+                        }
+                    ]
+                },
+                {
+                    "name": "Name the governors without delay.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "political_power": 20
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "key": "topolino_fiat_500",
+            "title": "Fiat Launches the Topolino",
+            "desc": "The Fiat 500, known as the Topolino, debuted in June. It has a 569 cc engine with 13 horsepower and a top speed of 85 km/h. Fiat's brief called for a car able to carry four passengers. The target price was 5,000 lire. The simplest version costs 8,900 lire.\n\nWho can afford one?",
+            "picture": "topolino_1936",
+            "factSheet": "topolino_fiat_500",
+            "anchors": [
+                "569 cc",
+                "8,900 lire",
+                "Topolino"
+            ],
+            "fire": {
+                "after": "1936.7.1",
+                "before": "1936.8.15",
+                "chance": 20,
+                "trigger": "NOT = { any_enemy_country = { NOT = { original_tag = ETH } } }"
+            },
+            "options": [
+                {
+                    "name": "A car for the Italian family.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Motoring is for those who can pay.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "political_power": 20
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "key": "ciano_foreign_minister",
+            "title": "Ciano Takes the Foreign Ministry",
+            "desc": "Galeazzo Ciano, aged 33, has been named Italy's minister of foreign affairs. Born on 18 March 1903, he was minister of press and propaganda in the government of his father-in-law.\n\nHe volunteered for action in the invasion of Ethiopia as a bomber squadron commander.",
+            "picture": "ciano_1936",
+            "factSheet": "ciano_foreign_minister",
+            "anchors": [
+                "Galeazzo Ciano",
+                "bomber squadron commander",
+                "1903"
+            ],
+            "fire": {
+                "after": "1936.6.9",
+                "before": "1936.9.1",
+                "chance": 20,
+                "trigger": "NOT = { any_enemy_country = { NOT = { original_tag = ETH } } } has_country_leader = { character = ITA_benito_mussolini }"
+            },
+            "options": [
+                {
+                    "name": "Ciano will speak for the Duce.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "political_power": 20
+                        }
+                    ]
+                },
+                {
+                    "name": "Leave the old ambassadors where they are.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "key": "spain_sm81_airlift",
+            "title": "Rome Orders Twelve SM.81 Bombers Sent",
+            "desc": "Rome ordered twelve three-engined Savoia-Marchetti SM.81 bombers sent. The first unit set out at dawn from Cagliari-Elmas on Sardinia. All Italian insignia on the planes had been blotted out. On paper the aircraft were being sold to the Spanish journalist Luis Bolín.\n\nNot all of the Italian planes sent to aid the rebel faction reached Morocco. How should we respond?",
+            "picture": "sm81_spain",
+            "factSheet": "spain_sm81_airlift",
+            "anchors": [
+                "Cagliari-Elmas",
+                "Luis Bolín",
+                "SM.81"
+            ],
+            "fire": {
+                "after": "1936.1.1",
+                "before": "1939.4.1",
+                "chance": 12,
+                "trigger": "has_global_flag = spanish_civil_war NOT = { has_global_flag = scw_over } has_government = fascism any_country = { has_idea = SPA_death_before_surrender } NOT = { any_country = { has_idea = SPR_death_before_surrender has_volunteers_amount_from = { tag = ROOT count > 0 } } }"
+            },
+            "options": [
+                {
+                    "name": "The planes were sold. We have nothing to add.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "political_power": 25
+                        }
+                    ]
+                },
+                {
+                    "name": "Prepare more aircraft for the same route.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "air_experience": 5
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 5,
+            "key": "olympic_football_gold",
+            "title": "Italy Wins Olympic Football Gold",
+            "desc": "In the Olympiastadion in Berlin, Italy overcomes Austria in the final of the Olympic football tournament. Midway through the second half Frossi scores first for the Azzurri, and he gets the winning goal just as extra time begins. Vittorio Pozzo is the coach.\n\nEarlier in the tournament Italy defeated Japan after Pozzo decided to include Biagi. How does Rome greet the team?",
+            "picture": "olympic_team_1936",
+            "factSheet": "olympic_football_gold",
+            "anchors": [
+                "Frossi",
+                "Pozzo",
+                "Olympiastadion"
+            ],
+            "fire": {
+                "after": "1936.8.15",
+                "before": "1936.10.1",
+                "chance": 25,
+                "trigger": "NOT = { any_enemy_country = { NOT = { original_tag = ETH } } }"
+            },
+            "options": [
+                {
+                    "name": "Receive the team at Palazzo Venezia.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Let the football federation thank them.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 6,
+            "key": "lira_devaluation_1936",
+            "title": "Lira Devalued by About 41 Per Cent",
+            "desc": "The government devalues the lira by about 41 per cent. The dollar rate goes from 11.22 to 19 lire. In September the United States, Great Britain and France signed the Tripartite Agreement.\n\nIndustrialists have accumulated large stocks of raw materials. The revaluation of the gold reserve brings the Bank of Italy and the Treasury a not inconsiderable bonus.",
+            "picture": "vanilla:GFX_report_event_generic_stock_traders",
+            "factSheet": "lira_devaluation_1936",
+            "anchors": [
+                "41 per cent",
+                "11.22",
+                "Tripartite Agreement"
+            ],
+            "fire": {
+                "after": "1936.10.5",
+                "before": "1936.12.15",
+                "chance": 20,
+                "trigger": "NOT = { any_enemy_country = { NOT = { original_tag = ETH } } }"
+            },
+            "options": [
+                {
+                    "name": "Reassure the savers.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "The gold bonus goes to the Treasury.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "political_power": 20
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 7,
+            "key": "axis_protocol_october",
+            "title": "Italy and Germany Conclude a Protocol",
+            "desc": "Ciano met von Neurath on 21 October. On 23 October Italy and Germany concluded a protocol. Its terms are not made public.\n\nThe protocol states: 'Communism is the greatest danger threatening the peace and the security of Europe.' Italy undertakes to support the restoration of Germany's colonies. Mussolini said: 'this vertical axis Berlin-Rome is not a diaphragm, but rather an axis.'",
+            "picture": "vanilla:GFX_report_event_german_italian_pact",
+            "factSheet": "axis_protocol_october",
+            "anchors": [
+                "von Neurath",
+                "23 October",
+                "axis"
+            ],
+            "fire": {
+                "after": "1936.11.2",
+                "before": "1937.3.1",
+                "chance": 20,
+                "trigger": "NOT = { any_enemy_country = { NOT = { original_tag = ETH } } } has_country_leader = { character = ITA_benito_mussolini } GER = { has_government = fascism }"
+            },
+            "options": [
+                {
+                    "name": "Say nothing of the terms.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Let Berlin know what Italy expects in return.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "political_power": 20
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 8,
+            "key": "guadalajara_ctv",
+            "title": "Fog and Sleet Slow the Advance at Guadalajara",
+            "desc": "At Guadalajara the advance of the Italian forces, 26,000 soldiers under General Roatta, was slowed by fog and sleet. The dirt airfields were flooded with mud.\n\nItalian anti-fascist volunteers had formed the Garibaldi Battalion. How do we answer the delay?",
+            "picture": "vanilla:GFX_report_event_spr_italian_volunteers",
+            "factSheet": "guadalajara_ctv",
+            "anchors": [
+                "Roatta",
+                "Garibaldi Battalion",
+                "26,000"
+            ],
+            "fire": {
+                "after": "1937.1.1",
+                "before": "1939.4.1",
+                "chance": 12,
+                "trigger": "has_global_flag = spanish_civil_war NOT = { has_global_flag = scw_over } any_country = { has_idea = SPA_death_before_surrender has_volunteers_amount_from = { tag = ROOT count > 0 } }"
+            },
+            "options": [
+                {
+                    "name": "Press on with the advance.",
+                    "ai": 50,
+                    "effects": [
+                        {
+                            "army_experience": 5
+                        }
+                    ]
+                },
+                {
+                    "name": "Hold the column until the weather clears.",
+                    "ai": 50,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 9,
+            "key": "pirandello_death",
+            "title": "Luigi Pirandello Dies in Rome",
+            "desc": "Luigi Pirandello, the playwright, has died in Rome of pneumonia at 69. A member of the Italian Academy, he died alone in his home at Via Bosio. In 1934 he was awarded the Nobel Prize for Literature, and he later gave the medal to the Fascist government to be melted down.\n\nHe was finishing a volume to be called Memories of My Involuntary Sojourn on Earth. How does the government mark the death of a Nobel laureate?",
+            "picture": "pirandello_study",
+            "factSheet": "pirandello_death",
+            "anchors": [
+                "Via Bosio",
+                "Nobel Prize",
+                "Italian Academy"
+            ],
+            "fire": {
+                "after": "1936.12.10",
+                "before": "1937.2.1",
+                "chance": 30,
+                "trigger": "NOT = { any_enemy_country = { NOT = { original_tag = ETH } } }"
+            },
+            "options": [
+                {
+                    "name": "Send a government wreath to Via Bosio.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Leave the arrangements to his family.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "political_power": 15
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 10,
+            "key": "cinecitta_opens",
+            "title": "Cinecittà Opens With Mussolini",
+            "desc": "Mussolini and Giacomo Paulucci di Calboli inaugurate Cinecittà. In 1935 a vast fire destroyed the studios of the Cines company. The new complex, designed by the architect Gino Peressutti, has 73 buildings and covers 400,000 square metres.\n\nWho will be first on the new stages?",
+            "picture": "cinecitta_1937",
+            "factSheet": "cinecitta_opens",
+            "anchors": [
+                "Gino Peressutti",
+                "73 buildings",
+                "Cines"
+            ],
+            "fire": {
+                "after": "1937.4.28",
+                "before": "1937.6.30",
+                "chance": 20,
+                "trigger": "NOT = { any_enemy_country = { NOT = { original_tag = ETH } } } has_country_leader = { character = ITA_benito_mussolini }"
+            },
+            "options": [
+                {
+                    "name": "Open the stages to every producer.",
+                    "ai": 50,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Reserve the best stages for state films.",
+                    "ai": 50,
+                    "effects": [
+                        {
+                            "political_power": 25
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 11,
+            "key": "easter_accords",
+            "title": "Britain and Italy Conclude the Easter Accords",
+            "desc": "Britain and Italy have concluded the Easter Accords. The two governments undertake to observe the order in the Mediterranean and to uphold the freedom of navigation in the Suez Canal.\n\nEthiopia is not named in the agreements. How does Rome present them?",
+            "picture": "vanilla:GFX_report_event_generic_sign_treaty2",
+            "factSheet": "easter_accords",
+            "anchors": [
+                "Mediterranean",
+                "Suez Canal",
+                "Ethiopia"
+            ],
+            "fire": {
+                "after": "1938.4.16",
+                "before": "1938.11.30",
+                "chance": 15,
+                "trigger": "NOT = { any_enemy_country = { NOT = { original_tag = ETH } } } ENG = { exists = yes } has_country_flag = ITA_victory_in_ethiopia_flag"
+            },
+            "options": [
+                {
+                    "name": "A sound basis for the Mediterranean.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Ethiopia is not named, and that is enough for us.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "political_power": 20
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 12,
+            "key": "hitler_visit_italy",
+            "title": "Hitler Leaves Italy at the Brenner",
+            "desc": "Hitler's train left Florence after midnight and reached the Brenner on the morning of 9 May. His visit had taken him to Rome, Naples and Florence.\n\nMussolini waited for him at the Ostiense station, built for the occasion and not yet finished. A display was given by 50,000 balilla and avanguardisti. The best of the Regia Marina took part in a naval parade, and on the evening of 5 May Hitler watched Aida at the Teatro San Carlo with the King.",
+            "picture": "naples_fleet_1938",
+            "factSheet": "hitler_visit_italy",
+            "anchors": [
+                "Ostiense",
+                "Teatro San Carlo",
+                "Brenner"
+            ],
+            "fire": {
+                "after": "1938.5.9",
+                "before": "1938.6.15",
+                "chance": 40,
+                "trigger": "NOT = { any_enemy_country = { NOT = { original_tag = ETH } } } has_country_leader = { character = ITA_benito_mussolini } GER = { has_government = fascism has_country_leader = { character = GER_adolf_hitler } }"
+            },
+            "options": [
+                {
+                    "name": "A fine display of friendship.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "The guests have gone. Back to work.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "political_power": 15
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 13,
+            "key": "world_cup_1938",
+            "title": "Italy Keeps the World Cup",
+            "desc": "At the Stade Olympique de Colombes, in front of 45,000 spectators, Italy defended its title. After six minutes Gino Colaussi opened the scoring, and Pál Titkos equalised for Hungary two minutes later. Piola scored his second goal to complete a 4-2 win.\n\nThe referee was Georges Capdeville of France. How does Rome receive the champions?",
+            "picture": "italy_team_1938",
+            "factSheet": "world_cup_1938",
+            "anchors": [
+                "Colombes",
+                "Colaussi",
+                "Titkos"
+            ],
+            "fire": {
+                "after": "1938.6.19",
+                "before": "1938.7.31",
+                "chance": 40,
+                "trigger": "NOT = { any_enemy_country = { NOT = { original_tag = ETH } } }"
+            },
+            "options": [
+                {
+                    "name": "Receive the team in Rome.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Let the football speak for itself.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 14,
+            "key": "bartali_tour_1938",
+            "title": "Bartali Wins the Tour de France",
+            "desc": "Gino Bartali wins the Tour de France, which ran from 5 to 31 July over 4,694 km, and also takes the mountains classification. He had been close to winning in 1937 until he crashed. This year he was asked to skip the Giro d'Italia.\n\nWhat will Rome make of an Italian winner in France?",
+            "picture": "bartali_1936",
+            "factSheet": "bartali_tour_1938",
+            "anchors": [
+                "Bartali",
+                "4,694 km",
+                "Giro d'Italia"
+            ],
+            "fire": {
+                "after": "1938.7.31",
+                "before": "1938.9.15",
+                "chance": 40,
+                "trigger": "NOT = { any_enemy_country = { NOT = { original_tag = ETH } } }"
+            },
+            "options": [
+                {
+                    "name": "Send a telegram of congratulation.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Remind the papers that he rode for Italy.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 15,
+            "key": "albania_landing",
+            "title": "Albania Offers Its Crown to the King",
+            "desc": "The Albanian parliament voted to depose Zog and to unite the nation with Italy. The Albanian crown was offered to Italy's King Victor Emmanuel III.\n\nZog took refuge in exile in neighbouring Greece. How should we answer the offer of the crown?",
+            "picture": "durres_1939",
+            "factSheet": "albania_landing",
+            "anchors": [
+                "Zog",
+                "Victor Emmanuel III"
+            ],
+            "fire": {
+                "after": "1939.1.1",
+                "before": "1941.1.1",
+                "chance": 50,
+                "trigger": "NOT = { country_exists = ALB } 44 = { is_owned_by = ROOT } has_character = ITA_vittorio_emanuele_iii"
+            },
+            "options": [
+                {
+                    "name": "Accept the crown for the King.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "war_support": 0.03
+                        }
+                    ]
+                },
+                {
+                    "name": "The crown can wait; the army will garrison Albania.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "army_experience": 5
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 16,
+            "key": "mirafiori_opening",
+            "title": "Mussolini Inaugurates Mirafiori",
+            "desc": "On 15 May Mussolini inaugurated the Fiat plant at Mirafiori. Flanked by Giovanni Agnelli and Achille Starace, he spoke from a prepared platform to about 50,000 Fiat workers. The plant is to be built on an area of a million square metres and, by the programme, to employ over 22,000 workers in two shifts.\n\nThe Duce was received coldly, without great enthusiasm. How should the press report it?",
+            "picture": "mirafiori_aerial",
+            "factSheet": "mirafiori_opening",
+            "anchors": [
+                "Mirafiori",
+                "Giovanni Agnelli",
+                "22,000"
+            ],
+            "fire": {
+                "after": "1939.5.15",
+                "before": "1939.7.1",
+                "chance": 40,
+                "trigger": "NOT = { any_enemy_country = { NOT = { original_tag = ETH } } } has_country_leader = { character = ITA_benito_mussolini }"
+            },
+            "options": [
+                {
+                    "name": "Print the speech and leave out the cold reception.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "political_power": 20
+                        }
+                    ]
+                },
+                {
+                    "name": "Ask Agnelli how the workers feel.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 17,
+            "key": "coffee_sugar_rationing",
+            "title": "Coffee and Sugar Are Rationed",
+            "desc": "Coffee is on the market again from 1 February. It is rationed at 0.6 kilograms a year, already prepared. Sugar is also to be rationed, at 6 kilograms a year per head.\n\nThe import and sale of coffee were suspended in October. Coffee imports amounted in 1938 to 36,000 tons. How is the ration to be run?",
+            "picture": "vanilla:GFX_report_event_generic_factory",
+            "factSheet": "coffee_sugar_rationing",
+            "anchors": [
+                "0.6 kilograms",
+                "6 kilograms",
+                "36,000 tons"
+            ],
+            "fire": {
+                "after": "1940.2.1",
+                "before": "1940.5.31",
+                "chance": 15,
+                "trigger": "NOT = { any_enemy_country = { NOT = { original_tag = ETH } } }"
+            },
+            "options": [
+                {
+                    "name": "Explain the ration in the newspapers.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Let the grocers hand it out themselves.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "political_power": 15
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 18,
+            "key": "giro_1940_coppi",
+            "title": "Coppi Takes the Pink Jersey",
+            "desc": "Coppi, at his first Giro d'Italia, won the eleventh stage alone on 29 May, from Florence to Modena, and took the pink jersey. The race runs in twenty stages from 17 May to 9 June.\n\nBartali fell on the descent of the Passo della Scoffera during the second stage and dropped out of the classification. Whom will the papers back now?",
+            "picture": "coppi_bartali_1940",
+            "factSheet": "giro_1940_coppi",
+            "anchors": [
+                "Coppi",
+                "Scoffera",
+                "Modena"
+            ],
+            "fire": {
+                "after": "1940.5.29",
+                "before": "1940.6.9",
+                "chance": 60,
+                "trigger": "NOT = { any_enemy_country = { NOT = { original_tag = ETH } } }"
+            },
+            "options": [
+                {
+                    "name": "Let the papers cheer the new leader.",
+                    "ai": 60,
+                    "effects": [
+                        {
+                            "war_support": 0.02
+                        }
+                    ]
+                },
+                {
+                    "name": "Wait for the end of the race.",
+                    "ai": 40,
+                    "effects": [
+                        {
+                            "stability": 0.02
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 19,
+            "key": "british_somaliland_1940",
+            "title": "Aosta Urges Haste on British Somaliland",
+            "desc": "In East Africa, about 24,000 Italian and colonial troops face 4,507 British and Commonwealth troops in British Somaliland.\n\nAosta and his deputy, General Guglielmo Nasi, have completed an appreciation of the likely opposition. Aosta urges haste, but Nasi refuses to rush because the road is deteriorating. Which of them do we back?",
+            "picture": "vanilla:GFX_report_event_african_soldiers",
+            "factSheet": "british_somaliland_1940",
+            "anchors": [
+                "Aosta",
+                "Nasi",
+                "24,000",
+                "4,507"
+            ],
+            "fire": {
+                "after": "1940.1.1",
+                "before": "1945.1.1",
+                "chance": 15,
+                "trigger": "has_war_with = ENG has_country_flag = ITA_victory_in_ethiopia_flag 271 = { is_controlled_by = ROOT } 269 = { is_owned_by = ENG is_controlled_by = ENG }"
+            },
+            "options": [
+                {
+                    "name": "Order the advance without delay.",
+                    "ai": 55,
+                    "effects": [
+                        {
+                            "army_experience": 5
+                        }
+                    ]
+                },
+                {
+                    "name": "Let Nasi take the time he needs.",
+                    "ai": 45,
+                    "effects": [
+                        {
+                            "political_power": 15
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 20,
+            "key": "taranto_night",
+            "title": "British Aircraft Strike the Fleet at Taranto",
+            "desc": "Enemy aircraft attack the naval base of Taranto in the first hours of the night. The attack is launched from a British carrier. A torpedo hits one of our battleships and blows a large hole in her hull. Another battleship escapes undamaged.\n\nWhat are our orders?",
+            "picture": "taranto_aftermath",
+            "factSheet": "taranto_night",
+            "anchors": [
+                "Taranto",
+                "naval base"
+            ],
+            "fire": {
+                "after": "1940.1.1",
+                "before": "1945.1.1",
+                "chance": 8,
+                "trigger": "has_war_with = ENG 849 = { is_controlled_by = ROOT } has_navy_size = { size > 1 unit = battleship } ENG = { has_navy_size = { size > 0 unit = carrier } }"
+            },
+            "options": [
+                {
+                    "name": "Issue a short communique.",
+                    "ai": 55,
+                    "effects": [
+                        {
+                            "political_power": 15
+                        }
+                    ]
+                },
+                {
+                    "name": "Move the undamaged ships out of Taranto.",
+                    "ai": 45,
+                    "effects": [
+                        {
+                            "navy_experience": 5
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "ideas": []
+}

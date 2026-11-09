@@ -1,0 +1,54 @@
+spriteTypes = {
+	spriteType = {
+		name = "GFX_ep_ita_bartali_1936"
+		texturefile = "gfx/event_pictures/ep_ita/ep_ita_bartali_1936.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_ita_ciano_1936"
+		texturefile = "gfx/event_pictures/ep_ita/ep_ita_ciano_1936.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_ita_cinecitta_1937"
+		texturefile = "gfx/event_pictures/ep_ita/ep_ita_cinecitta_1937.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_ita_coppi_bartali_1940"
+		texturefile = "gfx/event_pictures/ep_ita/ep_ita_coppi_bartali_1940.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_ita_durres_1939"
+		texturefile = "gfx/event_pictures/ep_ita/ep_ita_durres_1939.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_ita_italy_team_1938"
+		texturefile = "gfx/event_pictures/ep_ita/ep_ita_italy_team_1938.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_ita_mirafiori_aerial"
+		texturefile = "gfx/event_pictures/ep_ita/ep_ita_mirafiori_aerial.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_ita_naples_fleet_1938"
+		texturefile = "gfx/event_pictures/ep_ita/ep_ita_naples_fleet_1938.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_ita_olympic_team_1936"
+		texturefile = "gfx/event_pictures/ep_ita/ep_ita_olympic_team_1936.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_ita_pirandello_study"
+		texturefile = "gfx/event_pictures/ep_ita/ep_ita_pirandello_study.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_ita_sm81_spain"
+		texturefile = "gfx/event_pictures/ep_ita/ep_ita_sm81_spain.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_ita_taranto_aftermath"
+		texturefile = "gfx/event_pictures/ep_ita/ep_ita_taranto_aftermath.dds"
+	}
+	spriteType = {
+		name = "GFX_ep_ita_topolino_1936"
+		texturefile = "gfx/event_pictures/ep_ita/ep_ita_topolino_1936.dds"
+	}
+}

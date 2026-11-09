@@ -2,6 +2,7 @@
 - **Packs**
   - [Finland](Event-Pack-Finland)
   - [France](Event-Pack-France)
+  - [Italy](Event-Pack-Italy)
   - [Poland](Event-Pack-Poland)
 - **Developer Guide**
   - [Contributing](Contributing)

@@ -16,6 +16,12 @@
                 "path": "sources-cache/poland/chopin_competition_1937.*",
                 "crop": "center"
             }
+        },
+        "italy": {
+            "background": {
+                "path": "sources-cache/italy/naples_fleet_1938.*",
+                "crop": "center"
+            }
         }
     }
 }

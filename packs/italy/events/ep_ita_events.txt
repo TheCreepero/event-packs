@@ -1,0 +1,401 @@
+add_namespace = ep_ita
+
+country_event = {
+	id = ep_ita.1
+	title = ep_ita.1.t
+	desc = ep_ita.1.desc
+	picture = GFX_report_event_generic_italian_celebration
+	is_triggered_only = yes
+
+	option = {
+		name = ep_ita.1.a
+		ai_chance = { factor = 60 }
+		add_war_support = 0.03
+	}
+
+	option = {
+		name = ep_ita.1.b
+		ai_chance = { factor = 40 }
+		add_political_power = 20
+	}
+}
+
+country_event = {
+	id = ep_ita.2
+	title = ep_ita.2.t
+	desc = ep_ita.2.desc
+	picture = GFX_ep_ita_topolino_1936
+	is_triggered_only = yes
+
+	option = {
+		name = ep_ita.2.a
+		ai_chance = { factor = 60 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_ita.2.b
+		ai_chance = { factor = 40 }
+		add_political_power = 20
+	}
+}
+
+country_event = {
+	id = ep_ita.3
+	title = ep_ita.3.t
+	desc = ep_ita.3.desc
+	picture = GFX_ep_ita_ciano_1936
+	is_triggered_only = yes
+
+	option = {
+		name = ep_ita.3.a
+		ai_chance = { factor = 60 }
+		add_political_power = 20
+	}
+
+	option = {
+		name = ep_ita.3.b
+		ai_chance = { factor = 40 }
+		add_stability = 0.02
+	}
+}
+
+country_event = {
+	id = ep_ita.4
+	title = ep_ita.4.t
+	desc = ep_ita.4.desc
+	picture = GFX_ep_ita_sm81_spain
+	is_triggered_only = yes
+
+	option = {
+		name = ep_ita.4.a
+		ai_chance = { factor = 60 }
+		add_political_power = 25
+	}
+
+	option = {
+		name = ep_ita.4.b
+		ai_chance = { factor = 40 }
+		air_experience = 5
+	}
+}
+
+country_event = {
+	id = ep_ita.5
+	title = ep_ita.5.t
+	desc = ep_ita.5.desc
+	picture = GFX_ep_ita_olympic_team_1936
+	is_triggered_only = yes
+
+	option = {
+		name = ep_ita.5.a
+		ai_chance = { factor = 60 }
+		add_war_support = 0.02
+	}
+
+	option = {
+		name = ep_ita.5.b
+		ai_chance = { factor = 40 }
+		add_stability = 0.02
+	}
+}
+
+country_event = {
+	id = ep_ita.6
+	title = ep_ita.6.t
+	desc = ep_ita.6.desc
+	picture = GFX_report_event_generic_stock_traders
+	is_triggered_only = yes
+
+	option = {
+		name = ep_ita.6.a
+		ai_chance = { factor = 60 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_ita.6.b
+		ai_chance = { factor = 40 }
+		add_political_power = 20
+	}
+}
+
+country_event = {
+	id = ep_ita.7
+	title = ep_ita.7.t
+	desc = ep_ita.7.desc
+	picture = GFX_report_event_german_italian_pact
+	is_triggered_only = yes
+
+	option = {
+		name = ep_ita.7.a
+		ai_chance = { factor = 60 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_ita.7.b
+		ai_chance = { factor = 40 }
+		add_political_power = 20
+	}
+}
+
+country_event = {
+	id = ep_ita.8
+	title = ep_ita.8.t
+	desc = ep_ita.8.desc
+	picture = GFX_report_event_spr_italian_volunteers
+	is_triggered_only = yes
+
+	option = {
+		name = ep_ita.8.a
+		ai_chance = { factor = 50 }
+		army_experience = 5
+	}
+
+	option = {
+		name = ep_ita.8.b
+		ai_chance = { factor = 50 }
+		add_stability = 0.02
+	}
+}
+
+country_event = {
+	id = ep_ita.9
+	title = ep_ita.9.t
+	desc = ep_ita.9.desc
+	picture = GFX_ep_ita_pirandello_study
+	is_triggered_only = yes
+
+	option = {
+		name = ep_ita.9.a
+		ai_chance = { factor = 60 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_ita.9.b
+		ai_chance = { factor = 40 }
+		add_political_power = 15
+	}
+}
+
+country_event = {
+	id = ep_ita.10
+	title = ep_ita.10.t
+	desc = ep_ita.10.desc
+	picture = GFX_ep_ita_cinecitta_1937
+	is_triggered_only = yes
+
+	option = {
+		name = ep_ita.10.a
+		ai_chance = { factor = 50 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_ita.10.b
+		ai_chance = { factor = 50 }
+		add_political_power = 25
+	}
+}
+
+country_event = {
+	id = ep_ita.11
+	title = ep_ita.11.t
+	desc = ep_ita.11.desc
+	picture = GFX_report_event_generic_sign_treaty2
+	is_triggered_only = yes
+
+	option = {
+		name = ep_ita.11.a
+		ai_chance = { factor = 60 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_ita.11.b
+		ai_chance = { factor = 40 }
+		add_political_power = 20
+	}
+}
+
+country_event = {
+	id = ep_ita.12
+	title = ep_ita.12.t
+	desc = ep_ita.12.desc
+	picture = GFX_ep_ita_naples_fleet_1938
+	is_triggered_only = yes
+
+	option = {
+		name = ep_ita.12.a
+		ai_chance = { factor = 60 }
+		add_war_support = 0.02
+	}
+
+	option = {
+		name = ep_ita.12.b
+		ai_chance = { factor = 40 }
+		add_political_power = 15
+	}
+}
+
+country_event = {
+	id = ep_ita.13
+	title = ep_ita.13.t
+	desc = ep_ita.13.desc
+	picture = GFX_ep_ita_italy_team_1938
+	is_triggered_only = yes
+
+	option = {
+		name = ep_ita.13.a
+		ai_chance = { factor = 60 }
+		add_war_support = 0.02
+	}
+
+	option = {
+		name = ep_ita.13.b
+		ai_chance = { factor = 40 }
+		add_stability = 0.02
+	}
+}
+
+country_event = {
+	id = ep_ita.14
+	title = ep_ita.14.t
+	desc = ep_ita.14.desc
+	picture = GFX_ep_ita_bartali_1936
+	is_triggered_only = yes
+
+	option = {
+		name = ep_ita.14.a
+		ai_chance = { factor = 60 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_ita.14.b
+		ai_chance = { factor = 40 }
+		add_war_support = 0.02
+	}
+}
+
+country_event = {
+	id = ep_ita.15
+	title = ep_ita.15.t
+	desc = ep_ita.15.desc
+	picture = GFX_ep_ita_durres_1939
+	is_triggered_only = yes
+
+	option = {
+		name = ep_ita.15.a
+		ai_chance = { factor = 60 }
+		add_war_support = 0.03
+	}
+
+	option = {
+		name = ep_ita.15.b
+		ai_chance = { factor = 40 }
+		army_experience = 5
+	}
+}
+
+country_event = {
+	id = ep_ita.16
+	title = ep_ita.16.t
+	desc = ep_ita.16.desc
+	picture = GFX_ep_ita_mirafiori_aerial
+	is_triggered_only = yes
+
+	option = {
+		name = ep_ita.16.a
+		ai_chance = { factor = 60 }
+		add_political_power = 20
+	}
+
+	option = {
+		name = ep_ita.16.b
+		ai_chance = { factor = 40 }
+		add_stability = 0.02
+	}
+}
+
+country_event = {
+	id = ep_ita.17
+	title = ep_ita.17.t
+	desc = ep_ita.17.desc
+	picture = GFX_report_event_generic_factory
+	is_triggered_only = yes
+
+	option = {
+		name = ep_ita.17.a
+		ai_chance = { factor = 60 }
+		add_stability = 0.02
+	}
+
+	option = {
+		name = ep_ita.17.b
+		ai_chance = { factor = 40 }
+		add_political_power = 15
+	}
+}
+
+country_event = {
+	id = ep_ita.18
+	title = ep_ita.18.t
+	desc = ep_ita.18.desc
+	picture = GFX_ep_ita_coppi_bartali_1940
+	is_triggered_only = yes
+
+	option = {
+		name = ep_ita.18.a
+		ai_chance = { factor = 60 }
+		add_war_support = 0.02
+	}
+
+	option = {
+		name = ep_ita.18.b
+		ai_chance = { factor = 40 }
+		add_stability = 0.02
+	}
+}
+
+country_event = {
+	id = ep_ita.19
+	title = ep_ita.19.t
+	desc = ep_ita.19.desc
+	picture = GFX_report_event_african_soldiers
+	is_triggered_only = yes
+
+	option = {
+		name = ep_ita.19.a
+		ai_chance = { factor = 55 }
+		army_experience = 5
+	}
+
+	option = {
+		name = ep_ita.19.b
+		ai_chance = { factor = 45 }
+		add_political_power = 15
+	}
+}
+
+country_event = {
+	id = ep_ita.20
+	title = ep_ita.20.t
+	desc = ep_ita.20.desc
+	picture = GFX_ep_ita_taranto_aftermath
+	is_triggered_only = yes
+
+	option = {
+		name = ep_ita.20.a
+		ai_chance = { factor = 55 }
+		add_political_power = 15
+	}
+
+	option = {
+		name = ep_ita.20.b
+		ai_chance = { factor = 45 }
+		navy_experience = 5
+	}
+}
