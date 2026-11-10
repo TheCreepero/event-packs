@@ -269,7 +269,7 @@
                 "after": "1938.6.1",
                 "before": "1938.8.31",
                 "chance": 10,
-                "trigger": "has_war = no NOT = { has_government = communism }"
+                "trigger": "has_war = no has_country_leader = { ruling_only = yes character = FIN_kyosti_kallio } owns_state = 145 owns_state = 146 SOV = { has_government = communism } GER = { has_government = fascism }"
             },
             "options": [
                 {
@@ -353,7 +353,7 @@
                 "after": "1938.11.17",
                 "before": "1938.11.30",
                 "chance": 30,
-                "trigger": "has_war = no"
+                "trigger": "has_war = no has_country_leader = { ruling_only = yes character = FIN_kyosti_kallio } GER = { has_government = fascism }"
             },
             "options": [
                 {
@@ -395,7 +395,7 @@
                 "after": "1939.7.3",
                 "before": "1939.8.15",
                 "chance": 50,
-                "trigger": "has_war = no has_elections = yes OR = { has_government = democratic has_government = neutrality }"
+                "trigger": "has_war = no has_elections = yes has_country_leader = { ruling_only = yes character = FIN_kyosti_kallio }"
             },
             "options": [
                 {
@@ -436,7 +436,8 @@
             "fire": {
                 "after": "1939.9.17",
                 "before": "1939.10.31",
-                "chance": 50
+                "chance": 50,
+                "trigger": "has_war = no"
             },
             "options": [
                 {
@@ -508,19 +509,18 @@
             "id": 13,
             "key": "league_expulsion_1939",
             "title": "The League of Nations Expels the Soviet Union",
-            "desc": "Geneva has answered our appeal. On 11 December the Assembly heard Finland's delegate and set up a Special Committee to study the appeal. On 13 December the delegate of Argentina demanded the expulsion of the Soviet Union.\n\nOn 14 December the Council found that the Union of Soviet Socialist Republics 'has placed itself outside the League of Nations.' It is no longer a member.",
+            "desc": "The League Assembly has heard Finland's delegate and set up a Special Committee to study our appeal. The delegate of Argentina demanded the expulsion of the Soviet Union.\n\nThe Council of the League of Nations finds that the Union of Soviet Socialist Republics 'has placed itself outside the League of Nations.' It is no longer a member.",
             "picture": "league_expulsion_1939",
             "factSheet": "league_expulsion_1939",
             "anchors": [
-                "14 December",
                 "Argentina",
                 "Special Committee"
             ],
             "fire": {
-                "after": "1939.12.14",
-                "before": "1940.1.31",
+                "after": "1939.1.1",
+                "before": "1945.12.31",
                 "chance": 50,
-                "trigger": "has_war_with = SOV"
+                "trigger": "has_war_with = SOV has_country_flag = { flag = FIN_winter_war_ongoing_flag days > 10 } has_capitulated = no SOV = { has_government = communism }"
             },
             "options": [
                 {
@@ -533,7 +533,7 @@
                     ]
                 },
                 {
-                    "name": "Thank Geneva, and look for help elsewhere.",
+                    "name": "Thank the League, and look for help elsewhere.",
                     "ai": 40,
                     "effects": [
                         {
@@ -547,20 +547,19 @@
             "id": 14,
             "key": "tolvajarvi_victory",
             "title": "Detachment P Defeats the Enemy at Tolvajärvi",
-            "desc": "Lieutenant Colonel Aaro Pajari reported to Paavo Talvela at 5 pm on 12 December: 'Today, I have attacked and defeated the enemy in Tolvajärvi, and the enemy has retreated with heavy losses to the east.' His Detachment P, part of Group T, has beaten the Soviet 139th Rifle Division. It is the first major Finnish victory of the war.\n\nAbout 100 Finns were killed in the day's attack. The Soviet dead in the battle are put at ten times as many, and 20 tanks and 60 machine guns were captured. Talvela is promoted to major general and Pajari to colonel.",
+            "desc": "Lieutenant Colonel Aaro Pajari reported to Paavo Talvela at 5 pm: 'Today, I have attacked and defeated the enemy in Tolvajärvi, and the enemy has retreated with heavy losses to the east.' His Detachment P is part of Group T. The Soviet 139th Rifle Division began a disorderly retreat after the Finnish forces launched their offensive. It is the first major Finnish victory of the war.\n\nAbout 100 Finns were killed in the day's attack. The Soviet dead in the battle are put at ten times as many, and 20 tanks and 60 machine guns were captured. Talvela is promoted to major general and Pajari to colonel.",
             "picture": "tolvajarvi_victory",
             "factSheet": "tolvajarvi_victory",
             "anchors": [
                 "Aaro Pajari",
                 "Paavo Talvela",
-                "139th Rifle Division",
-                "12 December"
+                "139th Rifle Division"
             ],
             "fire": {
-                "after": "1939.12.13",
-                "before": "1940.1.31",
+                "after": "1939.1.1",
+                "before": "1947.12.31",
                 "chance": 50,
-                "trigger": "has_war_with = SOV"
+                "trigger": "has_war_with = SOV has_country_flag = { flag = FIN_winter_war_ongoing_flag days > 10 } has_capitulated = no SOV = { has_government = communism } controls_state = 146"
             },
             "options": [
                 {
@@ -587,24 +586,23 @@
             "id": 15,
             "key": "finnish_relief_fund",
             "title": "Hoover's Relief Fund Raises 2.5 Million Dollars",
-            "desc": "Herbert Hoover started the Finnish Relief Fund in December. On 20 December he appeared at Madison Square Garden with Hendrik Willem van Loon and Fiorello La Guardia. The fund advertises in 1,400 American newspapers. The income from the first screening of Gone with the Wind in Washington state went to the fund.\n\nBy March the fund has raised 2.5 million dollars.",
+            "desc": "Former U.S. President Herbert Hoover started the Finnish Relief Fund. He appeared at Madison Square Garden with Hendrik Willem van Loon and Fiorello La Guardia. The fund advertises in 1,400 American newspapers.\n\nSo far the fund has raised 2.5 million dollars.",
             "picture": "finnish_relief_fund",
             "factSheet": "finnish_relief_fund",
             "anchors": [
                 "Herbert Hoover",
                 "1,400 American newspapers",
-                "20 December",
                 "Madison Square Garden"
             ],
             "fire": {
-                "after": "1940.3.1",
-                "before": "1940.4.30",
+                "after": "1939.1.1",
+                "before": "1943.12.31",
                 "chance": 100,
-                "trigger": "has_war_with = SOV"
+                "trigger": "has_war_with = SOV has_country_flag = { flag = FIN_winter_war_ongoing_flag days > 90 } NOT = { has_government = fascism has_government = communism } USA = { has_government = democratic NOT = { has_war_with = FIN } }"
             },
             "options": [
                 {
-                    "name": "Spend it on relief at home.",
+                    "name": "Thank Mr Hoover, and ask for nothing more.",
                     "ai": 60,
                     "effects": [
                         {

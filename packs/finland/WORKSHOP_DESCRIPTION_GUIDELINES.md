@@ -36,12 +36,12 @@ Historical flavor events for Finland, from 1936 to the end of the Winter War in 
 [*]1938: The First Vickers Tanks Arrive Without Guns
 [*]1938: Helsinki Is Given the 1940 Olympic Games
 [*]1938: Foreign Minister Holsti Resigns
+[*]1939: The League of Nations Expels the Soviet Union
+[*]1939: Detachment P Defeats the Enemy at Tolvajärvi
+[*]1939: Hoover's Relief Fund Raises 2.5 Million Dollars
 [*]1939: Social Democrats Win 85 Seats
 [*]1939: Taisto Mäki Runs 10,000 Metres Under 30 Minutes
 [*]1939: Sillanpää Awarded the Nobel Prize in Literature
-[*]1939: Detachment P Defeats the Enemy at Tolvajärvi
-[*]1939: The League of Nations Expels the Soviet Union
-[*]1940: Hoover's Relief Fund Raises 2.5 Million Dollars
 [/list]
 
 <!-- region:image:strip-picture-credits -->
