@@ -188,7 +188,7 @@
                 "after": "1936.9.7",
                 "before": "1936.10.31",
                 "chance": 50,
-                "trigger": "has_war = no"
+                "trigger": "has_war = no FRA = { exists = yes has_government = democratic NOT = { has_completed_focus = FRA_revive_the_national_bloc } }"
             },
             "options": [
                 {
@@ -269,7 +269,7 @@
                 "after": "1937.1.1",
                 "before": "1937.3.31",
                 "chance": 50,
-                "trigger": "has_war = no"
+                "trigger": "has_war = no owns_state = 807"
             },
             "options": [
                 {
@@ -442,7 +442,7 @@
                 "after": "1937.11.11",
                 "before": "1937.12.15",
                 "chance": 100,
-                "trigger": "has_war = no"
+                "trigger": "has_war = no has_government = neutrality NOT = { has_completed_focus = POL_assemble_the_regency_council }"
             },
             "options": [
                 {
@@ -483,7 +483,7 @@
                 "after": "1937.11.26",
                 "before": "1938.1.31",
                 "chance": 50,
-                "trigger": "has_war = no"
+                "trigger": "has_war = no owns_state = 807"
             },
             "options": [
                 {
@@ -524,7 +524,7 @@
                 "after": "1938.6.6",
                 "before": "1938.6.30",
                 "chance": 100,
-                "trigger": "has_war = no"
+                "trigger": "has_war = no FRA = { has_war = no }"
             },
             "options": [
                 {
@@ -565,7 +565,7 @@
                 "after": "1938.9.15",
                 "before": "1938.10.15",
                 "chance": 50,
-                "trigger": "has_war = no"
+                "trigger": "has_war = no BEL = { has_war = no }"
             },
             "options": [
                 {
@@ -605,7 +605,7 @@
                 "after": "1938.11.1",
                 "before": "1938.12.31",
                 "chance": 50,
-                "trigger": "has_war = no GER = { has_government = fascism }"
+                "trigger": "has_war = no GER = { has_government = fascism } owns_state = 86 NOT = { is_subject_of = GER }"
             },
             "options": [
                 {
@@ -733,7 +733,7 @@
                 "after": "1938.1.1",
                 "before": "1947.12.31",
                 "chance": 100,
-                "trigger": "OR = { GER = { focus_progress = { focus = GER_danzig_or_war progress > 0.01 } } GER = { has_wargoal_against = POL } has_war_with = GER } has_capitulated = no"
+                "trigger": "OR = { GER = { focus_progress = { focus = GER_danzig_or_war progress > 0.01 } } GER = { has_wargoal_against = POL } has_war_with = GER } has_capitulated = no NOT = { has_completed_focus = POL_assemble_the_regency_council }"
             },
             "options": [
                 {
@@ -777,7 +777,7 @@
                 "after": "1939.1.1",
                 "before": "1947.12.31",
                 "chance": 100,
-                "trigger": "has_war = no OR = { GER = { focus_progress = { focus = GER_danzig_or_war progress > 0.01 } } GER = { has_wargoal_against = POL } } FRA = { exists = yes has_capitulated = no NOT = { is_in_faction_with = GER } } ENG = { exists = yes NOT = { is_in_faction_with = GER } } owns_state = 10"
+                "trigger": "has_war = no OR = { GER = { focus_progress = { focus = GER_danzig_or_war progress > 0.01 } } GER = { has_wargoal_against = POL } } FRA = { exists = yes has_capitulated = no has_government = democratic NOT = { is_in_faction_with = GER } } ENG = { exists = yes has_capitulated = no has_government = democratic NOT = { is_in_faction_with = GER } } owns_state = 10"
             },
             "options": [
                 {
@@ -819,7 +819,7 @@
                 "after": "1939.1.1",
                 "before": "1947.12.31",
                 "chance": 100,
-                "trigger": "has_war_with = GER owns_state = 85 controls_state = 85 NOT = { war_length_with = { tag = GER months > 1 } }"
+                "trigger": "has_defensive_war_with = GER owns_state = 85 controls_state = 85 NOT = { war_length_with = { tag = GER months > 1 } }"
             },
             "options": [
                 {

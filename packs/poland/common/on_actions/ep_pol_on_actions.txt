@@ -58,7 +58,7 @@ on_actions = {
 					NOT = { has_country_flag = ep_pol_fired_5 }
 					date > 1936.9.7
 					date < 1936.10.31
-					has_war = no
+					has_war = no FRA = { exists = yes has_government = democratic NOT = { has_completed_focus = FRA_revive_the_national_bloc } }
 				}
 				random = {
 					chance = 50
@@ -84,7 +84,7 @@ on_actions = {
 					NOT = { has_country_flag = ep_pol_fired_7 }
 					date > 1937.1.1
 					date < 1937.3.31
-					has_war = no
+					has_war = no owns_state = 807
 				}
 				random = {
 					chance = 50
@@ -136,7 +136,7 @@ on_actions = {
 					NOT = { has_country_flag = ep_pol_fired_11 }
 					date > 1937.11.11
 					date < 1937.12.15
-					has_war = no
+					has_war = no has_government = neutrality NOT = { has_completed_focus = POL_assemble_the_regency_council }
 				}
 				random = {
 					chance = 100
@@ -149,7 +149,7 @@ on_actions = {
 					NOT = { has_country_flag = ep_pol_fired_12 }
 					date > 1937.11.26
 					date < 1938.1.31
-					has_war = no
+					has_war = no owns_state = 807
 				}
 				random = {
 					chance = 50
@@ -162,7 +162,7 @@ on_actions = {
 					NOT = { has_country_flag = ep_pol_fired_13 }
 					date > 1938.6.6
 					date < 1938.6.30
-					has_war = no
+					has_war = no FRA = { has_war = no }
 				}
 				random = {
 					chance = 100
@@ -175,7 +175,7 @@ on_actions = {
 					NOT = { has_country_flag = ep_pol_fired_14 }
 					date > 1938.9.15
 					date < 1938.10.15
-					has_war = no
+					has_war = no BEL = { has_war = no }
 				}
 				random = {
 					chance = 50
@@ -188,7 +188,7 @@ on_actions = {
 					NOT = { has_country_flag = ep_pol_fired_15 }
 					date > 1938.11.1
 					date < 1938.12.31
-					has_war = no GER = { has_government = fascism }
+					has_war = no GER = { has_government = fascism } owns_state = 86 NOT = { is_subject_of = GER }
 				}
 				random = {
 					chance = 50
@@ -227,7 +227,7 @@ on_actions = {
 					NOT = { has_country_flag = ep_pol_fired_18 }
 					date > 1938.1.1
 					date < 1947.12.31
-					OR = { GER = { focus_progress = { focus = GER_danzig_or_war progress > 0.01 } } GER = { has_wargoal_against = POL } has_war_with = GER } has_capitulated = no
+					OR = { GER = { focus_progress = { focus = GER_danzig_or_war progress > 0.01 } } GER = { has_wargoal_against = POL } has_war_with = GER } has_capitulated = no NOT = { has_completed_focus = POL_assemble_the_regency_council }
 				}
 				random = {
 					chance = 100
@@ -240,7 +240,7 @@ on_actions = {
 					NOT = { has_country_flag = ep_pol_fired_19 }
 					date > 1939.1.1
 					date < 1947.12.31
-					has_war = no OR = { GER = { focus_progress = { focus = GER_danzig_or_war progress > 0.01 } } GER = { has_wargoal_against = POL } } FRA = { exists = yes has_capitulated = no NOT = { is_in_faction_with = GER } } ENG = { exists = yes NOT = { is_in_faction_with = GER } } owns_state = 10
+					has_war = no OR = { GER = { focus_progress = { focus = GER_danzig_or_war progress > 0.01 } } GER = { has_wargoal_against = POL } } FRA = { exists = yes has_capitulated = no has_government = democratic NOT = { is_in_faction_with = GER } } ENG = { exists = yes has_capitulated = no has_government = democratic NOT = { is_in_faction_with = GER } } owns_state = 10
 				}
 				random = {
 					chance = 100
@@ -253,7 +253,7 @@ on_actions = {
 					NOT = { has_country_flag = ep_pol_fired_20 }
 					date > 1939.1.1
 					date < 1947.12.31
-					has_war_with = GER owns_state = 85 controls_state = 85 NOT = { war_length_with = { tag = GER months > 1 } }
+					has_defensive_war_with = GER owns_state = 85 controls_state = 85 NOT = { war_length_with = { tag = GER months > 1 } }
 				}
 				random = {
 					chance = 100
