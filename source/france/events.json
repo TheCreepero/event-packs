@@ -104,7 +104,7 @@
                 "after": "1936.11.23",
                 "before": "1937.1.15",
                 "chance": 50,
-                "trigger": "has_war = no has_completed_focus = FRA_form_the_popular_front"
+                "trigger": "has_war = no has_completed_focus = FRA_form_the_popular_front has_country_leader = { ruling_only = yes character = FRA_leon_blum } NOT = { FRA_roger_salengro = { is_hired_as_advisor = yes } }"
             },
             "options": [
                 {
@@ -188,7 +188,7 @@
                 "after": "1937.5.31",
                 "before": "1937.8.31",
                 "chance": 25,
-                "trigger": "has_war = no"
+                "trigger": "has_war = no has_government = democratic"
             },
             "options": [
                 {
@@ -230,7 +230,7 @@
                 "after": "1938.6.13",
                 "before": "1938.7.15",
                 "chance": 50,
-                "trigger": "has_war = no"
+                "trigger": "has_war = no BEL = { exists = yes }"
             },
             "options": [
                 {
@@ -271,7 +271,7 @@
                 "after": "1938.7.22",
                 "before": "1938.8.31",
                 "chance": 50,
-                "trigger": "has_war = no ENG = { has_war = no has_government = democratic }"
+                "trigger": "has_war = no has_government = democratic ENG = { has_war = no has_government = democratic has_idea = ENG_george_vi }"
             },
             "options": [
                 {
@@ -390,7 +390,7 @@
                 "after": "1939.6.16",
                 "before": "1939.7.31",
                 "chance": 50,
-                "trigger": "has_war = no"
+                "trigger": "has_war = no owns_state = 286"
             },
             "options": [
                 {
@@ -430,7 +430,7 @@
                 "after": "1939.7.14",
                 "before": "1939.8.15",
                 "chance": 100,
-                "trigger": "has_war = no"
+                "trigger": "has_war = no has_government = democratic ENG = { has_government = democratic } NOT = { is_in_faction_with = GER }"
             },
             "options": [
                 {
@@ -496,22 +496,21 @@
         {
             "id": 13,
             "key": "louvre_evacuation_1939",
-            "title": "The Louvre Sends Its Collections to Chambord",
-            "desc": "Jacques Jaujard, director of the national museums, has organised the evacuation of the Louvre. On 25 August the museum was closed for three days, officially for repairs. The Joconde left the Louvre on 28 August.\n\nThe evacuation sends much of the collection to the Château de Chambord: 203 vehicles and 1,862 wooden cases in all.",
+            "title": "1,862 Cases Leave the Louvre for Chambord",
+            "desc": "Jacques Jaujard has organised the evacuation of the Louvre. The museum was closed for three days, officially for repairs. The Joconde has left the Louvre.\n\nMuch of the collection is trucked to the Château de Chambord: 203 vehicles carry 1,862 wooden cases.",
             "picture": "louvre_evacuation_1939",
             "factSheet": "louvre_evacuation_1939",
             "anchors": [
                 "Jacques Jaujard",
-                "25 August",
                 "Joconde",
                 "Chambord",
                 "1,862"
             ],
             "fire": {
-                "after": "1939.8.31",
-                "before": "1939.9.30",
+                "after": "1939.1.1",
+                "before": "1947.12.31",
                 "chance": 100,
-                "trigger": "OR = { has_war_with = GER threat > 0.5 }"
+                "trigger": "controls_state = 16 has_capitulated = no NOT = { is_in_faction_with = GER } NOT = { war_length_with = { tag = GER months > 0 } } OR = { GER = { has_wargoal_against = FRA } GER = { has_wargoal_against = POL } GER = { focus_progress = { focus = GER_danzig_or_war progress > 0.7 } } has_war_with = GER }"
             },
             "options": [
                 {
@@ -548,9 +547,9 @@
             ],
             "fire": {
                 "after": "1939.9.1",
-                "before": "1939.9.10",
+                "before": "1939.9.21",
                 "chance": 100,
-                "trigger": "GER = { has_war_with = POL }"
+                "trigger": "has_government = democratic POL = { has_defensive_war_with = GER NOT = { war_length_with = { tag = GER months > 0 } } }"
             },
             "options": [
                 {
@@ -580,7 +579,7 @@
             "id": 15,
             "key": "alsace_evacuation_1939",
             "title": "Civilians Evacuated from Alsace and Moselle",
-            "desc": "General mobilisation was ordered on 1 September. On 2 and 3 September at least 530,000 Alsatians and Lorrainers, civilians of the Bas-Rhin, the Haut-Rhin and the Moselle, were evacuated to the departments of the south-west.\n\nOn 18 October the Protestant youth movements founded the Cimade, the Comité inter-mouvements auprès des évacués. It sends teams to the south-west.",
+            "desc": "General mobilisation was ordered. In the two days that followed, at least 530,000 Alsatians and Lorrainers, civilians of the Bas-Rhin, the Haut-Rhin and the Moselle, were evacuated to the departments of the south-west.\n\nThe Protestant youth movements have founded the Cimade, the Comité inter-mouvements auprès des évacués. It sends teams to the south-west.",
             "picture": "alsace_evacuation_1939",
             "factSheet": "alsace_evacuation_1939",
             "anchors": [
@@ -591,10 +590,10 @@
                 "Cimade"
             ],
             "fire": {
-                "after": "1939.10.18",
-                "before": "1939.12.31",
+                "after": "1939.1.1",
+                "before": "1947.12.31",
                 "chance": 50,
-                "trigger": "has_war_with = GER"
+                "trigger": "has_war_with = GER has_capitulated = no owns_state = 28 controls_state = 28 war_length_with = { tag = GER months > 0 } NOT = { war_length_with = { tag = GER months > 3 } }"
             },
             "options": [
                 {
@@ -622,20 +621,19 @@
             "id": 16,
             "key": "saar_offensive_1939",
             "title": "The Army Is Ordered Back Behind the Maginot Line",
-            "desc": "Our units moved off in the night of 5 to 6 September. On 8 September the 42nd Infantry Division took the Warndt forest, and on 9 September four R35 tanks of the 20th BCC hit mines north of Bliesbrück. By 12 September the army held a strip of ground 25 km long and 5 to 8 km deep.\n\nOn 12 September General Gamelin stopped the offensive so as not to cut the army off from its rear bases. The Siegfried Line was not attacked. On 30 September General Georges decided to pull the units of the 3rd, 4th and 5th Armies back behind the Maginot Line by 4 October.",
+            "desc": "Our units moved off by night. The 42nd Infantry Division took the Warndt forest, and four R35 tanks of the 20th BCC hit mines north of Bliesbrück. Within a week the army held a strip of ground 25 km long and 5 to 8 km deep.\n\nGeneral Gamelin then stopped the offensive so as not to cut the army off from its rear bases. The Siegfried Line was not attacked. General Georges has decided to pull the units of the 3rd, 4th and 5th Armies back behind the Maginot Line.",
             "picture": "saar_offensive_1939",
             "factSheet": "saar_offensive_1939",
             "anchors": [
                 "Warndt",
                 "Bliesbrück",
-                "General Georges",
-                "12 September"
+                "General Georges"
             ],
             "fire": {
-                "after": "1939.10.4",
-                "before": "1939.11.30",
+                "after": "1939.1.1",
+                "before": "1947.12.31",
                 "chance": 50,
-                "trigger": "has_war_with = GER"
+                "trigger": "has_war_with = GER has_capitulated = no controls_state = 28 GER = { controls_state = 42 } war_length_with = { tag = GER months > 0 } NOT = { war_length_with = { tag = GER months > 3 } }"
             },
             "options": [
                 {
@@ -662,21 +660,19 @@
             "id": 17,
             "key": "polish_army_in_france_1939",
             "title": "The Polish Government Settles at Angers",
-            "desc": "The Franco-Polish military agreement of 9 September created the Polish Army in France. The camp at Coëtquidan was placed at its disposal on 12 September, and Parthenay is its other main centre.\n\nWładysław Sikorski, also minister of military affairs, became commander-in-chief on 7 November. The Polish prime minister and his government settled at Angers from 22 November. President Raczkiewicz lives at the Château de Pignerolle, near Angers.",
+            "desc": "A Franco-Polish military agreement has created the Polish Army in France. The camp at Coëtquidan was placed at its disposal, and Parthenay is its other main centre.\n\nWładysław Sikorski, also minister of military affairs, has become commander-in-chief. The Polish prime minister and his government have settled at Angers. The Polish president lives at the Château de Pignerolle, near Angers.",
             "picture": "polish_army_in_france_1939",
             "factSheet": "polish_army_in_france_1939",
             "anchors": [
                 "Coëtquidan",
                 "Władysław Sikorski",
-                "Angers",
-                "9 September",
-                "22 November"
+                "Angers"
             ],
             "fire": {
-                "after": "1939.12.21",
-                "before": "1940.2.28",
+                "after": "1939.1.1",
+                "before": "1943.6.30",
                 "chance": 50,
-                "trigger": "has_war_with = GER POL = { has_war_with = GER }"
+                "trigger": "has_war_with = GER has_capitulated = no controls_state = 14 controls_state = 23 controls_state = 30 POL = { has_capitulated = yes has_war_with = GER has_war_together_with = FRA NOT = { has_government = communism } NOT = { has_government = fascism } NOT = { has_completed_focus = POL_assemble_the_regency_council } }"
             },
             "options": [
                 {
@@ -703,20 +699,19 @@
             "id": 18,
             "key": "pcf_dissolution_1939",
             "title": "The Communist Party Is Banned",
-            "desc": "The French Communist Party was banned on 26 September. L'Humanité had been seized on 26 August, three days after the German-Soviet pact, and censorship followed the next day. Of the party's 72 deputies, 21 resigned from it after the pact.\n\nIn the night of 3 to 4 October the sapper Maurice Thorez left his unit without leave. Between 6 and 8 October, 34 deputies of the Groupe ouvrier et paysan français were arrested.",
+            "desc": "The French Communist Party has been banned. L'Humanité had been seized three days after the German-Soviet pact, and censorship followed the next day. Of the party's 72 deputies, 21 resigned from it after the pact.\n\nThe sapper Maurice Thorez has left his unit by night, without leave. Of the deputies of the Groupe ouvrier et paysan français, 34 have been arrested.",
             "picture": "pcf_dissolution_1939",
             "factSheet": "pcf_dissolution_1939",
             "anchors": [
                 "L'Humanité",
                 "Maurice Thorez",
-                "26 September",
                 "Groupe ouvrier et paysan français"
             ],
             "fire": {
-                "after": "1939.10.9",
-                "before": "1939.12.31",
+                "after": "1939.1.1",
+                "before": "1947.12.31",
                 "chance": 50,
-                "trigger": "has_war_with = GER NOT = { has_government = communism } GER = { has_non_aggression_pact_with = SOV }"
+                "trigger": "has_war_with = GER has_capitulated = no has_government = democratic NOT = { has_idea = FRA_communism_banned } GER = { has_non_aggression_pact_with = SOV } war_length_with = { tag = GER months > 0 } NOT = { war_length_with = { tag = GER months > 3 } }"
             },
             "options": [
                 {
@@ -743,7 +738,7 @@
             "id": 19,
             "key": "george_vi_front_visit_dec_1939",
             "title": "King George VI Visits the Armies in France",
-            "desc": "British troops began landing at Boulogne on 12 September. In December King George VI crossed to Boulogne himself aboard the destroyer HMS Codrington, and Lord Gort met him.\n\nOn 9 December, with General Gamelin and Lord Gort, the King inspected French and British troops in the Saar sector of the front.",
+            "desc": "British troops have landed at Boulogne. King George VI has crossed to Boulogne himself aboard the destroyer HMS Codrington, and Lord Gort met him.\n\nWith General Gamelin and Lord Gort, the King inspected French and British troops in the Saar sector of the front.",
             "picture": "george_vi_front_visit_dec_1939",
             "factSheet": "george_vi_front_visit_dec_1939",
             "anchors": [
@@ -753,10 +748,10 @@
                 "HMS Codrington"
             ],
             "fire": {
-                "after": "1939.12.10",
-                "before": "1940.2.15",
+                "after": "1939.1.1",
+                "before": "1947.12.31",
                 "chance": 50,
-                "trigger": "has_war_with = GER ENG = { has_war_with = GER }"
+                "trigger": "has_war_with = GER has_capitulated = no controls_state = 28 controls_state = 29 GER = { controls_state = 42 } ENG = { has_war_with = GER has_government = democratic has_idea = ENG_george_vi is_in_faction_with = FRA } war_length_with = { tag = GER months > 2 } NOT = { war_length_with = { tag = GER months > 7 } }"
             },
             "options": [
                 {
@@ -783,7 +778,7 @@
             "id": 20,
             "key": "heavy_water_1940",
             "title": "Norway's Heavy Water Reaches the Collège de France",
-            "desc": "Raoul Dautry entrusted Jacques Allier with secretly buying the available stock of Norsk Hydro's heavy water: 185 kg, from the Vemork plant. At the end of March the stock was flown to France by way of Scotland. Allier came back with 26 canisters of seven litres.\n\nThe heavy water went into the cellars of the Collège de France. Joliot-Curie and Kowarski need it in large quantity as a moderator, to slow the neutrons in their experiment.",
+            "desc": "Raoul Dautry entrusted Jacques Allier with secretly buying the available stock of Norsk Hydro's heavy water: 185 kg, from the Vemork plant. The stock was flown to France by way of Scotland. Allier came back with 26 canisters of seven litres.\n\nThe heavy water went into the cellars of the Collège de France. Joliot-Curie and Kowarski need it in large quantity as a moderator, to slow the neutrons in their experiment.",
             "picture": "heavy_water_1940",
             "factSheet": "heavy_water_1940",
             "anchors": [
@@ -794,10 +789,10 @@
                 "Kowarski"
             ],
             "fire": {
-                "after": "1940.4.1",
-                "before": "1940.5.9",
+                "after": "1939.1.1",
+                "before": "1947.12.31",
                 "chance": 100,
-                "trigger": "has_war_with = GER"
+                "trigger": "has_war_with = GER has_capitulated = no controls_state = 16 is_in_faction_with = ENG NOR = { controls_state = 921 } war_length_with = { tag = GER months > 4 } NOT = { war_length_with = { tag = GER months > 11 } }"
             },
             "options": [
                 {

@@ -34,18 +34,18 @@ Historical flavor events for France, from 1936 to the end of the Phoney War in s
 [*]1938: Italy Puts France Out of the World Cup
 [*]1938: King George VI and Queen Elizabeth in Paris
 [*]1938: Fire at the Nouvelles Galeries Kills 73 in Marseille
+[*]1939: 1,862 Cases Leave the Louvre for Chambord
+[*]1939: Civilians Evacuated from Alsace and Moselle
+[*]1939: The Army Is Ordered Back Behind the Maginot Line
+[*]1939: The Polish Government Settles at Angers
+[*]1939: The Communist Party Is Banned
+[*]1939: King George VI Visits the Armies in France
+[*]1939: Norway's Heavy Water Reaches the Collège de France
 [*]1939: The Battleship Richelieu Is Launched at Brest
 [*]1939: The Submarine Phénix Is Lost off Cam Ranh
 [*]1939: British Guards March in the 14 July Parade
 [*]1939: A Family Code Rewards the First Child
-[*]1939: The Louvre Sends Its Collections to Chambord
 [*]1939: The First Cannes Film Festival Is Called Off
-[*]1939: The Army Is Ordered Back Behind the Maginot Line
-[*]1939: The Communist Party Is Banned
-[*]1939: Civilians Evacuated from Alsace and Moselle
-[*]1939: King George VI Visits the Armies in France
-[*]1939: The Polish Government Settles at Angers
-[*]1940: Norway's Heavy Water Reaches the Collège de France
 [/list]
 
 <!-- region:image:strip-picture-credits -->
