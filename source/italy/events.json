@@ -20,7 +20,7 @@
                 "after": "1936.6.1",
                 "before": "1939.1.1",
                 "chance": 15,
-                "trigger": "has_country_flag = ITA_victory_in_ethiopia_flag has_idea = vittorio_emanuele has_country_leader = { character = ITA_benito_mussolini }"
+                "trigger": "has_country_flag = ITA_victory_in_ethiopia_flag OR = { has_idea = vittorio_emanuele has_idea = vittorio_emanuele_emperor_of_ethiopia has_idea = vittorio_emanuele_king_of_albania has_idea = vittorio_emanuele_albania_ethiopia } has_country_leader = { character = ITA_benito_mussolini }"
             },
             "options": [
                 {
@@ -176,7 +176,7 @@
                 "after": "1936.8.15",
                 "before": "1936.10.1",
                 "chance": 25,
-                "trigger": "NOT = { any_enemy_country = { NOT = { original_tag = ETH } } }"
+                "trigger": "NOT = { any_enemy_country = { NOT = { original_tag = ETH } } } AUS = { exists = yes }"
             },
             "options": [
                 {
@@ -293,7 +293,7 @@
                 "after": "1937.1.1",
                 "before": "1939.4.1",
                 "chance": 12,
-                "trigger": "has_global_flag = spanish_civil_war NOT = { has_global_flag = scw_over } any_country = { has_idea = SPA_death_before_surrender has_volunteers_amount_from = { tag = ROOT count > 0 } }"
+                "trigger": "has_global_flag = spanish_civil_war NOT = { has_global_flag = scw_over } has_government = fascism any_country = { has_idea = SPA_death_before_surrender has_volunteers_amount_from = { tag = ROOT count > 0 } }"
             },
             "options": [
                 {
@@ -449,7 +449,7 @@
                 "after": "1938.5.9",
                 "before": "1938.6.15",
                 "chance": 40,
-                "trigger": "NOT = { any_enemy_country = { NOT = { original_tag = ETH } } } has_country_leader = { character = ITA_benito_mussolini } GER = { has_government = fascism has_country_leader = { character = GER_adolf_hitler } }"
+                "trigger": "NOT = { any_enemy_country = { NOT = { original_tag = ETH } } } has_country_leader = { character = ITA_benito_mussolini } OR = { has_idea = vittorio_emanuele has_idea = vittorio_emanuele_emperor_of_ethiopia has_idea = vittorio_emanuele_king_of_albania has_idea = vittorio_emanuele_albania_ethiopia } GER = { has_government = fascism has_country_leader = { character = GER_adolf_hitler } }"
             },
             "options": [
                 {
@@ -488,7 +488,7 @@
                 "after": "1938.6.19",
                 "before": "1938.7.31",
                 "chance": 40,
-                "trigger": "NOT = { any_enemy_country = { NOT = { original_tag = ETH } } }"
+                "trigger": "NOT = { any_enemy_country = { NOT = { original_tag = ETH } } } FRA = { has_war = no }"
             },
             "options": [
                 {
@@ -527,7 +527,7 @@
                 "after": "1938.7.31",
                 "before": "1938.9.15",
                 "chance": 40,
-                "trigger": "NOT = { any_enemy_country = { NOT = { original_tag = ETH } } }"
+                "trigger": "NOT = { any_enemy_country = { NOT = { original_tag = ETH } } } FRA = { has_war = no }"
             },
             "options": [
                 {
@@ -565,7 +565,7 @@
                 "after": "1939.1.1",
                 "before": "1941.1.1",
                 "chance": 50,
-                "trigger": "NOT = { country_exists = ALB } 44 = { is_owned_by = ROOT } has_character = ITA_vittorio_emanuele_iii"
+                "trigger": "NOT = { country_exists = ALB } 44 = { is_owned_by = ROOT } has_character = ITA_vittorio_emanuele_iii NOT = { has_country_flag = ITA_deposed_the_king } OR = { has_idea = vittorio_emanuele has_idea = vittorio_emanuele_emperor_of_ethiopia has_idea = vittorio_emanuele_king_of_albania has_idea = vittorio_emanuele_albania_ethiopia } GRE = { exists = yes }"
             },
             "options": [
                 {
@@ -760,7 +760,7 @@
                 "after": "1940.1.1",
                 "before": "1945.1.1",
                 "chance": 8,
-                "trigger": "has_war_with = ENG 849 = { is_controlled_by = ROOT } has_navy_size = { size > 1 unit = battleship } ENG = { has_navy_size = { size > 0 unit = carrier } }"
+                "trigger": "has_war_with = ENG 849 = { is_controlled_by = ROOT } has_navy_size = { size > 1 unit = battleship } ENG = { has_capitulated = no has_navy_size = { size > 0 unit = carrier } }"
             },
             "options": [
                 {
