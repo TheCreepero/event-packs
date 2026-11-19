@@ -15,7 +15,7 @@ Historical flavor events for Poland, from 1936 to the German invasion in Septemb
 - Events change the game checksum: not Ironman compatible.
 - Works alone and beside any other Event Pack.
 - The effects are small, so they shouldn't affect balance too much.
-- Built for game version 1.19.
+- Built for game version 1.20.
 <!-- /region -->
 
 <!-- region:image:strip-events -->

@@ -16,7 +16,7 @@ Historical flavor events for Italy, from 1936 to the British attack on Taranto i
 - Events change the game checksum: not Ironman compatible.
 - Works alone and beside any other Event Pack.
 - The effects are small, so they shouldn't affect balance too much.
-- Built for game version 1.19.
+- Built for game version 1.20.
 <!-- /region -->
 
 <!-- region:image:strip-events -->

@@ -15,7 +15,7 @@ Historical flavor events for Finland, France, Italy and Poland in one item: ever
 - Events change the game checksum: not Ironman compatible.
 - Holds every country, including ones you may not play. For one country only, take its single pack instead; do not subscribe to both.
 - The effects are small, so they shouldn't affect balance too much.
-- Built for game version 1.19.
+- Built for game version 1.20.
 <!-- /region -->
 
 <!-- region:image:strip-countries -->
